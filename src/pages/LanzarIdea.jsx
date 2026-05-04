@@ -60,7 +60,7 @@ export default function LanzarIdea() {
         <div style={{ padding: '100px 24px 60px', maxWidth: 680, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14 }}>Lanzador de ideas</div>
           <h1 style={{ fontSize: 'clamp(32px,7vw,56px)', fontWeight: 900, letterSpacing: '-2px', marginBottom: 8 }}>Tu idea,<br /><span style={{ color: '#E8611A' }}>el equipo perfecto.</span></h1>
-          <p style={{ color: '#666', fontSize: 15, marginBottom: 40, lineHeight: 1.6 }}>Describí tu proyecto y la IA armará el equipo ideal. Sin entrevistas, sin búsqueda manual.</p>
+          <p style={{ color: '#666', fontSize: 15, marginBottom: 40, lineHeight: 1.6 }}>Describí tu proyecto y la IA construirá el equipo ideal. Sin entrevistas, sin búsqueda manual.</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>

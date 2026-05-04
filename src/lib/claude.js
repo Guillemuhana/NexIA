@@ -11,7 +11,7 @@ export async function matchTeam({ title, description, category, roles }) {
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1500,
       system: `Eres el motor de matching de nexIA, una plataforma que conecta ideas con talento.
-Analizás proyectos y devolvés un análisis estructurado para armar el equipo perfecto.
+Analizás proyectos y devolvés un análisis estructurado para construir el equipo perfecto.
 Respondé SOLO con JSON válido, sin markdown ni backticks:
 {
   "pitch": "resumen ejecutivo del proyecto en 2 oraciones",

@@ -34,7 +34,7 @@ export default function Dashboard() {
         <div style={{ padding: 32, border: '1px solid #1a1a1a', borderRadius: 12, marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 6 }}>¿Tenés una idea?</h2>
-            <p style={{ fontSize: 14, color: '#666' }}>Describila y la IA arma el equipo perfecto en minutos.</p>
+            <p style={{ fontSize: 14, color: '#666' }}>Describila y la IA construye el equipo perfecto en minutos.</p>
           </div>
           <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '12px 24px', fontSize: 15 }}>
             💡 Lanzar mi idea →

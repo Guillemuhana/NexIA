@@ -42,13 +42,13 @@ export default function Home() {
         </div>
 
         <h1 style={{ fontSize: 'clamp(44px,11vw,90px)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-3px', marginBottom: 28 }}>
-          La IA arma<br />
+          La IA construye<br />
           <span style={{ color: '#E8611A' }}>{typed}</span>
           <span style={{ animation: 'blink 1s infinite', color: '#E8611A' }}>|</span>
         </h1>
 
         <p style={{ fontSize: 'clamp(16px,2.5vw,20px)', color: '#666', lineHeight: 1.65, maxWidth: 540, marginBottom: 20 }}>
-          Describí tu idea. La IA analiza miles de perfiles y arma el equipo perfecto para construirla. <strong style={{ color: '#fff' }}>Sin entrevistas. Sin búsqueda manual.</strong>
+          Describí tu idea. La IA analiza miles de perfiles y construye el equipo perfecto para ejecutarla. <strong style={{ color: '#fff' }}>Sin entrevistas. Sin búsqueda manual.</strong>
         </p>
         <p style={{ fontSize: 15, color: '#444', lineHeight: 1.6, maxWidth: 480, marginBottom: 44 }}>
           Como LinkedIn, pero en lugar de buscar trabajo — formás un equipo para cambiar el mundo.
@@ -87,7 +87,7 @@ export default function Home() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px,1fr))', gap: 1, border: '1px solid #1a1a1a' }}>
             {[
-              { icon: '💡', title: 'Visionario', desc: 'Tenés una idea. Describila y la IA arma tu equipo ideal en minutos. Sin entrevistas, sin búsqueda manual.', cta: 'Lanzar mi idea', path: '/registro?rol=visionario', accent: true },
+              { icon: '💡', title: 'Visionario', desc: 'Tenés una idea. Describila y la IA construye tu equipo ideal en minutos. Sin entrevistas, sin búsqueda manual.', cta: 'Lanzar mi idea', path: '/registro?rol=visionario', accent: true },
               { icon: '⚡', title: 'Talento', desc: 'Cargá tus habilidades y recibí invitaciones a proyectos que matchean con tu perfil. Vos elegís en qué trabajar.', cta: 'Ofrecer mi talento', path: '/registro?rol=talento', accent: false },
               { icon: '💼', title: 'Inversor', desc: 'Explorá proyectos con equipos ya formados por IA. Filtrá por categoría, etapa y tecnología. Contactá directo.', cta: 'Explorar proyectos', path: '/registro?rol=inversor', accent: false },
             ].map(r => (

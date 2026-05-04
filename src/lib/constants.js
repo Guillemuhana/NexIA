@@ -3,7 +3,7 @@ export const ROLES = {
     id: 'visionario',
     label: 'Visionario',
     icon: '💡',
-    desc: 'Tengo una idea y quiero armar el equipo para construirla',
+    desc: 'Tengo una idea y quiero construir el equipo para ejecutarla',
     badge: 'role-visionario',
   },
   talento: {
