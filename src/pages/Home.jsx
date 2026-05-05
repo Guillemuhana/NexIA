@@ -1,4 +1,15 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768)
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return isMobile
+}
 import { CATEGORIES, TESTIMONIALS, MOCK_PROJECTS } from '../lib/constants'
 import ProjectCard from '../components/ProjectCard'
 
@@ -75,12 +86,21 @@ const s = {
 
 export default function Home() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
 
   return (
     <div className="page-wrap">
       {/* HERO */}
-      <div className="hero-section">
-        <div className="hero-inner">
+      <div style={{
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        background: isMobile
+          ? `linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.88)), url(/IMG03HERO.png) center/cover no-repeat`
+          : `#000 url(/IMG03HERO.png) right center / 60% auto no-repeat`,
+      }}>
+        <div style={{ padding: isMobile ? '100px 24px 60px' : '120px 60px 100px', width: '100%' }}>
           <div style={{ maxWidth: 480 }}>
 
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
