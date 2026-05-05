@@ -82,54 +82,52 @@ export default function Home() {
       <div style={{
         minHeight: '100vh',
         width: '100%',
-        background: 'linear-gradient(to right, rgba(0,0,0,0.92) 42%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.05) 100%), url(/IMG03HERO.png) center / cover no-repeat',
+        background: '#000 url(/IMG03HERO.png) right center / 60% auto no-repeat',
         display: 'flex',
         alignItems: 'center',
       }}>
-      <div style={{ padding: '120px 24px 100px', maxWidth: 1100, margin: '0 auto', width: '100%' }}>
-      <div style={{ maxWidth: 500 }}>
-        {/* Izquierda */}
-        <div style={{ flex: '1 1 360px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite', display: 'inline-block' }} />
-            847 proyectos activos — creando equipos ahora mismo
-          </div>
+        <div style={{ padding: '120px 60px 100px', width: '100%' }}>
+          <div style={{ maxWidth: 480 }}>
 
-          <h1 style={{ fontSize: 'clamp(44px,7vw,78px)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-3px', marginBottom: 20 }}>
-            Tu idea,<br />
-            <span style={{ color: '#E8611A' }}>el equipo ideal.</span>
-          </h1>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite', display: 'inline-block' }} />
+              847 proyectos activos — creando equipos ahora mismo
+            </div>
 
-          <p style={{ fontSize: 'clamp(17px,2.2vw,21px)', fontWeight: 700, color: '#fff', lineHeight: 1.45, marginBottom: 14 }}>
-            Decí qué querés crear.<br />Nosotros armamos tu equipo.
-          </p>
+            <h1 style={{ fontSize: 'clamp(40px,5.5vw,70px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2.5px', marginBottom: 20 }}>
+              Tu idea,<br />
+              <span style={{ color: '#E8611A' }}>el equipo ideal.</span>
+            </h1>
 
-          <p style={{ fontSize: 15, color: '#666', lineHeight: 1.7, maxWidth: 440, marginBottom: 36 }}>
-            Escribí tu idea y la IA encuentra las personas exactas para construirla.
-            Sin entrevistas. Sin perder tiempo.
-          </p>
+            <p style={{ fontSize: 'clamp(16px,1.8vw,20px)', fontWeight: 700, color: '#fff', lineHeight: 1.45, marginBottom: 14 }}>
+              Decí qué querés crear.<br />Nosotros armamos tu equipo.
+            </p>
 
-          <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '16px 36px', fontSize: 17, borderRadius: 10, marginBottom: 12, display: 'block', width: '100%', maxWidth: 310 }}>
-            Crear mi equipo →
-          </button>
-          <div style={{ fontSize: 12, color: '#555', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 6 }}>
-            🛡 Sin registro • Gratis
-          </div>
+            <p style={{ fontSize: 15, color: '#666', lineHeight: 1.7, marginBottom: 36 }}>
+              Escribí tu idea y la IA encuentra las personas exactas para construirla.
+              Sin entrevistas. Sin perder tiempo.
+            </p>
 
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {[['👤 Tengo talento', '/explorar'], ['💼 Explorar proyectos', '/proyectos']].map(([label, path]) => (
-              <button key={path} onClick={() => navigate(path)}
-                style={{ padding: '11px 18px', fontSize: 14, fontWeight: 600, border: '1px solid #252525', borderRadius: 8, cursor: 'pointer', background: '#0d0d0d', color: '#ccc', fontFamily: 'Inter, sans-serif', transition: 'border-color .15s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#444'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#252525'}>
-                {label}
-              </button>
-            ))}
+            <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '16px 36px', fontSize: 17, borderRadius: 10, marginBottom: 12, display: 'block', width: '100%', maxWidth: 300 }}>
+              Crear mi equipo →
+            </button>
+            <div style={{ fontSize: 12, color: '#555', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 6 }}>
+              🛡 Sin registro • Gratis
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {[['👤 Tengo talento', '/explorar'], ['💼 Explorar proyectos', '/proyectos']].map(([label, path]) => (
+                <button key={path} onClick={() => navigate(path)}
+                  style={{ padding: '11px 18px', fontSize: 14, fontWeight: 600, border: '1px solid #252525', borderRadius: 8, cursor: 'pointer', background: '#0d0d0d', color: '#ccc', fontFamily: 'Inter, sans-serif', transition: 'border-color .15s' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#444'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#252525'}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
           </div>
         </div>
-
-      </div>
-      </div>
       </div>
 
       {/* FEATURES STRIP */}
