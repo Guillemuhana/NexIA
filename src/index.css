@@ -108,3 +108,25 @@ select.input option { background: #111; }
 @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 .fadeUp { animation: fadeUp .5s ease both; }
+
+/* Hero responsive */
+.hero-section {
+  min-height: 100vh;
+  width: 100%;
+  background: #000 url(/IMG03HERO.png) right center / 60% auto no-repeat;
+  display: flex;
+  align-items: center;
+}
+.hero-inner {
+  padding: 120px 60px 100px;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .hero-section {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.85) 100%), url(/IMG03HERO.png) center / cover no-repeat;
+    align-items: flex-start;
+  }
+  .hero-inner {
+    padding: 100px 24px 60px;
+  }
+}

@@ -79,14 +79,8 @@ export default function Home() {
   return (
     <div className="page-wrap">
       {/* HERO */}
-      <div style={{
-        minHeight: '100vh',
-        width: '100%',
-        background: '#000 url(/IMG03HERO.png) right center / 60% auto no-repeat',
-        display: 'flex',
-        alignItems: 'center',
-      }}>
-        <div style={{ padding: '120px 60px 100px', width: '100%' }}>
+      <div className="hero-section">
+        <div className="hero-inner">
           <div style={{ maxWidth: 480 }}>
 
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
