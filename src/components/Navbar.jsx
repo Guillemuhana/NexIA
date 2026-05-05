@@ -43,9 +43,12 @@ export default function Navbar() {
         transition: 'border-color .3s',
       }}>
         {/* Logo */}
-        <div onClick={() => go('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2 }}>
-          <span style={{ fontWeight: 900, fontSize: 22, letterSpacing: -1, color: '#fff' }}>nex</span>
-          <span style={{ fontWeight: 900, fontSize: 22, letterSpacing: -1, color: '#E8611A' }}>IA</span>
+        <div onClick={() => go('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, transition: 'transform .2s ease', userSelect: 'none' }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <span style={{ fontWeight: 900, fontSize: 28, letterSpacing: -1.5, color: '#fff' }}>nex</span>
+          <span style={{ fontWeight: 900, fontSize: 28, letterSpacing: -1.5, color: '#E8611A', textShadow: '0 0 18px rgba(232,97,26,0.6)' }}>IA</span>
         </div>
 
         {/* Desktop nav */}
