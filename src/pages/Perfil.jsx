@@ -6,19 +6,19 @@ import { SKILL_ROLES, ROLES } from '../lib/constants'
 export default function Perfil() {
   const { user, profile, updateProfile, signOut, loading } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', role: '', bio: '', location: '', portfolio: '', linkedin: '', skills: '', available: true })
+  const [form, setForm] = useState({ name: '', role: '', bio: '', location: '', portfolio: '', skills: '', available: true })
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
 
   useEffect(() => {
     if (!loading && !user) navigate('/login')
-    if (profile) setForm({ name: profile.name || '', role: profile.role || '', bio: profile.bio || '', location: profile.location || '', portfolio: profile.portfolio || '', linkedin: profile.linkedin || '', skills: '', available: profile.available ?? true })
+    if (profile) setForm({ name: profile.name || '', role: profile.role || '', bio: profile.bio || '', location: profile.location || '', portfolio: profile.portfolio || '', skills: '', available: profile.available ?? true })
   }, [user, profile, loading])
 
   const handleSave = async () => {
     setSaving(true)
-    await updateProfile({ name: form.name, role: form.role, bio: form.bio, location: form.location, portfolio: form.portfolio, linkedin: form.linkedin, available: form.available })
+    await updateProfile({ name: form.name, role: form.role, bio: form.bio, location: form.location, portfolio: form.portfolio, available: form.available })
     setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 3000)
   }
@@ -52,7 +52,6 @@ export default function Perfil() {
             [isTalent ? 'Rol / Especialidad' : profile?.type === 'visionario' ? 'Tu rol en el proyecto' : 'Tu cargo', 'role', 'input', isTalent ? 'Ej: Full-Stack Developer' : 'Ej: Founder / CEO'],
             ['Ubicación', 'location', 'input', 'Ej: Buenos Aires, Argentina'],
             ['Portfolio / Web', 'portfolio', 'input', 'https://miportafolio.com'],
-            ['LinkedIn', 'linkedin', 'input', 'https://linkedin.com/in/tu-perfil'],
           ].map(([label, key, , ph]) => (
             <div key={key}>
               <label className="form-label">{label}</label>

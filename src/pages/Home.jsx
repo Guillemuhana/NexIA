@@ -41,17 +41,15 @@ export default function Home() {
           847 proyectos activos — sin entrevistas, sin procesos largos
         </div>
 
-        <h1 style={{ fontSize: 'clamp(44px,11vw,90px)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-3px', marginBottom: 28 }}>
-          La IA construye<br />
-          <span style={{ color: '#E8611A' }}>{typed}</span>
-          <span style={{ animation: 'blink 1s infinite', color: '#E8611A' }}>|</span>
+        <h1 style={{ fontSize: 'clamp(44px,11vw,90px)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-3px', marginBottom: 16 }}>
+          Tu idea,<br /><span style={{ color: '#E8611A' }}>el equipo ideal.</span>
         </h1>
+        <p style={{ fontSize: 'clamp(22px,4vw,36px)', fontWeight: 700, color: '#fff', letterSpacing: '-1px', marginBottom: 28 }}>
+          Armá el equipo perfecto en segundos.
+        </p>
 
         <p style={{ fontSize: 'clamp(16px,2.5vw,20px)', color: '#666', lineHeight: 1.65, maxWidth: 540, marginBottom: 20 }}>
           Describí tu idea. La IA analiza miles de perfiles y construye el equipo perfecto para ejecutarla. <strong style={{ color: '#fff' }}>Sin entrevistas. Sin búsqueda manual.</strong>
-        </p>
-        <p style={{ fontSize: 15, color: '#444', lineHeight: 1.6, maxWidth: 480, marginBottom: 44 }}>
-          Como LinkedIn, pero en lugar de buscar trabajo — formás un equipo para cambiar el mundo.
         </p>
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 80 }}>
