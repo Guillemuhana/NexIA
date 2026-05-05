@@ -82,7 +82,7 @@ export default function Home() {
       <div style={{
         minHeight: '100vh',
         width: '100%',
-        background: 'linear-gradient(to right, rgba(0,0,0,0.82) 30%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%), url(/IMG03HERO.png) right center / cover no-repeat',
+        background: 'linear-gradient(to right, rgba(0,0,0,0.92) 42%, rgba(0,0,0,0.5) 65%, rgba(0,0,0,0.05) 100%), url(/IMG03HERO.png) center / cover no-repeat',
         display: 'flex',
         alignItems: 'center',
       }}>
