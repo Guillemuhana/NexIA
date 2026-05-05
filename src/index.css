@@ -113,7 +113,11 @@ select.input option { background: #111; }
 .hero-section {
   min-height: 100vh;
   width: 100%;
-  background: #000 url(/IMG03HERO.png) right center / 60% auto no-repeat;
+  background-color: #000;
+  background-image: url('/IMG03HERO.png');
+  background-position: right center;
+  background-size: 60% auto;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
 }
@@ -123,10 +127,16 @@ select.input option { background: #111; }
 }
 @media (max-width: 768px) {
   .hero-section {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.85) 100%), url(/IMG03HERO.png) center / cover no-repeat;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.78), rgba(0,0,0,0.88)), url('/IMG03HERO.png');
+    background-position: center, center;
+    background-size: cover, cover;
+    background-repeat: no-repeat, no-repeat;
     align-items: flex-start;
   }
   .hero-inner {
     padding: 100px 24px 60px;
+  }
+  .hero-inner h1 {
+    font-size: clamp(36px, 10vw, 52px) !important;
   }
 }
