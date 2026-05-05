@@ -120,9 +120,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Derecha — Diagrama */}
+        {/* Derecha — Imagen */}
         <div style={{ flex: '1 1 420px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <TeamDiagram />
+          <img src="/IMG03HERO.png" alt="nexIA team diagram" style={{ width: '100%', maxWidth: 520, borderRadius: 16, objectFit: 'contain' }} />
         </div>
       </div>
 
