@@ -97,8 +97,8 @@ export default function Home() {
         display: 'flex',
         alignItems: isMobile ? 'flex-start' : 'center',
         background: isMobile
-          ? `linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.88)), url(/IMG03HERO.png) center/cover no-repeat`
-          : `#000 url(/IMG03HERO.png) right center / 60% auto no-repeat`,
+          ? `linear-gradient(rgba(0,0,0,0.82),rgba(0,0,0,0.9)), url(/IMG03HERO.png) center/cover no-repeat`
+          : `linear-gradient(to right, rgba(0,0,0,0.88) 38%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.05) 100%), url(/IMG03HERO.png) center/cover no-repeat`,
       }}>
         <div style={{ padding: isMobile ? '100px 24px 60px' : '120px 60px 100px', width: '100%' }}>
           <div style={{ maxWidth: 480 }}>
