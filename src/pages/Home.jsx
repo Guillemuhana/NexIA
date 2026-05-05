@@ -81,14 +81,11 @@ export default function Home() {
       {/* HERO */}
       <div style={{
         minHeight: '100vh',
-        backgroundImage: 'url(/IMG03HERO.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        background: 'linear-gradient(to right, rgba(0,0,0,0.95) 40%, rgba(0,0,0,0.4) 100%), url(/IMG03HERO.png) center/cover no-repeat',
         display: 'flex',
         alignItems: 'center',
       }}>
-      <div style={{ padding: '120px 24px 100px', maxWidth: 1100, margin: '0 auto', width: '100%', background: 'linear-gradient(to right, rgba(0,0,0,0.92) 45%, transparent 85%)' }}>
+      <div style={{ padding: '120px 24px 100px', maxWidth: 620, marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
         {/* Izquierda */}
         <div style={{ flex: '1 1 360px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
