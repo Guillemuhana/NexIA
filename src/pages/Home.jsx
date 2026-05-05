@@ -79,7 +79,13 @@ export default function Home() {
   return (
     <div className="page-wrap">
       {/* HERO */}
-      <div style={{ padding: '120px 24px 60px', maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap' }}>
+      <div style={{
+        backgroundImage: 'url(/IMG03HERO.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center right',
+        backgroundRepeat: 'no-repeat',
+      }}>
+      <div style={{ padding: '120px 24px 100px', maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap', background: 'linear-gradient(to right, #000 40%, transparent 80%)' }}>
         {/* Izquierda */}
         <div style={{ flex: '1 1 360px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
@@ -120,10 +126,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Derecha — Imagen */}
-        <div style={{ flex: '1 1 420px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img src="/IMG03HERO.png" alt="nexIA team diagram" style={{ width: '100%', maxWidth: 520, borderRadius: 16, objectFit: 'contain' }} />
-        </div>
+      </div>
       </div>
 
       {/* FEATURES STRIP */}
