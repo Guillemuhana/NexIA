@@ -80,12 +80,15 @@ export default function Home() {
     <div className="page-wrap">
       {/* HERO */}
       <div style={{
+        minHeight: '100vh',
         backgroundImage: 'url(/IMG03HERO.png)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center right',
+        backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        display: 'flex',
+        alignItems: 'center',
       }}>
-      <div style={{ padding: '120px 24px 100px', maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap', background: 'linear-gradient(to right, #000 40%, transparent 80%)' }}>
+      <div style={{ padding: '120px 24px 100px', maxWidth: 1100, margin: '0 auto', width: '100%', background: 'linear-gradient(to right, rgba(0,0,0,0.92) 45%, transparent 85%)' }}>
         {/* Izquierda */}
         <div style={{ flex: '1 1 360px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#666', border: '1px solid #222', borderRadius: 100, padding: '5px 14px', marginBottom: 32 }}>
