@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { CATEGORIES, TESTIMONIALS, MOCK_PROJECTS } from '../lib/constants'
+import ProjectCard from '../components/ProjectCard'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768)
@@ -10,8 +12,23 @@ function useIsMobile() {
   }, [])
   return isMobile
 }
-import { CATEGORIES, TESTIMONIALS, MOCK_PROJECTS } from '../lib/constants'
-import ProjectCard from '../components/ProjectCard'
+
+function useTypewriter(phrases) {
+  const [text, setText] = useState('')
+  const [phraseIdx, setPhraseIdx] = useState(0)
+  const [charIdx, setCharIdx] = useState(0)
+  const [deleting, setDeleting] = useState(false)
+  useEffect(() => {
+    const phrase = phrases[phraseIdx]
+    let t
+    if (!deleting && charIdx < phrase.length) { t = setTimeout(() => { setText(phrase.slice(0, charIdx + 1)); setCharIdx(c => c + 1) }, 65) }
+    else if (!deleting && charIdx === phrase.length) { t = setTimeout(() => setDeleting(true), 2400) }
+    else if (deleting && charIdx > 0) { t = setTimeout(() => { setText(phrase.slice(0, charIdx - 1)); setCharIdx(c => c - 1) }, 32) }
+    else { setDeleting(false); setPhraseIdx(i => (i + 1) % phrases.length) }
+    return () => clearTimeout(t)
+  }, [charIdx, deleting, phraseIdx])
+  return text
+}
 
 const DW = 480, DH = 480, CX = 240, CY = 240
 
@@ -87,6 +104,7 @@ const s = {
 export default function Home() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
+  const typed = useTypewriter(['el equipo ideal.', 'forma tu equipo ideal.', 'hace realidad tu idea.'])
 
   return (
     <div className="page-wrap">
@@ -110,7 +128,8 @@ export default function Home() {
 
             <h1 style={{ fontSize: 'clamp(40px,5.5vw,70px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2.5px', marginBottom: 20 }}>
               Tu idea,<br />
-              <span style={{ color: '#E8611A' }}>el equipo ideal.</span>
+              <span style={{ color: '#E8611A' }}>{typed}</span>
+              <span style={{ color: '#E8611A', animation: 'blink 1s infinite' }}>|</span>
             </h1>
 
             <p style={{ fontSize: 'clamp(16px,1.8vw,20px)', fontWeight: 700, color: '#fff', lineHeight: 1.45, marginBottom: 14 }}>

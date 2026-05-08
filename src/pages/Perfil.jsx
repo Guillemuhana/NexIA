@@ -13,7 +13,7 @@ export default function Perfil() {
 
   useEffect(() => {
     if (!loading && !user) navigate('/login')
-    if (profile) setForm({ name: profile.name || '', role: profile.role || '', bio: profile.bio || '', location: profile.location || '', portfolio: profile.portfolio || '', skills: '', available: profile.available ?? true })
+    if (profile) setForm({ name: profile.name || '', role: profile.role || '', bio: profile.bio || '', location: profile.location || '', portfolio: profile.portfolio_url || '', skills: '', available: profile.available ?? true })
   }, [user, profile, loading])
 
   const handleSave = async () => {

@@ -10,7 +10,7 @@ export default function Registro() {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signUp, updateProfile } = useAuth()
+  const { signUp, setUserRole } = useAuth()
   const navigate = useNavigate()
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -18,9 +18,9 @@ export default function Registro() {
     if (!form.name || !form.email || !form.password) { setError('Completá todos los campos'); return }
     if (form.password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
     setLoading(true); setError('')
-    const { error: err } = await signUp({ email: form.email, password: form.password, name: form.name })
+    const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name })
     if (err) { setError(err.message); setLoading(false); return }
-    await updateProfile({ name: form.name, type: selectedRole })
+    if (data?.user) await setUserRole(data.user.id, selectedRole)
     setLoading(false)
     navigate('/onboarding')
   }

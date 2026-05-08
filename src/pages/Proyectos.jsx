@@ -1,16 +1,44 @@
-import { useState } from 'react'
-import { MOCK_PROJECTS, CATEGORIES } from '../lib/constants'
+import { useState, useEffect } from 'react'
+import { CATEGORIES } from '../lib/constants'
 import ProjectCard from '../components/ProjectCard'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
+
+function mapProject(idea) {
+  return {
+    id: idea.id,
+    title: idea.title,
+    description: idea.description,
+    category: idea.category || '',
+    stage: idea.stage || '',
+    founder: idea.users?.name || '',
+    team: (idea.idea_roles || []).map(r => r.role_name),
+    formed: idea.status === 'team_formed',
+  }
+}
 
 export default function Proyectos() {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
   const { profile } = useAuth()
   const isInversor = profile?.type === 'inversor'
 
-  const filtered = MOCK_PROJECTS.filter(p => {
+  useEffect(() => {
+    supabase
+      .from('ideas')
+      .select('id, title, description, category, stage, status, users(name), idea_roles(role_name)')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setProjects((data || []).map(mapProject))
+        setLoading(false)
+      })
+  }, [])
+
+  const filtered = projects.filter(p => {
     const q = search.toLowerCase()
     const matchSearch = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
     const matchCat = filterCat === 'all' || p.category === filterCat
@@ -33,7 +61,6 @@ export default function Proyectos() {
             : 'Ideas en construcción con equipos reales. Sumate a uno o lanzá el tuyo.'}
         </p>
 
-        {/* Filtros */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar proyectos..." style={{ flex: 1, minWidth: 200, padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#fff', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
           <select value={filterCat} onChange={e => setFilterCat(e.target.value)} style={{ padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#666', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
@@ -46,18 +73,27 @@ export default function Proyectos() {
             <option value="open">Buscando equipo</option>
           </select>
         </div>
-        <p style={{ fontSize: 13, color: '#555' }}>{filtered.length} proyectos encontrados</p>
+        <p style={{ fontSize: 13, color: '#555' }}>
+          {loading ? 'Cargando...' : `${filtered.length} proyectos encontrados`}
+        </p>
       </div>
 
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
-          {filtered.map(p => <ProjectCard key={p.id} project={p} onFavorite={isInversor ? () => {} : null} showContact={isInversor} />)}
-          {filtered.length === 0 && (
-            <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
-              No se encontraron proyectos con esos filtros.
-            </div>
-          )}
-        </div>
+        {loading ? (
+          <div style={{ padding: 48, textAlign: 'center' }}>
+            <div style={{ width: 32, height: 32, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
+            {filtered.length === 0 ? (
+              <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
+                {projects.length === 0 ? 'Todavía no hay proyectos publicados.' : 'No se encontraron proyectos con esos filtros.'}
+              </div>
+            ) : (
+              filtered.map(p => <ProjectCard key={p.id} project={p} onFavorite={isInversor ? () => {} : null} showContact={isInversor} />)
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

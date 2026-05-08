@@ -1,19 +1,36 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SKILL_ROLES, CATEGORIES, PROJECT_STAGES, MOCK_TALENTS } from '../lib/constants'
+import { SKILL_ROLES, CATEGORIES, PROJECT_STAGES } from '../lib/constants'
 import { matchTeam } from '../lib/claude'
+import { supabase } from '../lib/supabase'
 import TalentCard from '../components/TalentCard'
 import { useAuth } from '../context/AuthContext'
 
 const STEPS = [
   'Analizando descripción del proyecto...',
   'Identificando stack técnico requerido...',
-  'Evaluando 1,240 perfiles disponibles...',
+  'Evaluando perfiles disponibles...',
   'Calculando compatibilidad de habilidades...',
   'Verificando disponibilidad y estilo de trabajo...',
   'Optimizando composición del equipo...',
   '¡Equipo ideal encontrado!',
 ]
+
+function mapTalent(tp) {
+  const u = tp.users
+  return {
+    id: u.id,
+    name: u.name,
+    avatar: u.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?',
+    location: u.location || '',
+    bio: u.bio || '',
+    role: tp.main_role || '',
+    available: tp.available,
+    score: Math.round(tp.match_score_avg || 75),
+    projects: tp.projects_count || 0,
+    skills: (u.user_skills || []).map(us => us.skills?.name).filter(Boolean),
+  }
+}
 
 export default function LanzarIdea() {
   const { user } = useAuth()
@@ -21,8 +38,11 @@ export default function LanzarIdea() {
   const [stage, setStage] = useState('form')
   const [currentStep, setCurrentStep] = useState(0)
   const [aiData, setAiData] = useState(null)
+  const [matched, setMatched] = useState([])
   const [selRoles, setSelRoles] = useState([])
   const [form, setForm] = useState({ title: '', description: '', category: '', projectStage: '', budget: '' })
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
   const toggleRole = r => setSelRoles(p => p.includes(r) ? p.filter(x => x !== r) : [...p, r])
 
@@ -39,17 +59,88 @@ export default function LanzarIdea() {
       if (step >= STEPS.length - 1) clearInterval(iv)
     }, 600)
 
+    let analysis
     try {
-      const data = await matchTeam({ title: form.title, description: form.description, category: form.category, roles: selRoles })
-      setAiData(data)
+      analysis = await matchTeam({ title: form.title, description: form.description, category: form.category, roles: selRoles })
+      setAiData(analysis)
     } catch {
-      setAiData({ pitch: `${form.description.slice(0,120)}...`, whyThisTeam: 'Equipo seleccionado por compatibilidad de habilidades y disponibilidad.', teamSize: 4, complexity: 'Media', timeEstimate: '4 meses', successTip: 'Empezá con un MVP simple y validá con usuarios reales antes de escalar.', risks: 'No validar el mercado antes de construir.' })
+      analysis = { pitch: `${form.description.slice(0, 120)}...`, whyThisTeam: 'Equipo seleccionado por compatibilidad de habilidades y disponibilidad.', teamSize: 4, complexity: 'Media', timeEstimate: '4 meses', successTip: 'Empezá con un MVP simple y validá con usuarios reales antes de escalar.', risks: 'No validar el mercado antes de construir.', rolesNeeded: selRoles }
+      setAiData(analysis)
     }
 
+    // Buscar talentos reales en la DB según los roles que sugirió la IA
+    const rolesNeeded = analysis.rolesNeeded?.length ? analysis.rolesNeeded : selRoles
+    const { data: talentData } = await supabase
+      .from('talent_profiles')
+      .select('available, main_role, match_score_avg, projects_count, users!inner(id, name, avatar_url, location, bio, user_skills(skills(name)))')
+      .eq('available', true)
+      .in('main_role', rolesNeeded)
+      .limit(6)
+
+    setMatched((talentData || []).map(mapTalent))
     setTimeout(() => setStage('results'), STEPS.length * 600 + 800)
   }
 
-  const matched = MOCK_TALENTS.slice(0, Math.min(selRoles.length || 3, 4))
+  const handleSendInvitations = async () => {
+    if (!user || !aiData) return
+    setSending(true)
+
+    // 1. Guardar idea en DB
+    const { data: idea, error: ideaError } = await supabase
+      .from('ideas')
+      .insert({
+        founder_id: user.id,
+        title: form.title,
+        description: form.description,
+        category: form.category || null,
+        stage: form.projectStage || 'Idea (solo concepto)',
+        budget: form.budget || null,
+        status: 'active',
+        ai_analysis: aiData,
+        is_public: true,
+      })
+      .select()
+      .single()
+
+    if (ideaError) { setSending(false); alert('Error al guardar el proyecto. Intentá de nuevo.'); return }
+
+    // 2. Guardar roles necesarios
+    const rolesNeeded = aiData.rolesNeeded?.length ? aiData.rolesNeeded : selRoles
+    if (rolesNeeded.length) {
+      await supabase.from('idea_roles').insert(
+        rolesNeeded.map(role => ({ idea_id: idea.id, role_name: role, filled: false }))
+      )
+    }
+
+    // 3. Crear matches / invitaciones para cada talento
+    if (matched.length) {
+      await supabase.from('matches').insert(
+        matched.map(t => ({
+          idea_id: idea.id,
+          talent_id: t.id,
+          role_suggested: t.role,
+          score: t.score,
+          ai_reasoning: aiData.whyThisTeam,
+          status: 'invited',
+        }))
+      )
+
+      // 4. Notificaciones para cada talento
+      await supabase.from('notifications').insert(
+        matched.map(t => ({
+          user_id: t.id,
+          type: 'match_received',
+          title: `Fuiste elegido para "${form.title}"`,
+          body: `La IA te seleccionó como ${t.role} para este proyecto.`,
+          link: '/dashboard',
+          data: { idea_id: idea.id },
+        }))
+      )
+    }
+
+    setSending(false)
+    setSent(true)
+  }
 
   const inputStyle = { padding: '12px 14px', background: '#0a0a0a', border: '1px solid #222', color: '#fff', fontFamily: 'Inter, sans-serif', fontSize: 15, borderRadius: 8, outline: 'none', width: '100%', transition: 'border-color .15s' }
 
@@ -141,7 +232,11 @@ export default function LanzarIdea() {
         <div style={{ padding: '100px 24px 60px', maxWidth: 900, margin: '0 auto' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14 }}>✓ Equipo encontrado</div>
           <h1 style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8 }}>Tu equipo ideal</h1>
-          <p style={{ color: '#666', marginBottom: 32, fontSize: 15 }}>La IA seleccionó {matched.length} profesionales para "<strong style={{ color: '#fff' }}>{form.title}</strong>"</p>
+          <p style={{ color: '#666', marginBottom: 32, fontSize: 15 }}>
+            {matched.length > 0
+              ? `La IA seleccionó ${matched.length} profesionales para "${form.title}"`
+              : `La IA analizó "${form.title}". Todavía no hay talentos registrados que coincidan con los roles requeridos.`}
+          </p>
 
           {/* Análisis IA */}
           {aiData && (
@@ -150,7 +245,7 @@ export default function LanzarIdea() {
               <p style={{ fontSize: 15, lineHeight: 1.7, color: '#ccc', marginBottom: 20 }}>{aiData.pitch}</p>
               <p style={{ fontSize: 14, lineHeight: 1.7, color: '#666', marginBottom: 20, fontStyle: 'italic' }}>"{aiData.whyThisTeam}"</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 12, marginBottom: 16 }}>
-                {[['Equipo ideal', `${aiData.teamSize} personas`], ['Complejidad', aiData.complexity], ['Tiempo est.', aiData.timeEstimate]].map(([k,v]) => (
+                {[['Equipo ideal', `${aiData.teamSize} personas`], ['Complejidad', aiData.complexity], ['Tiempo est.', aiData.timeEstimate]].map(([k, v]) => (
                   <div key={k} style={{ padding: '12px 14px', background: '#000', border: '1px solid #1a1a1a', borderRadius: 8 }}>
                     <div style={{ fontSize: 10, color: '#555', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{k}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#E8611A' }}>{v}</div>
@@ -163,19 +258,42 @@ export default function LanzarIdea() {
           )}
 
           {/* Equipo */}
-          <div style={{ border: '1px solid #1a1a1a', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
-            {matched.map(t => <TalentCard key={t.id} talent={t} showInvite />)}
-          </div>
+          {matched.length > 0 && (
+            <div style={{ border: '1px solid #1a1a1a', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
+              {matched.map(t => <TalentCard key={t.id} talent={t} showInvite={false} />)}
+            </div>
+          )}
 
           {/* Acciones */}
           <div style={{ padding: '28px 24px', border: '1px solid #222', borderRadius: 12, textAlign: 'center' }}>
-            <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 8 }}>¿Te gusta este equipo?</h3>
-            <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>La IA enviará invitaciones personalizadas a cada miembro explicando por qué fueron elegidos. Ellos aceptan o rechazan con un click.</p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button className="btn-primary" style={{ padding: '14px 32px', fontSize: 15 }}>📨 Enviar invitaciones</button>
-              <button className="btn-outline" onClick={() => { setStage('matching'); setCurrentStep(0); handleSubmit() }} style={{ padding: '14px 22px', fontSize: 15 }}>🔄 Buscar otro equipo</button>
-              <button className="btn-outline" onClick={() => setStage('form')} style={{ padding: '14px 22px', fontSize: 15 }}>✏️ Editar idea</button>
-            </div>
+            {sent ? (
+              <>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>🎉</div>
+                <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 8 }}>¡Invitaciones enviadas!</h3>
+                <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>
+                  El proyecto fue guardado y los talentos recibieron su invitación. Podés seguir el estado desde tu dashboard.
+                </p>
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button className="btn-primary" onClick={() => navigate('/dashboard')} style={{ padding: '14px 32px', fontSize: 15 }}>Ver mi dashboard →</button>
+                  <button className="btn-outline" onClick={() => navigate('/proyectos')} style={{ padding: '14px 22px', fontSize: 15 }}>Ver proyectos</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 8 }}>¿Te gusta este equipo?</h3>
+                <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>
+                  {matched.length > 0
+                    ? 'Se guardará tu proyecto y se enviarán invitaciones personalizadas a cada talento.'
+                    : 'Se guardará tu proyecto. Cuando se registren talentos con los roles necesarios, podrás invitarlos.'}
+                </p>
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button className="btn-primary" onClick={handleSendInvitations} disabled={sending} style={{ padding: '14px 32px', fontSize: 15, opacity: sending ? 0.7 : 1 }}>
+                    {sending ? 'Guardando...' : matched.length > 0 ? '📨 Guardar y enviar invitaciones' : '💾 Guardar proyecto'}
+                  </button>
+                  <button className="btn-outline" onClick={() => { setStage('form'); setAiData(null); setMatched([]) }} style={{ padding: '14px 22px', fontSize: 15 }}>✏️ Editar idea</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

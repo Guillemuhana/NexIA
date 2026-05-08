@@ -11,6 +11,7 @@ NexIA revoluciona la formación de equipos de trabajo. Al estilo de LinkedIn, pe
 **Nicolas Hercun**
 *Desarrollador Full Stack & Visionario de Producto*
 
+
 ---
 
 ## 🚀 Tecnologías (Stack)
