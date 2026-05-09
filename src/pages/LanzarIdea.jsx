@@ -38,6 +38,7 @@ export default function LanzarIdea() {
   const [stage, setStage] = useState('form')
   const [currentStep, setCurrentStep] = useState(0)
   const [aiData, setAiData] = useState(null)
+  const [flash, setFlash] = useState(false)
   const [matched, setMatched] = useState([])
   const [selRoles, setSelRoles] = useState([])
   const [form, setForm] = useState({ title: '', description: '', category: '', projectStage: '', budget: '' })
@@ -78,7 +79,7 @@ export default function LanzarIdea() {
       .limit(6)
 
     setMatched((talentData || []).map(mapTalent))
-    setTimeout(() => setStage('results'), STEPS.length * 600 + 800)
+    setTimeout(() => { setStage('results'); setFlash(true); setTimeout(() => setFlash(false), 700) }, STEPS.length * 600 + 800)
   }
 
   const handleSendInvitations = async () => {
@@ -229,9 +230,18 @@ export default function LanzarIdea() {
 
       {/* RESULTS */}
       {stage === 'results' && (
+        <>
+          {/* Flash de relámpago */}
+          {flash && (
+            <div style={{
+              position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none',
+              background: 'radial-gradient(ellipse at center, rgba(232,97,26,0.18) 0%, rgba(255,255,255,0.06) 60%, transparent 100%)',
+              animation: 'lightning .7s ease forwards',
+            }} />
+          )}
         <div style={{ padding: '100px 24px 60px', maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14 }}>✓ Equipo encontrado</div>
-          <h1 style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8 }}>Tu equipo ideal</h1>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, animation: 'glowSuccess 2s ease infinite' }}>⚡ Equipo encontrado</div>
+          <h1 style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8, animation: 'zapIn .6s cubic-bezier(.22,1,.36,1) both' }}>Tu equipo ideal</h1>
           <p style={{ color: '#666', marginBottom: 32, fontSize: 15 }}>
             {matched.length > 0
               ? `La IA seleccionó ${matched.length} profesionales para "${form.title}"`
@@ -260,12 +270,16 @@ export default function LanzarIdea() {
           {/* Equipo */}
           {matched.length > 0 && (
             <div style={{ border: '1px solid #1a1a1a', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
-              {matched.map(t => <TalentCard key={t.id} talent={t} showInvite={false} />)}
+              {matched.map((t, i) => (
+                <div key={t.id} style={{ animation: `cardReveal .5s cubic-bezier(.22,1,.36,1) ${i * 120}ms both` }}>
+                  <TalentCard talent={t} showInvite={false} />
+                </div>
+              ))}
             </div>
           )}
 
           {/* Acciones */}
-          <div style={{ padding: '28px 24px', border: '1px solid #222', borderRadius: 12, textAlign: 'center' }}>
+          <div style={{ padding: '28px 24px', border: '1px solid #222', borderRadius: 12, textAlign: 'center', animation: 'cardReveal .5s cubic-bezier(.22,1,.36,1) .4s both' }}>
             {sent ? (
               <>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>🎉</div>
@@ -296,6 +310,7 @@ export default function LanzarIdea() {
             )}
           </div>
         </div>
+        </>
       )}
     </div>
   )
