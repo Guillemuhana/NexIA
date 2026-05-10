@@ -4,6 +4,7 @@ import { SKILL_ROLES, CATEGORIES, PROJECT_STAGES } from '../lib/constants'
 import { matchTeam } from '../lib/claude'
 import { supabase } from '../lib/supabase'
 import TalentCard from '../components/TalentCard'
+import PaywallModal from '../components/PaywallModal'
 import { useAuth } from '../context/AuthContext'
 
 const STEPS = [
@@ -44,6 +45,9 @@ export default function LanzarIdea() {
   const [form, setForm] = useState({ title: '', description: '', category: '', projectStage: '', budget: '' })
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [isPublic, setIsPublic] = useState(true)
+  const [showPaywall, setShowPaywall] = useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false)
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
   const toggleRole = r => setSelRoles(p => p.includes(r) ? p.filter(x => x !== r) : [...p, r])
 
@@ -82,8 +86,35 @@ export default function LanzarIdea() {
     setTimeout(() => { setStage('results'); setFlash(true); setTimeout(() => setFlash(false), 700) }, STEPS.length * 600 + 800)
   }
 
-  const handleSendInvitations = async () => {
+  const handleSaveIdea = async () => {
     if (!user || !aiData) return
+    setSending(true)
+
+    const { count } = await supabase
+      .from('ideas')
+      .select('*', { count: 'exact', head: true })
+      .eq('founder_id', user.id)
+
+    if (count >= 1) {
+      setSending(false)
+      setShowPaywall(true)
+      return
+    }
+
+    await doSaveIdea()
+  }
+
+  const handlePayAndSave = async () => {
+    setPaymentLoading(true)
+    // TODO: integrar Stripe Checkout aquí
+    // Por ahora simula pago exitoso para beta
+    await new Promise(r => setTimeout(r, 1200))
+    setPaymentLoading(false)
+    setShowPaywall(false)
+    await doSaveIdea()
+  }
+
+  const doSaveIdea = async () => {
     setSending(true)
 
     // 1. Guardar idea en DB
@@ -98,7 +129,7 @@ export default function LanzarIdea() {
         budget: form.budget || null,
         status: 'active',
         ai_analysis: aiData,
-        is_public: true,
+        is_public: isPublic,
       })
       .select()
       .single()
@@ -147,6 +178,18 @@ export default function LanzarIdea() {
 
   return (
     <div className="page-wrap">
+
+      {showPaywall && (
+        <PaywallModal
+          title="Publicar una idea adicional"
+          description="Ya usaste tu idea gratis. Cada idea adicional incluye matching IA garantizado e invitaciones automáticas al equipo."
+          perks={['Matching IA con los mejores perfiles', 'Invitaciones automáticas personalizadas', 'Equipo garantizado o te devolvemos el dinero', isPublic ? 'Idea visible para inversores' : 'Idea privada — solo vos y tu equipo']}
+          loading={paymentLoading}
+          onClose={() => setShowPaywall(false)}
+          onConfirm={handlePayAndSave}
+        />
+      )}
+
       {/* FORM */}
       {stage === 'form' && (
         <div style={{ padding: '100px 24px 60px', maxWidth: 680, margin: '0 auto' }}>
@@ -163,7 +206,7 @@ export default function LanzarIdea() {
               <label className="form-label">Descripción *</label>
               <textarea value={form.description} onChange={upd('description')} placeholder="¿Qué problema resuelve? ¿Quién es tu usuario? ¿Cómo funciona? Cuanto más detalle, mejor el matching." rows={6} style={{ ...inputStyle, resize: 'vertical' }} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#222'}/>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <label className="form-label">Categoría</label>
                 <select value={form.category} onChange={upd('category')} style={inputStyle}>
@@ -201,6 +244,16 @@ export default function LanzarIdea() {
                 <option>A definir con el equipo</option>
               </select>
             </div>
+            {/* Toggle público / privado */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[{ v: true, label: '🌍 Pública', desc: 'Visible para inversores' }, { v: false, label: '🔒 Privada', desc: 'Solo vos y tu equipo' }].map(opt => (
+                <button key={String(opt.v)} onClick={() => setIsPublic(opt.v)} style={{ flex: 1, padding: '12px 16px', borderRadius: 8, border: `1px solid ${isPublic === opt.v ? '#E8611A' : '#222'}`, background: isPublic === opt.v ? 'rgba(232,97,26,.08)' : 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s', textAlign: 'left' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: isPublic === opt.v ? '#E8611A' : '#666' }}>{opt.label}</div>
+                  <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+
             <button onClick={handleSubmit} style={{ width: '100%', padding: 16, fontSize: 16, fontWeight: 700, background: '#E8611A', color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .2s', marginTop: 8 }}>
               🤖 Activar IA — Buscar mi equipo
             </button>
@@ -301,7 +354,7 @@ export default function LanzarIdea() {
                     : 'Se guardará tu proyecto. Cuando se registren talentos con los roles necesarios, podrás invitarlos.'}
                 </p>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button className="btn-primary" onClick={handleSendInvitations} disabled={sending} style={{ padding: '14px 32px', fontSize: 15, opacity: sending ? 0.7 : 1 }}>
+                  <button className="btn-primary" onClick={handleSaveIdea} disabled={sending} style={{ padding: '14px 32px', fontSize: 15, opacity: sending ? 0.7 : 1 }}>
                     {sending ? 'Guardando...' : matched.length > 0 ? '📨 Guardar y enviar invitaciones' : '💾 Guardar proyecto'}
                   </button>
                   <button className="btn-outline" onClick={() => { setStage('form'); setAiData(null); setMatched([]) }} style={{ padding: '14px 22px', fontSize: 15 }}>✏️ Editar idea</button>

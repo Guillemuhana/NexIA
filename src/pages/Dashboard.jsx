@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import ProjectCard from '../components/ProjectCard'
+import PaywallModal from '../components/PaywallModal'
 
 function mapProject(idea) {
   return {
@@ -26,6 +27,8 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [data, setData] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
+  const [paywallMatch, setPaywallMatch] = useState(null)
+  const [paywallLoading, setPaywallLoading] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) navigate('/login')
@@ -122,8 +125,30 @@ export default function Dashboard() {
     </div>
   )
 
+  const handlePayAndAccept = async () => {
+    if (!paywallMatch) return
+    setPaywallLoading(true)
+    // TODO: replace with Stripe Checkout
+    await new Promise(r => setTimeout(r, 1200))
+    await supabase.from('matches').update({ status: 'accepted' }).eq('id', paywallMatch.id)
+    setData(d => d.map(x => x.id === paywallMatch.id ? { ...x, status: 'accepted' } : x))
+    setPaywallLoading(false)
+    setPaywallMatch(null)
+  }
+
   // ── TALENTO ──
   if (profile?.type === 'talento') return (
+    <>
+    {paywallMatch && (
+      <PaywallModal
+        title="Conectate con el equipo"
+        description={`Aceptá la invitación al proyecto "${paywallMatch.ideas?.title}" y accedé al contacto directo con el founder.`}
+        perks={['Contacto directo con el founder', 'Acceso al canal del equipo', 'Tu rol garantizado en el proyecto', 'Soporte prioritario']}
+        loading={paywallLoading}
+        onClose={() => setPaywallMatch(null)}
+        onConfirm={handlePayAndAccept}
+      />
+    )}
     <div className="page-wrap">
       <div style={s}>
         <span style={lbl}>Dashboard</span>
@@ -171,10 +196,7 @@ export default function Dashboard() {
                 )}
                 {m.status === 'pending' && (
                   <div style={{ display: 'flex', gap: 10 }}>
-                    <button className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }} onClick={async () => {
-                      await supabase.from('matches').update({ status: 'accepted' }).eq('id', m.id)
-                      setData(d => d.map(x => x.id === m.id ? { ...x, status: 'accepted' } : x))
-                    }}>✓ Aceptar</button>
+                    <button className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }} onClick={() => setPaywallMatch(m)}>✓ Aceptar</button>
                     <button className="btn-outline" style={{ padding: '10px 16px', fontSize: 14 }} onClick={async () => {
                       await supabase.from('matches').update({ status: 'rejected' }).eq('id', m.id)
                       setData(d => d.map(x => x.id === m.id ? { ...x, status: 'rejected' } : x))
@@ -187,6 +209,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </>
   )
 
   // ── INVERSOR ──

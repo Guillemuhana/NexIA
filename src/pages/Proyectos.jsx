@@ -61,8 +61,8 @@ export default function Proyectos() {
             : 'Ideas en construcción con equipos reales. Sumate a uno o lanzá el tuyo.'}
         </p>
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar proyectos..." style={{ flex: 1, minWidth: 200, padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#fff', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
+        <div className="filter-row" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar proyectos..." style={{ flex: 1, minWidth: 180, padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#fff', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
           <select value={filterCat} onChange={e => setFilterCat(e.target.value)} style={{ padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#666', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
             <option value="all">Todas las categorías</option>
             {CATEGORIES.map(c => <option key={c.label} value={c.label}>{c.icon} {c.label}</option>)}

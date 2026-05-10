@@ -57,7 +57,7 @@ export default function Explorar() {
           {isVisionario ? 'Explorá perfiles y agregálos a tu proyecto manualmente, o dejá que la IA lo haga por vos.' : 'Profesionales listos para sumarse a proyectos que los apasionen.'}
         </p>
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div className="filter-row" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
           <div style={{ display: 'flex', flex: 1, minWidth: 200, border: '1px solid #1a1a1a', borderRadius: 10, padding: 8, background: '#0a0a0a', gap: 8 }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre, rol o habilidad..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 14, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
           </div>

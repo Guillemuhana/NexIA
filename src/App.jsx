@@ -10,6 +10,9 @@ import Dashboard from './pages/Dashboard'
 import Registro from './pages/Registro'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
+import Precios from './pages/Precios'
+import ProyectoDetalle from './pages/ProyectoDetalle'
+import PerfilPublico from './pages/PerfilPublico'
 
 export default function App() {
   return (
@@ -20,11 +23,14 @@ export default function App() {
         <Route path="/explorar" element={<Explorar />} />
         <Route path="/lanzar" element={<LanzarIdea />} />
         <Route path="/proyectos" element={<Proyectos />} />
+        <Route path="/proyectos/:id" element={<ProyectoDetalle />} />
         <Route path="/perfil" element={<Perfil />} />
+        <Route path="/talento/:id" element={<PerfilPublico />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/login" element={<Login />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/precios" element={<Precios />} />
       </Routes>
     </AuthProvider>
   )

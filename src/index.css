@@ -131,3 +131,22 @@ select.input option { background: #111; }
   100%{ opacity:1; transform:scale(1)    translateY(0);    }
 }
 
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .desktop-nav { display: none !important; }
+
+  .grid-2 { grid-template-columns: 1fr !important; }
+
+  /* Tighter page padding on mobile */
+  .page-mobile-pad { padding-left: 16px !important; padding-right: 16px !important; }
+
+  /* Filter rows wrap tighter */
+  .filter-row { flex-direction: column !important; }
+  .filter-row input, .filter-row select { width: 100% !important; }
+}
+
+@media (max-width: 480px) {
+  /* Cards full-width on very small screens */
+  .card-grid { grid-template-columns: 1fr !important; }
+}
+
