@@ -65,21 +65,21 @@ export default function Home() {
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 300 }}>
-              <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '16px 36px', fontSize: 17, borderRadius: 10 }}>
-                Crear mi equipo →
+              <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '16px 36px', fontSize: 17, borderRadius: 10, letterSpacing: '.5px' }}>
+                Tengo una idea →
               </button>
               <div style={{ display: 'flex', gap: 10 }}>
                 <button onClick={() => navigate('/registro?rol=talento')}
                   style={{ flex: 1, padding: '11px 0', fontSize: 13, fontWeight: 600, border: '1px solid #252525', borderRadius: 8, cursor: 'pointer', background: 'transparent', color: '#888', fontFamily: 'Inter, sans-serif', transition: 'border-color .15s' }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = '#444'}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#252525'}>
-                  👤 Soy talento
+                  Postúlate
                 </button>
                 <button onClick={() => navigate('/registro?rol=inversor')}
                   style={{ flex: 1, padding: '11px 0', fontSize: 13, fontWeight: 600, border: '1px solid #252525', borderRadius: 8, cursor: 'pointer', background: 'transparent', color: '#888', fontFamily: 'Inter, sans-serif', transition: 'border-color .15s' }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = '#444'}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#252525'}>
-                  💼 Soy inversor
+                  Invertí en una idea
                 </button>
               </div>
             </div>
