@@ -21,7 +21,15 @@ function useTypewriter(phrases) {
 const STEPS = [
   { n: '01', title: 'Describí tu idea', desc: 'Nombre, descripción y los roles que necesitás. Sin formularios largos.' },
   { n: '02', title: 'La IA arma el equipo', desc: 'Analiza perfiles disponibles y elige los más compatibles con tu proyecto.' },
-  { n: '03', title: 'A construir', desc: 'Cada talento recibe una invitación. Acepta y arrancás. Así de simple.' },
+  { n: '03', title: 'El equipo acepta', desc: 'Cada talento recibe una invitación personalizada. Acepta y el equipo está formado.' },
+  { n: '04', title: 'Panel privado del equipo', desc: 'Se activa automáticamente. Roadmap, ideas y un asesor IA exclusivo para que el equipo ejecute.', highlight: true },
+]
+
+const PANEL_FEATURES = [
+  { icon: '🗺️', title: 'Hoja de Ruta IA', desc: 'Fases, tareas y tiempos generados por Gemini específicos para tu proyecto.' },
+  { icon: '💡', title: 'Ideas personalizadas', desc: '6 ideas accionables clasificadas por impacto y esfuerzo. Actualizables en cualquier momento.' },
+  { icon: '📊', title: 'Métricas y riesgos', desc: 'KPIs clave y riesgos identificados con estrategias de mitigación incluidas.' },
+  { icon: '🤖', title: 'Consultor IA 24/7', desc: 'Preguntale cualquier cosa al asesor. Responde con contexto total de tu proyecto.' },
 ]
 
 const ROLES_DATA = [
@@ -176,14 +184,83 @@ export default function Home() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #1a1a1a' }}>
             {STEPS.map((s, i) => (
-              <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: 'clamp(22px,5vw,32px) clamp(20px,5vw,32px)', background: '#000', borderBottom: i < STEPS.length - 1 ? '1px solid #1a1a1a' : 'none' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 2, flexShrink: 0, paddingTop: 2, minWidth: 28 }}>{s.n}</div>
-                <div>
-                  <div style={{ fontSize: 'clamp(15px,4vw,17px)', fontWeight: 800, marginBottom: 6, letterSpacing: '-.3px' }}>{s.title}</div>
+              <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: 'clamp(22px,5vw,32px) clamp(20px,5vw,32px)', background: s.highlight ? 'rgba(232,97,26,.04)' : '#000', borderBottom: i < STEPS.length - 1 ? '1px solid #1a1a1a' : 'none', borderLeft: s.highlight ? '2px solid #E8611A' : '2px solid transparent', transition: 'all .2s' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: s.highlight ? '#E8611A' : '#E8611A', letterSpacing: 2, flexShrink: 0, paddingTop: 2, minWidth: 28 }}>{s.n}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
+                    <span style={{ fontSize: 'clamp(15px,4vw,17px)', fontWeight: 800, letterSpacing: '-.3px' }}>{s.title}</span>
+                    {s.highlight && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: 'rgba(232,97,26,.15)', color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase' }}>Exclusivo</span>}
+                  </div>
                   <div style={{ fontSize: 'clamp(13px,3.5vw,14px)', color: '#555', lineHeight: 1.7 }}>{s.desc}</div>
                 </div>
               </div>
             ))}
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── PANEL FEATURES ── */}
+      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #1a1a1a', background: '#030303' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap', marginBottom: 'clamp(36px,7vw,52px)' }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '2px', textTransform: 'uppercase' }}>Solo para el equipo</span>
+              <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10, lineHeight: 1.1 }}>
+                Tu propio espacio<br />privado con IA
+              </h2>
+            </div>
+            <p style={{ fontSize: 'clamp(13px,3.5vw,15px)', color: '#555', lineHeight: 1.75, maxWidth: 320, paddingTop: 8 }}>
+              Cuando el equipo está formado, nexIA les otorga automáticamente un panel exclusivo. Nadie de afuera puede verlo.
+            </p>
+          </div>
+
+          {/* Feature grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 1, border: '1px solid #1a1a1a', marginBottom: 40 }}>
+            {PANEL_FEATURES.map((f, i) => (
+              <div key={i} style={{ padding: 'clamp(22px,4vw,28px)', background: '#000', borderRight: i % 2 === 0 ? '1px solid #1a1a1a' : 'none' }}>
+                <div style={{ fontSize: 28, marginBottom: 14 }}>{f.icon}</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-.3px', marginBottom: 8 }}>{f.title}</div>
+                <div style={{ fontSize: 13, color: '#555', lineHeight: 1.7 }}>{f.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Preview mockup */}
+          <div style={{ border: '1px solid #1a1a1a', borderRadius: 14, overflow: 'hidden', background: '#000' }}>
+            {/* Fake browser bar */}
+            <div style={{ padding: '10px 16px', background: '#0a0a0a', borderBottom: '1px solid #1a1a1a', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {['#ef4444', '#f59e0b', '#22c55e'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, opacity: .5 }} />)}
+              </div>
+              <div style={{ flex: 1, height: 22, background: '#111', borderRadius: 4, marginLeft: 8, display: 'flex', alignItems: 'center', paddingLeft: 10 }}>
+                <span style={{ fontSize: 11, color: '#333' }}>nexia.app/panel/mi-proyecto</span>
+              </div>
+            </div>
+            {/* Fake panel UI */}
+            <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', minHeight: 220 }}>
+              {/* Sidebar */}
+              <div style={{ borderRight: '1px solid #111', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {['Visión General', 'Hoja de Ruta', 'Ideas IA', 'Métricas', 'Equipo', 'Consultor IA'].map((item, i) => (
+                  <div key={item} style={{ padding: '8px 10px', borderRadius: 6, background: i === 0 ? 'rgba(232,97,26,.1)' : 'transparent', fontSize: 12, color: i === 0 ? '#E8611A' : '#333', fontWeight: i === 0 ? 700 : 400 }}>{item}</div>
+                ))}
+              </div>
+              {/* Content */}
+              <div style={{ padding: '24px 28px' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Resumen estratégico</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[90, 75, 60, 80].map((w, i) => (
+                    <div key={i} style={{ height: 9, borderRadius: 99, background: '#111', width: `${w}%` }} />
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+                  {['Roadmap generado', '6 ideas IA', 'Asesor activo'].map(tag => (
+                    <span key={tag} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 99, background: 'rgba(232,97,26,.1)', color: '#E8611A', border: '1px solid rgba(232,97,26,.15)', fontWeight: 600 }}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -234,15 +311,27 @@ export default function Home() {
 
       {/* ── CTA FINAL ── */}
       <div style={{ padding: 'clamp(72px,14vw,120px) clamp(20px,6vw,32px)', textAlign: 'center', borderTop: '1px solid #1a1a1a' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, color: '#E8611A', border: '1px solid rgba(232,97,26,.2)', borderRadius: 100, padding: '6px 14px', marginBottom: 24, background: 'rgba(232,97,26,.06)' }}>
+          ⚡ Panel IA incluido para cada equipo
+        </div>
         <h2 style={{ fontSize: 'clamp(32px,8vw,60px)', fontWeight: 900, letterSpacing: '-2px', marginBottom: 14, lineHeight: 1.05 }}>
           Empezá hoy.<br />Es gratis.
         </h2>
-        <p style={{ fontSize: 'clamp(14px,4vw,16px)', color: '#555', maxWidth: 320, margin: '0 auto 32px', lineHeight: 1.7 }}>
-          Registrate, describí tu idea y la IA arma tu equipo ideal.
+        <p style={{ fontSize: 'clamp(14px,4vw,16px)', color: '#555', maxWidth: 360, margin: '0 auto 10px', lineHeight: 1.7 }}>
+          Registrate, describí tu idea y la IA arma tu equipo ideal. Cuando el equipo esté formado, recibís tu panel privado.
         </p>
-        <button className="btn-primary" onClick={() => navigate('/registro')} style={{ padding: '16px 44px', fontSize: 16 }}>
-          Crear mi cuenta →
-        </button>
+        <p style={{ fontSize: 13, color: '#333', marginBottom: 32 }}>Sin tarjeta. Sin límite de tiempo.</p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button className="btn-primary" onClick={() => navigate('/registro')} style={{ padding: '16px 44px', fontSize: 16 }}>
+            Crear mi cuenta →
+          </button>
+          <button onClick={() => navigate('/explorar')} style={{ padding: '16px 28px', fontSize: 15, fontWeight: 600, border: '1px solid #222', borderRadius: 10, background: 'none', color: '#555', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .2s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#444'; e.currentTarget.style.color = '#ccc' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#222'; e.currentTarget.style.color = '#555' }}
+          >
+            Ver talentos →
+          </button>
+        </div>
       </div>
 
       {/* ── FOOTER ── */}
