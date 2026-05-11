@@ -117,7 +117,19 @@ export default function Dashboard() {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
-              {data.map(p => <ProjectCard key={p.id} project={p} />)}
+              {data.map(p => (
+                <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <ProjectCard project={p} />
+                  <button
+                    onClick={() => navigate(`/panel/${p.id}`)}
+                    style={{ width: '100%', padding: '10px', background: 'rgba(232,97,26,.08)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 8, color: '#E8611A', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'all .15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(232,97,26,.15)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(232,97,26,.08)' }}
+                  >
+                    ⚡ Abrir Panel IA del equipo →
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -202,6 +214,14 @@ export default function Dashboard() {
                       setData(d => d.map(x => x.id === m.id ? { ...x, status: 'rejected' } : x))
                     }}>✕ Rechazar</button>
                   </div>
+                )}
+                {m.status === 'accepted' && m.ideas?.id && (
+                  <button
+                    onClick={() => navigate(`/panel/${m.ideas.id}`)}
+                    style={{ padding: '10px 20px', background: 'rgba(232,97,26,.08)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 8, color: '#E8611A', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}
+                  >
+                    ⚡ Abrir Panel IA del equipo →
+                  </button>
                 )}
               </div>
             ))

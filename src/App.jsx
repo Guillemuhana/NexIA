@@ -14,6 +14,7 @@ import Precios from './pages/Precios'
 import ProyectoDetalle from './pages/ProyectoDetalle'
 import PerfilPublico from './pages/PerfilPublico'
 import AuthCallback from './pages/AuthCallback'
+import ProyectoPanel from './pages/ProyectoPanel'
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/precios" element={<Precios />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/panel/:id" element={<ProyectoPanel />} />
       </Routes>
     </AuthProvider>
   )
