@@ -5,30 +5,10 @@ function buildDemoData({ projectTitle = 'Tu Proyecto', projectCategory = 'Tech' 
     vision: `Ser la plataforma líder de ${projectCategory} en Latinoamérica en 3 años.`,
     resumen: `${projectTitle} tiene un posicionamiento único en el mercado latinoamericano. La propuesta de valor es clara y diferenciada, con un equipo complementario que cubre las áreas clave. El momento de mercado es favorable y la tecnología disponible permite escalar rápidamente. Con ejecución enfocada, hay una oportunidad real de capturar una porción significativa del mercado objetivo.`,
     roadmap: [
-      {
-        fase: 'Fase 1: Validación',
-        duracion: '1-2 meses',
-        objetivo: 'Confirmar que el problema existe y que la solución genera interés real.',
-        tareas: ['Entrevistar 30 usuarios potenciales', 'Definir métricas de éxito del MVP', 'Mapear competidores y diferenciadores'],
-      },
-      {
-        fase: 'Fase 2: MVP',
-        duracion: '2-3 meses',
-        objetivo: 'Construir la versión mínima que resuelva el problema principal.',
-        tareas: ['Desarrollar funcionalidades core', 'Lanzar beta cerrada con 50 usuarios', 'Iterar según feedback semanal'],
-      },
-      {
-        fase: 'Fase 3: Lanzamiento',
-        duracion: '1-2 meses',
-        objetivo: 'Salir al mercado con tracción comprobada.',
-        tareas: ['Campaña de lanzamiento en redes', 'Activar partnerships estratégicos', 'Optimizar conversión y onboarding'],
-      },
-      {
-        fase: 'Fase 4: Crecimiento',
-        duracion: '3-6 meses',
-        objetivo: 'Escalar usuarios y preparar ronda de financiamiento.',
-        tareas: ['Implementar growth loops virales', 'Expandir a 2 mercados nuevos', 'Preparar deck para inversores'],
-      },
+      { fase: 'Fase 1: Validación', duracion: '1-2 meses', objetivo: 'Confirmar que el problema existe y que la solución genera interés real.', tareas: ['Entrevistar 30 usuarios potenciales', 'Definir métricas de éxito del MVP', 'Mapear competidores y diferenciadores'] },
+      { fase: 'Fase 2: MVP', duracion: '2-3 meses', objetivo: 'Construir la versión mínima que resuelva el problema principal.', tareas: ['Desarrollar funcionalidades core', 'Lanzar beta cerrada con 50 usuarios', 'Iterar según feedback semanal'] },
+      { fase: 'Fase 3: Lanzamiento', duracion: '1-2 meses', objetivo: 'Salir al mercado con tracción comprobada.', tareas: ['Campaña de lanzamiento en redes', 'Activar partnerships estratégicos', 'Optimizar conversión y onboarding'] },
+      { fase: 'Fase 4: Crecimiento', duracion: '3-6 meses', objetivo: 'Escalar usuarios y preparar ronda de financiamiento.', tareas: ['Implementar growth loops virales', 'Expandir a 2 mercados nuevos', 'Preparar deck para inversores'] },
     ],
     ideas: [
       { titulo: 'Programa de referidos', descripcion: 'Incentivá a tus usuarios a traer otros con créditos o descuentos. Es el canal con mejor ROI para startups tempranas.', impacto: 'alto', esfuerzo: 'bajo', categoria: 'crecimiento' },
@@ -63,11 +43,26 @@ function buildDemoData({ projectTitle = 'Tu Proyecto', projectCategory = 'Tech' 
 export async function analyzeProject({ projectTitle, projectDescription, projectCategory, projectStage, team }) {
   try {
     const { data, error } = await supabase.functions.invoke('gemini-proxy', {
-      body: { projectTitle, projectDescription, projectCategory, projectStage, team },
+      body: { mode: 'analyze', projectTitle, projectDescription, projectCategory, projectStage, team },
     })
     if (error || !data || data.error) throw new Error(error?.message || data?.error || 'API error')
     return data
   } catch {
     return { ...buildDemoData({ projectTitle, projectCategory }), _isDemo: true }
+  }
+}
+
+export async function chatWithProject({ projectTitle, projectDescription, projectCategory, question, history = [] }) {
+  try {
+    const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+      body: { mode: 'chat', projectTitle, projectDescription, projectCategory, question, history },
+    })
+    if (error || !data || data.error) throw new Error('API error')
+    return { answer: data.answer, _isDemo: false }
+  } catch {
+    return {
+      answer: `Buena pregunta sobre "${question}". En modo demo no podemos conectarnos con la IA. Configurá tu GEMINI_API_KEY en Supabase para obtener respuestas personalizadas sobre tu proyecto.`,
+      _isDemo: true,
+    }
   }
 }
