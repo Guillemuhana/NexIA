@@ -285,6 +285,12 @@ export default function ProyectoPanel() {
             </button>
           </div>
 
+          {ai?._isDemo && (
+            <div style={{ padding: '12px 16px', background: 'rgba(234,179,8,.06)', border: '1px solid rgba(234,179,8,.15)', borderRadius: 10, fontSize: 13, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10, color: '#eab308' }}>
+              <Icon name="warning" size={15} color="#eab308" />
+              <span><strong>Modo demo</strong> — Datos de ejemplo. Agregá tu GEMINI_API_KEY en Supabase para análisis real de tu proyecto.</span>
+            </div>
+          )}
           {aiError && (
             <div style={{ padding: '14px 18px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.15)', borderRadius: 10, color: '#ef4444', fontSize: 14, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Icon name="warning" size={16} color="#ef4444" /> {aiError}
