@@ -73,7 +73,7 @@ export default function Home() {
               Matching con IA para startups
             </div>
 
-            {/* Título */}
+            {/* Título — minHeight en el span evita layout shift durante la animación */}
             <h1 style={{
               fontSize: 'clamp(44px, 11vw, 72px)',
               fontWeight: 900,
@@ -81,9 +81,15 @@ export default function Home() {
               letterSpacing: '-2.5px',
               marginBottom: 20,
             }}>
-              Tu idea,<br />
-              <span style={{ color: '#E8611A' }}>{typed || <span>&nbsp;</span>}</span>
-              <span style={{ color: '#E8611A', animation: 'blink 1s infinite' }}>|</span>
+              Tu idea,
+              <span style={{
+                display: 'block',
+                minHeight: '2.2em',
+                color: '#E8611A',
+                lineHeight: 1.0,
+              }}>
+                {typed}<span style={{ animation: 'blink 1s infinite' }}>|</span>
+              </span>
             </h1>
 
             {/* Descripción */}
