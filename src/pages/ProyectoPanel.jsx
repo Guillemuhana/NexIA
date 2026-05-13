@@ -88,6 +88,29 @@ function TypingDots() {
   )
 }
 
+// ── Ask AI button ───────────────────────────────────────────────────────────
+function AskAIButton({ question, onAsk }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+      <button
+        onClick={() => onAsk(question)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '7px 16px',
+          background: hovered ? 'rgba(232,97,26,.14)' : 'rgba(232,97,26,.07)',
+          border: '1px solid rgba(232,97,26,.2)', borderRadius: 99,
+          color: '#E8611A', fontSize: 12, fontWeight: 700,
+          cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'all .15s',
+        }}>
+        ✦ Preguntarle a la IA →
+      </button>
+    </div>
+  )
+}
+
 const LOG_TYPES = [
   { id: 'milestone', label: 'Milestone',   icon: '⚡', color: '#E8611A', bg: 'rgba(232,97,26,.12)' },
   { id: 'decision',  label: 'Decisión',    icon: '🔵', color: '#3b82f6', bg: 'rgba(59,130,246,.1)'  },
@@ -125,6 +148,7 @@ export default function ProyectoPanel() {
   const [chatHistory, setChatHistory] = useState([])
   const [chatInput, setChatInput]     = useState('')
   const [chatLoading, setChatLoading] = useState(false)
+  const [chatGreeted, setChatGreeted] = useState(false)
   const chatEndRef = useRef(null)
 
   useEffect(() => {
@@ -218,6 +242,20 @@ export default function ProyectoPanel() {
     setLogSaving(false)
   }
 
+  const askAI = (question) => {
+    if (!chatGreeted && chatHistory.length === 0 && idea) {
+      setChatGreeted(true)
+      const greeting = ai?.resumen
+        ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
+        : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. Pregúntenme sobre estrategia, producto, decisiones o cualquier desafío. ¿Qué necesitan?`
+      setChatHistory([{ role: 'ai', text: greeting }])
+    }
+    setActive('chat')
+    setTimeout(() => {
+      if (question) sendChat(question)
+    }, 100)
+  }
+
   // ── Access guards ──────────────────────────────────────────────────────
   if (authLoading || access === null) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#080808' }}>
@@ -302,11 +340,23 @@ export default function ProyectoPanel() {
 
           <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             {NAV.map(n => (
-              <button key={n.id} className={`pnav${activeSection === n.id ? ' active' : ''}`} onClick={() => setActive(n.id)}>
+              <button key={n.id} className={`pnav${activeSection === n.id ? ' active' : ''}`} onClick={() => {
+                if (n.id === 'chat' && chatHistory.length === 0 && idea && !chatGreeted) {
+                  setChatGreeted(true)
+                  const greeting = ai?.resumen
+                    ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
+                    : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. Pregúntenme sobre estrategia, producto, decisiones o cualquier desafío. ¿Qué necesitan?`
+                  setChatHistory([{ role: 'ai', text: greeting }])
+                }
+                setActive(n.id)
+              }}>
                 <Icon name={n.icon} size={15} color={activeSection === n.id ? '#E8611A' : '#444'} />
                 {n.label}
                 {n.id === 'buildlog' && buildLogs.length > 0 && (
                   <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: '#111', color: '#555', borderRadius: 99, padding: '1px 6px', border: '1px solid #1a1a1a' }}>{buildLogs.length}</span>
+                )}
+                {n.id === 'chat' && chatHistory.length === 0 && (
+                  <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,.6)', flexShrink: 0 }} />
                 )}
                 {n.id === 'chat' && chatHistory.length > 0 && (
                   <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: '#E8611A', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>{Math.ceil(chatHistory.length / 2)}</span>
@@ -384,34 +434,38 @@ export default function ProyectoPanel() {
                   {aiLoading ? <Skeleton h={14} w="90%" /> : <p style={{ color: '#ccc', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{ai?.consejo_equipo}"</p>}
                 </div>
               )}
+              <AskAIButton question="¿Cuál debería ser nuestra primera prioridad esta semana para avanzar más rápido?" onAsk={askAI} />
             </div>
           )}
 
           {/* ── ROADMAP ───────────────────────────────────────────── */}
           {activeSection === 'roadmap' && (
-            <div className="pcard" style={{ padding: 0, overflow: 'hidden' }}>
-              {aiLoading
-                ? <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>{[...Array(4)].map((_, i) => <SkeletonBlock key={i} />)}</div>
-                : (ai?.roadmap || []).map((phase, i) => (
-                  <div key={i} className="phase-row">
-                    <div style={{ padding: '26px 22px', borderRight: '1px solid #111', background: i % 2 === 0 ? '#0a0a0a' : 'transparent' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 5 }}>Fase {i + 1}</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 8, lineHeight: 1.3 }}>{phase.fase.replace(/^Fase \d+:\s*/i, '')}</div>
-                      <span style={{ fontSize: 11, padding: '3px 8px', background: '#111', borderRadius: 99, color: '#555' }}>{phase.duracion}</span>
+            <>
+              <div className="pcard" style={{ padding: 0, overflow: 'hidden' }}>
+                {aiLoading
+                  ? <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>{[...Array(4)].map((_, i) => <SkeletonBlock key={i} />)}</div>
+                  : (ai?.roadmap || []).map((phase, i) => (
+                    <div key={i} className="phase-row">
+                      <div style={{ padding: '26px 22px', borderRight: '1px solid #111', background: i % 2 === 0 ? '#0a0a0a' : 'transparent' }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 5 }}>Fase {i + 1}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 8, lineHeight: 1.3 }}>{phase.fase.replace(/^Fase \d+:\s*/i, '')}</div>
+                        <span style={{ fontSize: 11, padding: '3px 8px', background: '#111', borderRadius: 99, color: '#555' }}>{phase.duracion}</span>
+                      </div>
+                      <div style={{ padding: '26px 22px' }}>
+                        <div style={{ fontSize: 12, color: '#555', marginBottom: 12, fontWeight: 600 }}>{phase.objetivo}</div>
+                        {(phase.tareas || []).map((t, j) => (
+                          <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
+                            <div style={{ width: 15, height: 15, border: '1.5px solid #2a2a2a', borderRadius: 4, flexShrink: 0, marginTop: 1 }} />
+                            <span style={{ color: '#aaa', fontSize: 13, lineHeight: 1.5 }}>{t}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ padding: '26px 22px' }}>
-                      <div style={{ fontSize: 12, color: '#555', marginBottom: 12, fontWeight: 600 }}>{phase.objetivo}</div>
-                      {(phase.tareas || []).map((t, j) => (
-                        <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
-                          <div style={{ width: 15, height: 15, border: '1.5px solid #2a2a2a', borderRadius: 4, flexShrink: 0, marginTop: 1 }} />
-                          <span style={{ color: '#aaa', fontSize: 13, lineHeight: 1.5 }}>{t}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
+                  ))
+                }
+              </div>
+              <AskAIButton question="¿Cómo ajustamos el roadmap para llegar al MVP más rápido?" onAsk={askAI} />
+            </>
           )}
 
           {/* ── IDEAS IA ──────────────────────────────────────────── */}
@@ -439,6 +493,7 @@ export default function ProyectoPanel() {
                   })
                 }
               </div>
+              <AskAIButton question="¿Cuál de estas ideas tiene más potencial dado nuestro contexto y recursos actuales?" onAsk={askAI} />
             </>
           )}
 
@@ -481,6 +536,7 @@ export default function ProyectoPanel() {
                   })
                 }
               </div>
+              <AskAIButton question="¿Cómo aceleramos el logro de las métricas clave y mitigamos el riesgo más crítico?" onAsk={askAI} />
             </>
           )}
 
@@ -511,6 +567,7 @@ export default function ProyectoPanel() {
                   <p style={{ color: '#aaa', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{ai.consejo_equipo}"</p>
                 </div>
               )}
+              <AskAIButton question="¿Qué roles o habilidades le faltan al equipo para maximizar las probabilidades de éxito?" onAsk={askAI} />
             </>
           )}
 
@@ -644,6 +701,9 @@ export default function ProyectoPanel() {
                     )
                   })}
                 </div>
+              )}
+              {buildLogs.length > 0 && (
+                <AskAIButton question={`Analizá nuestro Build Log con ${buildLogs.length} entradas y danos un diagnóstico del ritmo y salud del proyecto.`} onAsk={askAI} />
               )}
             </div>
           )}
