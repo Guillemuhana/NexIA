@@ -135,6 +135,7 @@ export function AuthProvider({ children }) {
   }
 
   const updateProfile = async (updates) => {
+    if (!user?.id) return { data: null, error: { message: 'No autenticado' } }
     const { type, role, available, portfolio, ...rest } = updates
     const userUpdates = { ...rest }
     if (portfolio !== undefined) userUpdates.portfolio_url = portfolio
@@ -152,10 +153,10 @@ export function AuthProvider({ children }) {
       const tpUpdates = { user_id: user.id }
       if (role !== undefined) tpUpdates.main_role = role
       if (available !== undefined) tpUpdates.available = available
-      await supabase.from('talent_profiles').upsert(tpUpdates, { onConflict: 'user_id' })
+      await supabase.from('talent_profiles').upsert(tpUpdates, { onConflict: 'user_id' }).catch(() => {})
     }
 
-    await fetchProfile(user.id)
+    try { await fetchProfile(user.id) } catch {}
     return { data, error }
   }
 

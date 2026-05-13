@@ -9,6 +9,7 @@ export default function Perfil() {
   const [form, setForm] = useState({ name: '', role: '', bio: '', location: '', portfolio: '', skills: '', available: true })
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
 
   useEffect(() => {
@@ -17,10 +18,20 @@ export default function Perfil() {
   }, [user, profile, loading])
 
   const handleSave = async () => {
-    setSaving(true)
-    await updateProfile({ name: form.name, role: form.role, bio: form.bio, location: form.location, portfolio: form.portfolio, available: form.available })
-    setSaving(false); setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    setSaving(true); setSaveError('')
+    try {
+      const updates = { name: form.name, bio: form.bio, location: form.location, portfolio: form.portfolio }
+      // solo pasar role/available para talento
+      if (isTalent) { updates.role = form.role; updates.available = form.available }
+      const { error } = await updateProfile(updates)
+      if (error) { setSaveError('No se pudo guardar. Intentá de nuevo.'); return }
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch {
+      setSaveError('Error inesperado. Intentá de nuevo.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const isTalent = profile?.type === 'talento'
@@ -71,6 +82,11 @@ export default function Perfil() {
             </label>
           )}
 
+          {saveError && (
+            <div style={{ padding: '11px 14px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 8, color: '#ef4444', fontSize: 14 }}>
+              {saveError}
+            </div>
+          )}
           <button onClick={handleSave} disabled={saving} style={{ width: '100%', padding: 14, fontSize: 16, fontWeight: 700, background: saved ? '#22c55e' : '#E8611A', color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'background .3s', opacity: saving ? 0.7 : 1 }}>
             {saving ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar cambios'}
           </button>
