@@ -144,10 +144,9 @@ export default function Navbar() {
           >
             {[0, 1, 2].map(i => (
               <span key={i} style={{
-                width: i === 1 ? 12 : 16, height: 1.5, background: '#666', borderRadius: 2, display: 'block', transition: 'all .25s',
+                width: menuOpen ? 16 : i === 1 ? 12 : 16, height: 1.5, background: '#666', borderRadius: 2, display: 'block', transition: 'all .25s',
                 transform: menuOpen ? (i === 0 ? 'rotate(45deg) translate(4px, 4px)' : i === 2 ? 'rotate(-45deg) translate(4px, -4px)' : 'none') : 'none',
                 opacity: menuOpen && i === 1 ? 0 : 1,
-                width: menuOpen ? 16 : i === 1 ? 12 : 16,
               }} />
             ))}
           </button>
