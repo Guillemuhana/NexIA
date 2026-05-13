@@ -77,10 +77,7 @@ export function AuthProvider({ children }) {
           if (pendingRole) {
             setLoading(true)
             localStorage.removeItem('nexia_pending_role')
-            await supabase.from('user_roles').upsert(
-              { user_id: session.user.id, role_type: pendingRole, is_primary: true },
-              { onConflict: 'user_id,role_type' }
-            )
+            await supabase.rpc('assign_user_role', { p_role_type: pendingRole })
             await fetchProfile(session.user.id)
           }
         }
@@ -121,11 +118,7 @@ export function AuthProvider({ children }) {
   }
 
   const setUserRole = async (userId, roleType) => {
-    const { error } = await supabase.from('user_roles').insert({
-      user_id: userId,
-      role_type: roleType,
-      is_primary: true,
-    })
+    const { error } = await supabase.rpc('assign_user_role', { p_role_type: roleType })
     if (!error) await fetchProfile(userId)
     return { error }
   }
