@@ -91,6 +91,7 @@ export default function Dashboard() {
     if (!user || !profile) return
 
     const fetchData = async () => {
+      if (!profile.type) { setDataLoading(false); return }
       setDataLoading(true)
 
       if (profile.type === 'visionario') {
@@ -162,7 +163,7 @@ export default function Dashboard() {
       setDataLoading(false)
     }
 
-    fetchData()
+    fetchData().catch(() => setDataLoading(false))
   }, [user, profile])
 
   if (loading) return (

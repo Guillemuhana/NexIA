@@ -5,10 +5,10 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
 function mapTalent(tp) {
-  const u = tp.users
+  const u = tp.users || {}
   return {
-    id: u.id,
-    name: u.name,
+    id: u.id || tp.user_id,
+    name: u.name || 'Usuario',
     avatar: u.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?',
     location: u.location || '',
     bio: u.bio || '',
@@ -31,11 +31,12 @@ export default function Explorar() {
   useEffect(() => {
     supabase
       .from('talent_profiles')
-      .select('available, main_role, match_score_avg, projects_count, users!inner(id, name, avatar_url, location, bio, user_skills(skills(name)))')
-      .then(({ data }) => {
-        setTalents((data || []).map(mapTalent))
+      .select('user_id, available, main_role, match_score_avg, projects_count, users!inner(id, name, avatar_url, location, bio, user_skills(skills(name)))')
+      .then(({ data, error }) => {
+        if (!error && data) setTalents(data.map(mapTalent))
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   const filtered = talents.filter(t => {
