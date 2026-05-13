@@ -212,7 +212,7 @@ export default function Home() {
               </h2>
             </div>
             <p style={{ fontSize: 'clamp(13px,3.5vw,15px)', color: '#555', lineHeight: 1.75, maxWidth: 320, paddingTop: 8 }}>
-              Cuando el equipo está formado, nexIA les otorga automáticamente un panel exclusivo. Nadie de afuera puede verlo.
+              Cuando el equipo está formado, Equia les otorga automáticamente un panel exclusivo. Nadie de afuera puede verlo.
             </p>
           </div>
 
@@ -235,14 +235,14 @@ export default function Home() {
                 {['#ef4444', '#f59e0b', '#22c55e'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, opacity: .5 }} />)}
               </div>
               <div style={{ flex: 1, height: 22, background: '#111', borderRadius: 4, marginLeft: 8, display: 'flex', alignItems: 'center', paddingLeft: 10 }}>
-                <span style={{ fontSize: 11, color: '#333' }}>nexia.app/panel/mi-proyecto</span>
+                <span style={{ fontSize: 11, color: '#333' }}>equia.app/panel/mi-proyecto</span>
               </div>
             </div>
             {/* Fake panel UI */}
             <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', minHeight: 220 }}>
               {/* Sidebar */}
               <div style={{ borderRight: '1px solid #111', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {['Visión General', 'Hoja de Ruta', 'Ideas IA', 'Métricas', 'Equipo', 'Consultor IA'].map((item, i) => (
+                {['Visión General', 'Hoja de Ruta', 'Ideas IA', 'Build Log', 'Equipo', 'Consultor IA'].map((item, i) => (
                   <div key={item} style={{ padding: '8px 10px', borderRadius: 6, background: i === 0 ? 'rgba(232,97,26,.1)' : 'transparent', fontSize: 12, color: i === 0 ? '#E8611A' : '#333', fontWeight: i === 0 ? 700 : 400 }}>{item}</div>
                 ))}
               </div>
@@ -272,7 +272,7 @@ export default function Home() {
 
           <div style={{ textAlign: 'center', marginBottom: 'clamp(36px,7vw,56px)' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#555', letterSpacing: '2px', textTransform: 'uppercase' }}>Para todos</span>
-            <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10 }}>¿Quién sos en nexIA?</h2>
+            <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10 }}>¿Quién sos en Equia?</h2>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #1a1a1a' }}>
@@ -338,10 +338,10 @@ export default function Home() {
       <footer style={{ borderTop: '1px solid #1a1a1a', padding: 'clamp(20px,5vw,28px) clamp(20px,6vw,32px)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1 }}>nex</span>
-            <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1, color: '#E8611A' }}>IA</span>
+            <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1 }}>Equ</span>
+            <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1, color: '#E8611A' }}>ia</span>
           </div>
-          <span style={{ fontSize: 12, color: '#333' }}>© 2026 nexIA · Hecho en Latinoamérica</span>
+          <span style={{ fontSize: 12, color: '#333' }}>© 2026 Equia · Hecho en Latinoamérica</span>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidad', 'Términos', 'Contacto'].map(l => (
               <span key={l} style={{ fontSize: 12, color: '#444', cursor: 'pointer' }}>{l}</span>

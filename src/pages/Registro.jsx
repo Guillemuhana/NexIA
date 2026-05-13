@@ -48,8 +48,8 @@ export default function Registro() {
 
         {/* Logo */}
         <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 44 }}>
-          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5 }}>nex</span>
-          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5, color: '#E8611A' }}>IA</span>
+          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5 }}>Equ</span>
+          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5, color: '#E8611A' }}>ia</span>
         </div>
 
         {/* ── PASO 1 — Elegir rol ── */}

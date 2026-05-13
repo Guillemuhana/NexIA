@@ -304,7 +304,7 @@ export default function LanzarIdea() {
           {/* Análisis IA */}
           {aiData && (
             <div style={{ padding: 24, marginBottom: 28, border: '1px solid #222', borderRadius: 12, background: '#0a0a0a' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 16 }}>🤖 Análisis de nexIA</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 16 }}>🤖 Análisis de Equia</div>
               <p style={{ fontSize: 15, lineHeight: 1.7, color: '#ccc', marginBottom: 20 }}>{aiData.pitch}</p>
               <p style={{ fontSize: 14, lineHeight: 1.7, color: '#666', marginBottom: 20, fontStyle: 'italic' }}>"{aiData.whyThisTeam}"</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 12, marginBottom: 16 }}>

@@ -44,15 +44,15 @@ export default function AuthCallback() {
       <div style={{ width: '100%', maxWidth: 480 }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 40, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1 }}>nex</span>
-          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1, color: '#E8611A' }}>IA</span>
+          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1 }}>Equ</span>
+          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1, color: '#E8611A' }}>ia</span>
         </div>
 
         <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6, color: '#fff' }}>
           Un último paso
         </h1>
         <p style={{ color: '#555', fontSize: 15, marginBottom: 32, lineHeight: 1.6 }}>
-          {profile?.name ? `Hola ${profile.name.split(' ')[0]}, ¿` : '¿'}con qué rol querés usar nexIA?
+          {profile?.name ? `Hola ${profile.name.split(' ')[0]}, ¿` : '¿'}con qué rol querés usar Equia?
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>

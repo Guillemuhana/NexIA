@@ -119,7 +119,7 @@ export default function ProyectoDetalle() {
         {/* AI Analysis */}
         {ai && (
           <div style={{ padding: 22, border: '1px solid #222', borderRadius: 12, marginBottom: 20, background: '#0a0a0a' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 14 }}>🤖 Análisis nexIA</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 14 }}>🤖 Análisis Equia</div>
             {ai.pitch && <p style={{ fontSize: 14, color: '#ccc', lineHeight: 1.75, marginBottom: 16 }}>{ai.pitch}</p>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(110px,1fr))', gap: 8, marginBottom: 14 }}>
               {[['Equipo', `${ai.teamSize} personas`], ['Complejidad', ai.complexity], ['Tiempo', ai.timeEstimate]].filter(([, v]) => v).map(([k, v]) => (

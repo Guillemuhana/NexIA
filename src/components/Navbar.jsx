@@ -83,8 +83,8 @@ export default function Navbar() {
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#fff', lineHeight: 1 }}>nex</span>
-            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#E8611A', textShadow: '0 0 22px rgba(232,97,26,0.55)', lineHeight: 1 }}>IA</span>
+            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#fff', lineHeight: 1 }}>Equ</span>
+            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#E8611A', textShadow: '0 0 22px rgba(232,97,26,0.55)', lineHeight: 1 }}>ia</span>
           </div>
           <div style={{ height: 2.5, background: '#E8611A', borderRadius: 2, boxShadow: '0 0 8px rgba(232,97,26,0.7)' }} />
         </div>

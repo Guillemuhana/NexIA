@@ -20,6 +20,7 @@ function Icon({ name, size = 18, color = 'currentColor' }) {
     back:     'M19 12H5 M12 19l-7-7 7-7',
     bot:      'M12 2a2 2 0 0 1 2 2v1h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4V4a2 2 0 0 1 2-2z M9 12h.01 M15 12h.01 M9 16s1 1 3 1 3-1 3-1',
     sparkle:  'M12 3l1.88 5.47L19 9l-4.5 4.07L15.76 19 12 16.25 8.24 19l1.26-5.93L5 9l5.12-.53L12 3z',
+    log:      'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M12 6v6l4 2',
   }
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -87,6 +88,13 @@ function TypingDots() {
   )
 }
 
+const LOG_TYPES = [
+  { id: 'milestone', label: 'Milestone',   icon: '⚡', color: '#E8611A', bg: 'rgba(232,97,26,.12)' },
+  { id: 'decision',  label: 'Decisión',    icon: '🔵', color: '#3b82f6', bg: 'rgba(59,130,246,.1)'  },
+  { id: 'learning',  label: 'Aprendizaje', icon: '💡', color: '#22c55e', bg: 'rgba(34,197,94,.1)'   },
+  { id: 'team',      label: 'Equipo',      icon: '👥', color: '#a855f7', bg: 'rgba(168,85,247,.1)'  },
+]
+
 const SUGGESTED = [
   '¿Cuál debería ser nuestra primera prioridad esta semana?',
   '¿Cómo validamos el mercado antes de gastar en desarrollo?',
@@ -106,6 +114,12 @@ export default function ProyectoPanel() {
   const [ai, setAi]                 = useState(null)
   const [aiLoading, setAiLoading]   = useState(false)
   const [aiError, setAiError]       = useState(null)
+
+  // Build log state
+  const [buildLogs, setBuildLogs] = useState([])
+  const [newLog, setNewLog]       = useState('')
+  const [logType, setLogType]     = useState('milestone')
+  const [logSaving, setLogSaving] = useState(false)
 
   // Chat state
   const [chatHistory, setChatHistory] = useState([])
@@ -127,13 +141,19 @@ export default function ProyectoPanel() {
       if (!ideaData) { setAccess(false); return }
       setIdea(ideaData)
 
-      if (ideaData.founder_id === user.id) { setAccess(true); loadTeam(ideaData); return }
+      if (ideaData.founder_id === user.id) { setAccess(true); loadTeam(ideaData); loadLogs(); return }
 
       const { data: match } = await supabase
         .from('matches').select('id').eq('idea_id', id).eq('talent_id', user.id).eq('status', 'accepted').single()
 
-      if (match) { setAccess(true); loadTeam(ideaData) }
+      if (match) { setAccess(true); loadTeam(ideaData); loadLogs() }
       else setAccess(false)
+    }
+
+    async function loadLogs() {
+      const { data: logsData } = await supabase
+        .from('build_logs').select('*, users(name)').eq('idea_id', id).order('created_at', { ascending: false })
+      setBuildLogs(logsData || [])
     }
 
     async function loadTeam(ideaData) {
@@ -187,6 +207,17 @@ export default function ProyectoPanel() {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
 
+  const addLog = async () => {
+    if (!newLog.trim() || !user || !idea || logSaving) return
+    setLogSaving(true)
+    const { data } = await supabase.from('build_logs').insert({
+      idea_id: idea.id, user_id: user.id, type: logType, content: newLog.trim(),
+    }).select('*, users(name)').single()
+    if (data) setBuildLogs(l => [data, ...l])
+    setNewLog('')
+    setLogSaving(false)
+  }
+
   // ── Access guards ──────────────────────────────────────────────────────
   if (authLoading || access === null) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#080808' }}>
@@ -210,6 +241,7 @@ export default function ProyectoPanel() {
     { id: 'metrics',  label: 'Métricas',       icon: 'metrics'  },
     { id: 'team',     label: 'Equipo',         icon: 'team'     },
     { id: 'chat',     label: 'Consultor IA',   icon: 'chat'     },
+    { id: 'buildlog', label: 'Build Log',       icon: 'log'      },
   ]
 
   return (
@@ -245,8 +277,8 @@ export default function ProyectoPanel() {
         {/* ── Sidebar ─────────────────────────────────────────────── */}
         <aside style={{ width: 224, flexShrink: 0, borderRight: '1px solid #111', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
           <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 32, paddingLeft: 4 }}>
-            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1 }}>nex</span>
-            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1, color: '#E8611A' }}>IA</span>
+            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1 }}>Equ</span>
+            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1, color: '#E8611A' }}>ia</span>
             <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: '#333', letterSpacing: 1, textTransform: 'uppercase', border: '1px solid #222', borderRadius: 4, padding: '1px 5px' }}>Panel</span>
           </div>
 
@@ -273,6 +305,9 @@ export default function ProyectoPanel() {
               <button key={n.id} className={`pnav${activeSection === n.id ? ' active' : ''}`} onClick={() => setActive(n.id)}>
                 <Icon name={n.icon} size={15} color={activeSection === n.id ? '#E8611A' : '#444'} />
                 {n.label}
+                {n.id === 'buildlog' && buildLogs.length > 0 && (
+                  <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: '#111', color: '#555', borderRadius: 99, padding: '1px 6px', border: '1px solid #1a1a1a' }}>{buildLogs.length}</span>
+                )}
                 {n.id === 'chat' && chatHistory.length > 0 && (
                   <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: '#E8611A', color: '#fff', borderRadius: 99, padding: '1px 6px' }}>{Math.ceil(chatHistory.length / 2)}</span>
                 )}
@@ -288,9 +323,9 @@ export default function ProyectoPanel() {
         </aside>
 
         {/* ── Main ────────────────────────────────────────────────── */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: activeSection === 'chat' ? 0 : '40px 48px', maxWidth: 1100, display: 'flex', flexDirection: 'column' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: (activeSection === 'chat' || activeSection === 'buildlog') ? 0 : '40px 48px', maxWidth: 1100, display: 'flex', flexDirection: 'column' }}>
 
-          {activeSection !== 'chat' && (
+          {activeSection !== 'chat' && activeSection !== 'buildlog' && (
             <>
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32 }}>
@@ -536,6 +571,80 @@ export default function ProyectoPanel() {
                 </div>
                 <div style={{ marginTop: 8, fontSize: 11, color: '#333', textAlign: 'center' }}>Powered by Gemini 1.5 Flash · Contexto del proyecto incluido</div>
               </div>
+            </div>
+          )}
+
+          {/* ── BUILD LOG ─────────────────────────────────────────── */}
+          {activeSection === 'buildlog' && (
+            <div style={{ padding: '40px 48px' }}>
+              <div className="pcard" style={{ marginBottom: 28 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Nueva entrada</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                  {LOG_TYPES.map(t => (
+                    <button key={t.id} onClick={() => setLogType(t.id)} style={{
+                      padding: '5px 14px', borderRadius: 99,
+                      border: `1px solid ${logType === t.id ? t.color + '60' : '#1a1a1a'}`,
+                      background: logType === t.id ? t.bg : 'transparent',
+                      color: logType === t.id ? t.color : '#555',
+                      fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter,sans-serif',
+                      transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5,
+                    }}>
+                      {t.icon} {t.label}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={newLog}
+                  onChange={e => setNewLog(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) addLog() }}
+                  placeholder="¿Qué pasó hoy? Un avance, una decisión, un aprendizaje..."
+                  rows={3}
+                  style={{ width: '100%', background: '#111', border: '1px solid #1a1a1a', borderRadius: 8, color: '#fff', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.55, boxSizing: 'border-box', transition: 'border-color .15s' }}
+                  onFocus={e => e.target.style.borderColor = 'rgba(232,97,26,.4)'}
+                  onBlur={e => e.target.style.borderColor = '#1a1a1a'}
+                />
+                <button
+                  onClick={addLog}
+                  disabled={!newLog.trim() || logSaving}
+                  style={{ marginTop: 10, padding: '10px 20px', background: newLog.trim() ? '#E8611A' : '#111', border: 'none', borderRadius: 8, color: newLog.trim() ? '#fff' : '#444', fontWeight: 700, fontSize: 13, cursor: newLog.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Inter,sans-serif', transition: 'all .15s', opacity: logSaving ? 0.7 : 1 }}
+                >
+                  {logSaving ? 'Guardando...' : '+ Agregar al Build Log'}
+                </button>
+              </div>
+
+              {buildLogs.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                  <div style={{ fontSize: 40, marginBottom: 14 }}>📋</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#555', marginBottom: 6 }}>El historial está vacío</div>
+                  <div style={{ fontSize: 13, color: '#333', lineHeight: 1.7 }}>Cada avance, decisión o aprendizaje que agregues<br />queda registrado aquí para siempre.</div>
+                </div>
+              ) : (
+                <div>
+                  {buildLogs.map((log, i) => {
+                    const type = LOG_TYPES.find(t => t.id === log.type) || LOG_TYPES[0]
+                    const d = new Date(log.created_at)
+                    const dateStr = d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+                    return (
+                      <div key={log.id} style={{ display: 'flex', gap: 14, marginBottom: 16, animation: 'fadeUp .3s ease' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, marginTop: 4 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: '50%', background: type.bg, border: `1px solid ${type.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>{type.icon}</div>
+                          {i < buildLogs.length - 1 && <div style={{ width: 1, flex: 1, minHeight: 20, background: '#111', marginTop: 6 }} />}
+                        </div>
+                        <div className="pcard" style={{ flex: 1, padding: '14px 18px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 99, background: type.bg, color: type.color }}>{type.label}</span>
+                              <span style={{ fontSize: 12, color: '#444' }}>{log.users?.name || 'Equipo'}</span>
+                            </div>
+                            <span style={{ fontSize: 11, color: '#333' }}>{dateStr}</span>
+                          </div>
+                          <p style={{ color: '#bbb', fontSize: 14, lineHeight: 1.65, margin: 0 }}>{log.content}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )}
 

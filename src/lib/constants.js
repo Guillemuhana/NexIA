@@ -98,7 +98,7 @@ export const MOCK_PROJECTS = [
 export const TESTIMONIALS = [
   { text: 'En 48 horas tenía un equipo de 4 personas listo para arrancar. Nunca pensé que fuera tan rápido.', name: 'Martina G.', role: 'Founder @ MediConnect' },
   { text: 'Cargué mi perfil el lunes, el miércoles ya era parte de un proyecto que me apasionaba.', name: 'Juan P.', role: 'Full-Stack Developer' },
-  { text: 'Como inversor, nexIA me permite ver proyectos con equipos reales ya formados. Eso cambia todo.', name: 'Roberto K.', role: 'Angel Investor' },
+  { text: 'Como inversor, Equia me permite ver proyectos con equipos reales ya formados. Eso cambia todo.', name: 'Roberto K.', role: 'Angel Investor' },
   { text: 'El matching de la IA es sorprendentemente preciso. Eligió exactamente el perfil que necesitaba.', name: 'Carlos R.', role: 'Founder @ EduPath' },
   { text: 'Sin entrevistas, sin procesos largos. Acepté la invitación y al día siguiente ya estábamos trabajando.', name: 'Sofía M.', role: 'UI/UX Designer' },
   { text: 'La mejor forma de encontrar co-founders y equipo técnico que encontré en Latam.', name: 'Diego F.', role: 'Emprendedor Serial' },

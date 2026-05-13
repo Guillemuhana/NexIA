@@ -43,12 +43,12 @@ export default function Login() {
 
         {/* Logo */}
         <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 44 }}>
-          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5 }}>nex</span>
-          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5, color: '#E8611A' }}>IA</span>
+          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5 }}>Equ</span>
+          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5, color: '#E8611A' }}>ia</span>
         </div>
 
         <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Bienvenido</h1>
-        <p style={{ color: '#555', fontSize: 15, marginBottom: 32 }}>Ingresá a tu cuenta de nexIA.</p>
+        <p style={{ color: '#555', fontSize: 15, marginBottom: 32 }}>Ingresá a tu cuenta de Equia.</p>
 
         {/* Google */}
         <button

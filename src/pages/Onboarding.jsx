@@ -40,7 +40,7 @@ export default function Onboarding() {
       <div style={{ width: '100%', maxWidth: 560, textAlign: 'center' }}>
         <div style={{ fontSize: 48, marginBottom: 20 }}>{roleInfo?.icon || '🎉'}</div>
         <h1 style={{ fontSize: 'clamp(28px,6vw,42px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8 }}>
-          ¡Bienvenido a nexIA!
+          ¡Bienvenido a Equia!
         </h1>
         <p style={{ color: '#666', fontSize: 16, marginBottom: 48, lineHeight: 1.6 }}>
           {profile?.name ? `Hola ${profile.name.split(' ')[0]}, ` : ''}estás registrado como <strong style={{ color: '#E8611A' }}>{roleInfo?.label}</strong>. Así funciona tu experiencia:
