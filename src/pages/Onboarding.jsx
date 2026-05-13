@@ -3,8 +3,18 @@ import { useAuth } from '../context/AuthContext'
 import { ROLES } from '../lib/constants'
 
 export default function Onboarding() {
-  const { profile } = useAuth()
+  const { profile, loading } = useAuth()
   const navigate = useNavigate()
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#000' }}>
+      <style>{`@keyframes spin-ob { to { transform: rotate(360deg) } }`}</style>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: 36, height: 36, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin-ob 1s linear infinite', margin: '0 auto 16px' }} />
+        <div style={{ fontSize: 13, color: '#444' }}>Configurando tu cuenta...</div>
+      </div>
+    </div>
+  )
   const roleInfo = profile?.type ? ROLES[profile.type] : null
 
   const nextStep = () => {

@@ -24,10 +24,15 @@ export default function Login() {
   const handleLogin = async () => {
     if (!form.email || !form.password) { setError('Completá todos los campos'); return }
     setLoading(true); setError('')
-    const { error: err } = await signIn({ email: form.email, password: form.password })
-    if (err) { setError('Email o contraseña incorrectos'); setLoading(false); return }
-    setLoading(false)
-    navigate('/dashboard')
+    try {
+      const { error: err } = await signIn({ email: form.email, password: form.password })
+      if (err) { setError('Email o contraseña incorrectos'); return }
+      navigate('/dashboard')
+    } catch {
+      setError('Error de conexión. Intentá de nuevo.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogle = async () => {

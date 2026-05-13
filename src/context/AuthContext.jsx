@@ -15,24 +15,27 @@ export function AuthProvider({ children }) {
       .eq('id', userId)
       .single()
 
-    // Usuario nuevo via Google OAuth: crear registro en public.users
+    // Usuario nuevo (Google OAuth o email): crear registro en public.users
     if (!data) {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      const meta = authUser?.user_metadata || {}
-      const { error: insertErr } = await supabase.from('users').insert({
-        id: userId,
-        name: meta.full_name || meta.name || authUser?.email?.split('@')[0] || '',
-        email: authUser?.email || '',
-        avatar_url: meta.avatar_url || meta.picture || null,
-      })
-      if (!insertErr) {
-        const refetch = await supabase
-          .from('users')
-          .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
-          .eq('id', userId)
-          .single()
-        data = refetch.data
-      }
+      try {
+        const res = await supabase.auth.getUser()
+        const authUser = res?.data?.user
+        const meta = authUser?.user_metadata || {}
+        const { error: insertErr } = await supabase.from('users').insert({
+          id: userId,
+          name: meta.full_name || meta.name || authUser?.email?.split('@')[0] || '',
+          email: authUser?.email || '',
+          avatar_url: meta.avatar_url || meta.picture || null,
+        })
+        if (!insertErr) {
+          const refetch = await supabase
+            .from('users')
+            .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+            .eq('id', userId)
+            .single()
+          data = refetch.data
+        }
+      } catch {}
     }
 
     if (data) {
@@ -71,13 +74,21 @@ export function AuthProvider({ children }) {
       if (session?.user) {
         await fetchProfile(session.user.id)
 
-        // Aplicar rol pendiente después de Google OAuth
+        // Aplicar rol pendiente (Google OAuth o email signup)
         if (event === 'SIGNED_IN') {
           const pendingRole = localStorage.getItem('nexia_pending_role')
           if (pendingRole) {
             setLoading(true)
             localStorage.removeItem('nexia_pending_role')
-            await supabase.rpc('assign_user_role', { p_role_type: pendingRole })
+            try {
+              const { error: rpcErr } = await supabase.rpc('assign_user_role', { p_role_type: pendingRole })
+              // Fallback: direct insert si el RPC no existe aún
+              if (rpcErr) {
+                await supabase.from('user_roles').insert({
+                  user_id: session.user.id, role_type: pendingRole, is_primary: true,
+                }).select()
+              }
+            } catch {}
             await fetchProfile(session.user.id)
           }
         }

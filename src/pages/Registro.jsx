@@ -21,7 +21,7 @@ export default function Registro() {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signUp, signInWithGoogle, setUserRole } = useAuth()
+  const { signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -29,11 +29,22 @@ export default function Registro() {
     if (!form.name || !form.email || !form.password) { setError('Completá todos los campos'); return }
     if (form.password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
     setLoading(true); setError('')
-    const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name })
-    if (err) { setError(err.message); setLoading(false); return }
-    if (data?.user) await setUserRole(data.user.id, selectedRole)
-    setLoading(false)
-    navigate('/onboarding')
+    // Guardar rol antes del signup para que onAuthStateChange lo aplique con sesión activa
+    if (selectedRole) localStorage.setItem('nexia_pending_role', selectedRole)
+    try {
+      const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name })
+      if (err) {
+        localStorage.removeItem('nexia_pending_role')
+        setError(err.message)
+        return
+      }
+      navigate('/onboarding')
+    } catch {
+      localStorage.removeItem('nexia_pending_role')
+      setError('Error al crear la cuenta. Intentá de nuevo.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogle = async () => {
