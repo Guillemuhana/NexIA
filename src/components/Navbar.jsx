@@ -121,8 +121,10 @@ export default function Navbar() {
                   <span style={{ fontSize: 12, fontWeight: 600, color: profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#555' }}>{roleInfo.label}</span>
                 </div>
               )}
-              <button onClick={() => go('/perfil')} style={{ width: 34, height: 34, borderRadius: '50%', background: '#E8611A', border: 'none', color: '#fff', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {profile.name?.[0]?.toUpperCase() || 'U'}
+              <button onClick={() => go('/perfil')} style={{ width: 34, height: 34, borderRadius: '50%', background: '#E8611A', border: 'none', color: '#fff', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 0 }}>
+                {profile.avatar_url
+                  ? <img src={profile.avatar_url} alt={profile.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : profile.name?.[0]?.toUpperCase() || 'U'}
               </button>
             </>
           ) : (

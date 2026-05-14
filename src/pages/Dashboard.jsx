@@ -86,6 +86,7 @@ export default function Dashboard() {
   const [paywallLoading, setPaywallLoading] = useState(false)
 
   useEffect(() => { if (!loading && !user) navigate('/login') }, [user, loading])
+  useEffect(() => { if (!loading && user && !profile?.type) navigate('/onboarding') }, [loading, user, profile])
 
   useEffect(() => {
     if (!user || !profile) return
@@ -171,6 +172,8 @@ export default function Dashboard() {
       <Spinner />
     </div>
   )
+
+  if (!profile || !profile.type) return null
 
   const s = { padding: '100px 24px 60px', maxWidth: 1000, margin: '0 auto' }
   const lbl = { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, display: 'block' }
