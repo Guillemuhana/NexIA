@@ -183,12 +183,12 @@ export default function ProyectoPanel() {
     async function loadTeam(ideaData) {
       const { data: matches } = await supabase
         .from('matches')
-        .select('talent_id, role_sought, users(name, avatar_url)')
+        .select('talent_id, role_suggested, users(name, avatar_url)')
         .eq('idea_id', id).eq('status', 'accepted')
 
       setTeam([
         { id: ideaData.founder_id, name: ideaData.users?.name || 'Fundador', avatar_url: ideaData.users?.avatar_url, role: 'Fundador / CEO', isSelf: ideaData.founder_id === user.id },
-        ...(matches || []).map(m => ({ id: m.talent_id, name: m.users?.name || 'Miembro', avatar_url: m.users?.avatar_url, role: m.role_sought || 'Talento', isSelf: m.talent_id === user.id })),
+        ...(matches || []).map(m => ({ id: m.talent_id, name: m.users?.name || 'Miembro', avatar_url: m.users?.avatar_url, role: m.role_suggested || 'Talento', isSelf: m.talent_id === user.id })),
       ])
     }
 
