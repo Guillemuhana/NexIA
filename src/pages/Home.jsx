@@ -239,9 +239,9 @@ export default function Home() {
               </div>
             </div>
             {/* Fake panel UI */}
-            <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', minHeight: 220 }}>
+            <div className="home-panel-mockup-grid" style={{ display: 'grid', gridTemplateColumns: '180px 1fr', minHeight: 220 }}>
               {/* Sidebar */}
-              <div style={{ borderRight: '1px solid #111', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div className="home-panel-sidebar" style={{ borderRight: '1px solid #111', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {['Visión General', 'Hoja de Ruta', 'Ideas IA', 'Build Log', 'Equipo', 'Consultor IA'].map((item, i) => (
                   <div key={item} style={{ padding: '8px 10px', borderRadius: 6, background: i === 0 ? 'rgba(232,97,26,.1)' : 'transparent', fontSize: 12, color: i === 0 ? '#E8611A' : '#333', fontWeight: i === 0 ? 700 : 400 }}>{item}</div>
                 ))}
@@ -254,7 +254,7 @@ export default function Home() {
                     <div key={i} style={{ height: 9, borderRadius: 99, background: '#111', width: `${w}%` }} />
                   ))}
                 </div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+                <div style={{ display: 'flex', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
                   {['Roadmap generado', '6 ideas IA', 'Asesor activo'].map(tag => (
                     <span key={tag} style={{ fontSize: 10, padding: '3px 10px', borderRadius: 99, background: 'rgba(232,97,26,.1)', color: '#E8611A', border: '1px solid rgba(232,97,26,.15)', fontWeight: 600 }}>{tag}</span>
                   ))}

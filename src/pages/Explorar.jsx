@@ -76,7 +76,7 @@ export default function Explorar() {
         </p>
       </div>
 
-      <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', borderLeft: '1px solid #1a1a1a', borderRight: '1px solid #1a1a1a' }}>
+      <div className="cards-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', borderLeft: '1px solid #1a1a1a', borderRight: '1px solid #1a1a1a' }}>
         {loading ? (
           <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
             <div style={{ width: 32, height: 32, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />

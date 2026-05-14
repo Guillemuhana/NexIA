@@ -224,7 +224,7 @@ export default function Dashboard() {
               <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '10px 20px', fontSize: 14, marginTop: 8 }}>Lanzar mi primera idea →</button>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
+            <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
               {data.map(p => <ProjectCard key={p.id} project={p} />)}
             </div>
           )}
@@ -355,7 +355,7 @@ export default function Dashboard() {
               <div style={{ fontSize: 14 }}>Todavía no hay proyectos con equipos formados.</div>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
+            <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
               {data.map(p => <ProjectCard key={p.id} project={p} onFavorite={() => {}} showContact />)}
             </div>
           )}

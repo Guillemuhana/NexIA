@@ -84,7 +84,7 @@ export default function Proyectos() {
             <div style={{ width: 32, height: 32, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
+          <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
             {filtered.length === 0 ? (
               <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
                 {projects.length === 0 ? 'Todavía no hay proyectos publicados.' : 'No se encontraron proyectos con esos filtros.'}

@@ -143,10 +143,21 @@ select.input option { background: #111; }
   /* Filter rows wrap tighter */
   .filter-row { flex-direction: column !important; }
   .filter-row input, .filter-row select { width: 100% !important; }
+
+  /* Home: hide panel mockup sidebar — content takes full width */
+  .home-panel-sidebar { display: none !important; }
+  .home-panel-mockup-grid { grid-template-columns: 1fr !important; }
+
+  /* Project/talent cards: single column on mobile */
+  .cards-grid { grid-template-columns: 1fr !important; }
+
+  /* Ensure nothing overflows page width */
+  .page-wrap { overflow-x: hidden; }
 }
 
 @media (max-width: 480px) {
   /* Cards full-width on very small screens */
   .card-grid { grid-template-columns: 1fr !important; }
+  .cards-grid { grid-template-columns: 1fr !important; }
 }
 
