@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase, supabaseReady } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -7,8 +7,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const fetchingRef = useRef(false)
 
   const fetchProfile = async (userId) => {
+    // Prevent concurrent fetchProfile calls
+    if (fetchingRef.current) return
+    fetchingRef.current = true
     try {
       let { data } = await supabase
         .from('users')
@@ -44,7 +48,6 @@ export function AuthProvider({ children }) {
         const primaryRole = roles.find(r => r.is_primary)?.role_type || roles[0]?.role_type || null
         const tp = Array.isArray(data.talent_profiles) ? data.talent_profiles[0] : data.talent_profiles
 
-        // Auto-create talent_profiles for talento users who don't have one
         if (primaryRole === 'talento' && !tp) {
           await supabase.from('talent_profiles')
             .upsert({ user_id: userId, available: true, main_role: '' }, { onConflict: 'user_id' })
@@ -68,12 +71,16 @@ export function AuthProvider({ children }) {
       }
     } catch {}
     finally {
+      fetchingRef.current = false
       setLoading(false)
     }
   }
 
   useEffect(() => {
     if (!supabaseReady) { setLoading(false); return }
+
+    // Safety timeout: never stay loading more than 8 seconds
+    const safetyTimer = setTimeout(() => setLoading(false), 8000)
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -86,22 +93,22 @@ export function AuthProvider({ children }) {
       if (session?.user) {
         await fetchProfile(session.user.id)
 
-        // Aplicar rol pendiente (Google OAuth o email signup)
+        // Aplicar rol pendiente (Google OAuth o email signup) — sin bloquear loading
         if (event === 'SIGNED_IN') {
           const pendingRole = localStorage.getItem('nexia_pending_role')
           if (pendingRole) {
-            setLoading(true)
             localStorage.removeItem('nexia_pending_role')
             try {
               const { error: rpcErr } = await supabase.rpc('assign_user_role', { p_role_type: pendingRole })
-              // Fallback: direct insert si el RPC no existe aún
               if (rpcErr) {
                 await supabase.from('user_roles').insert({
                   user_id: session.user.id, role_type: pendingRole, is_primary: true,
                 }).select()
               }
+              // Refresh profile silently in the background
+              fetchingRef.current = false
+              await fetchProfile(session.user.id)
             } catch {}
-            await fetchProfile(session.user.id)
           }
         }
       } else {
@@ -110,7 +117,10 @@ export function AuthProvider({ children }) {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(safetyTimer)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async ({ email, password, name }) => {
@@ -142,7 +152,10 @@ export function AuthProvider({ children }) {
 
   const setUserRole = async (userId, roleType) => {
     const { error } = await supabase.rpc('assign_user_role', { p_role_type: roleType })
-    if (!error) await fetchProfile(userId)
+    if (!error) {
+      fetchingRef.current = false
+      await fetchProfile(userId)
+    }
     return { error }
   }
 
@@ -168,6 +181,7 @@ export function AuthProvider({ children }) {
       await supabase.from('talent_profiles').upsert(tpUpdates, { onConflict: 'user_id' }).catch(() => {})
     }
 
+    fetchingRef.current = false
     try { await fetchProfile(user.id) } catch {}
     return { data, error }
   }
