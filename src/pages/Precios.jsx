@@ -69,10 +69,10 @@ export default function Precios() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 1, border: '1px solid #1a1a1a' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 1, border: '1px solid #e8e8e8' }}>
           {PLANS.map(plan => (
             <div key={plan.name} style={{
-              padding: '36px 28px', background: plan.accent ? '#080808' : '#000',
+              padding: '36px 28px', background: plan.accent ? '#f5f5f5' : '#ffffff',
               display: 'flex', flexDirection: 'column',
               borderLeft: plan.accent ? '1px solid #E8611A' : 'none',
               borderRight: plan.accent ? '1px solid #E8611A' : 'none',
@@ -87,17 +87,17 @@ export default function Precios() {
               <div style={{ fontSize: 12, fontWeight: 700, color: '#666', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>{plan.name}</div>
 
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, marginBottom: 6 }}>
-                <span style={{ fontSize: 40, fontWeight: 900, letterSpacing: '-2px', color: plan.accent ? '#E8611A' : '#fff' }}>{plan.price}</span>
-                {plan.per && <span style={{ fontSize: 13, color: '#555', marginBottom: 8 }}>{plan.per}</span>}
+                <span style={{ fontSize: 40, fontWeight: 900, letterSpacing: '-2px', color: plan.accent ? '#E8611A' : '#0a0a0a' }}>{plan.price}</span>
+                {plan.per && <span style={{ fontSize: 13, color: '#666', marginBottom: 8 }}>{plan.per}</span>}
               </div>
 
-              <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6, marginBottom: 28 }}>{plan.desc}</p>
+              <p style={{ fontSize: 13, color: '#666', lineHeight: 1.6, marginBottom: 28 }}>{plan.desc}</p>
 
               <div style={{ flex: 1, marginBottom: 28 }}>
                 {plan.perks.map(p => (
                   <div key={p} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
                     <span style={{ color: '#22c55e', fontSize: 13, flexShrink: 0, marginTop: 1 }}>✓</span>
-                    <span style={{ fontSize: 13, color: '#888', lineHeight: 1.5 }}>{p}</span>
+                    <span style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{p}</span>
                   </div>
                 ))}
               </div>
@@ -109,7 +109,7 @@ export default function Precios() {
                   borderRadius: 8, cursor: 'pointer', fontFamily: 'Inter, sans-serif',
                   background: plan.accent ? '#E8611A' : 'transparent',
                   color: plan.accent ? '#fff' : '#666',
-                  border: plan.accent ? 'none' : '1px solid #222',
+                  border: plan.accent ? 'none' : '1px solid #d0d0d0',
                   transition: 'all .15s',
                 }}
               >
@@ -122,15 +122,15 @@ export default function Precios() {
         {/* FAQ */}
         <div style={{ marginTop: 80 }}>
           <h2 style={{ fontSize: 'clamp(22px,4vw,32px)', fontWeight: 900, letterSpacing: '-1px', marginBottom: 36, textAlign: 'center' }}>Preguntas frecuentes</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 1, border: '1px solid #1a1a1a' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 1, border: '1px solid #e8e8e8' }}>
             {[
               ['¿Qué incluye la primera idea gratis?', 'El matching completo con IA, sugerencia de equipo ideal y envío de invitaciones automáticas. Todo. Sin costo.'],
               ['¿Cuándo paga el talento?', 'Solo cuando decide aceptar una invitación y conectarse con el equipo. Recibir invitaciones es siempre gratis.'],
               ['¿Puedo hacer mi idea privada?', 'Sí. Al publicar una idea podés elegir si es pública (visible a inversores) o privada (solo vos y tu equipo la ven).'],
               ['¿Qué pasa si el equipo no acepta?', 'Si ningún talento acepta tu invitación en 30 días, te devolvemos el pago. Equipo garantizado.'],
             ].map(([q, a]) => (
-              <div key={q} style={{ padding: '28px 24px', background: '#000' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#fff' }}>{q}</div>
+              <div key={q} style={{ padding: '28px 24px', background: '#ffffff' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#0a0a0a' }}>{q}</div>
                 <div style={{ fontSize: 13, color: '#666', lineHeight: 1.7 }}>{a}</div>
               </div>
             ))}

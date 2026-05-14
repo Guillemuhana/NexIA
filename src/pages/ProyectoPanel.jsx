@@ -32,7 +32,7 @@ function Icon({ name, size = 18, color = 'currentColor' }) {
 }
 
 function Skeleton({ w = '100%', h = 16, r = 6 }) {
-  return <div style={{ width: w, height: h, borderRadius: r, background: 'linear-gradient(90deg,#141414 25%,#1e1e1e 50%,#141414 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+  return <div style={{ width: w, height: h, borderRadius: r, background: 'linear-gradient(90deg,#e8e8e8 25%,#d0d0d0 50%,#e8e8e8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
 }
 
 function SkeletonBlock() {
@@ -43,7 +43,7 @@ function SkeletonBlock() {
   )
 }
 
-function Pill({ label, color = '#111', textColor = '#555' }) {
+function Pill({ label, color = '#f0f0f0', textColor = '#666' }) {
   return <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 600, background: color, color: textColor, letterSpacing: '.3px', textTransform: 'uppercase' }}>{label}</span>
 }
 
@@ -62,11 +62,11 @@ function ChatBubble({ msg }) {
       )}
       <div style={{
         maxWidth: '75%', padding: '12px 16px', borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-        background: isUser ? '#E8611A' : '#111', border: isUser ? 'none' : '1px solid #1a1a1a',
-        fontSize: 14, color: isUser ? '#fff' : '#ccc', lineHeight: 1.65, whiteSpace: 'pre-wrap',
+        background: isUser ? '#E8611A' : '#f0f0f0', border: isUser ? 'none' : '1px solid #e8e8e8',
+        fontSize: 14, color: isUser ? '#fff' : '#333', lineHeight: 1.65, whiteSpace: 'pre-wrap',
       }}>
         {msg.text}
-        {msg._isDemo && <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,.5)', fontStyle: 'italic' }}>Modo demo</div>}
+        {msg._isDemo && <div style={{ marginTop: 8, fontSize: 11, color: isUser ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.4)', fontStyle: 'italic' }}>Modo demo</div>}
       </div>
     </div>
   )
@@ -79,7 +79,7 @@ function TypingDots() {
       <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(232,97,26,.15)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon name="bot" size={14} color="#E8611A" />
       </div>
-      <div style={{ padding: '12px 16px', borderRadius: '16px 16px 16px 4px', background: '#111', border: '1px solid #1a1a1a', display: 'flex', gap: 5, alignItems: 'center' }}>
+      <div style={{ padding: '12px 16px', borderRadius: '16px 16px 16px 4px', background: '#f0f0f0', border: '1px solid #e8e8e8', display: 'flex', gap: 5, alignItems: 'center' }}>
         {[0, 1, 2].map(i => (
           <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#E8611A', animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite` }} />
         ))}
@@ -258,16 +258,16 @@ export default function ProyectoPanel() {
 
   // ── Access guards ──────────────────────────────────────────────────────
   if (authLoading || access === null) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#080808' }}>
-      <div style={{ width: 32, height: 32, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f8f9fa' }}>
+      <div style={{ width: 32, height: 32, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
     </div>
   )
 
   if (access === false) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#080808', gap: 16, textAlign: 'center', padding: 24 }}>
-      <Icon name="lock" size={40} color="#333" />
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>Acceso restringido</h2>
-      <p style={{ color: '#555', fontSize: 15, maxWidth: 360, margin: 0 }}>Este panel es exclusivo para el equipo del proyecto.</p>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f8f9fa', gap: 16, textAlign: 'center', padding: 24 }}>
+      <Icon name="lock" size={40} color="#bbb" />
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0a0a0a', margin: 0 }}>Acceso restringido</h2>
+      <p style={{ color: '#666', fontSize: 15, maxWidth: 360, margin: 0 }}>Este panel es exclusivo para el equipo del proyecto.</p>
       <button onClick={() => navigate('/dashboard')} style={{ marginTop: 8, padding: '10px 24px', background: '#E8611A', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>Ir al Dashboard</button>
     </div>
   )
@@ -289,31 +289,31 @@ export default function ProyectoPanel() {
         @keyframes spin    { to { transform:rotate(360deg) } }
         @keyframes fadeUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes bounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-        .pnav { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:500;color:#555;border:none;background:none;width:100%;text-align:left;transition:all .15s;font-family:Inter,sans-serif; }
-        .pnav:hover  { color:#ccc;background:rgba(255,255,255,.04); }
+        .pnav { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:500;color:#666;border:none;background:none;width:100%;text-align:left;transition:all .15s;font-family:Inter,sans-serif; }
+        .pnav:hover  { color:#333;background:rgba(0,0,0,0.04); }
         .pnav.active { color:#E8611A;background:rgba(232,97,26,.1);font-weight:700; }
-        .pcard  { background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:24px;animation:fadeUp .3s ease; }
+        .pcard  { background:#ffffff;border:1px solid #e8e8e8;border-radius:12px;padding:24px;animation:fadeUp .3s ease; }
         .pcard+.pcard { margin-top:16px; }
         .ai-chip { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(232,97,26,.1);border:1px solid rgba(232,97,26,.2);border-radius:99px;font-size:11px;font-weight:700;color:#E8611A;letter-spacing:.3px; }
         .phase-row { display:grid;grid-template-columns:200px 1fr; }
-        .phase-row+.phase-row { border-top:1px solid #111; }
+        .phase-row+.phase-row { border-top:1px solid #f0f0f0; }
         .ideas-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
-        .icard { background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:18px;transition:border-color .15s; }
-        .icard:hover { border-color:#2a2a2a; }
+        .icard { background:#f8f9fa;border:1px solid #e8e8e8;border-radius:10px;padding:18px;transition:border-color .15s; }
+        .icard:hover { border-color:#bbb; }
         .metrics-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px; }
         .team-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px; }
-        .tmember { background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:18px;text-align:center; }
-        .rrisk+.rrisk { border-top:1px solid #111; }
-        .nstep+.nstep { border-top:1px solid #0d0d0d; }
+        .tmember { background:#f8f9fa;border:1px solid #e8e8e8;border-radius:10px;padding:18px;text-align:center; }
+        .rrisk+.rrisk { border-top:1px solid #f0f0f0; }
+        .nstep+.nstep { border-top:1px solid #f5f5f5; }
         .chat-input:focus { outline:none;border-color:rgba(232,97,26,.4); }
-        .suggest-btn { background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:8px 12px;color:#555;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;text-align:left;transition:all .15s; }
-        .suggest-btn:hover { border-color:#333;color:#aaa; }
+        .suggest-btn { background:#f8f9fa;border:1px solid #e8e8e8;border-radius:8px;padding:8px 12px;color:#666;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;text-align:left;transition:all .15s; }
+        .suggest-btn:hover { border-color:#bbb;color:#555; }
         .panel-mobile-nav { display:none; }
         @media (max-width:768px) {
           .panel-sidebar { display:none !important; }
-          .panel-mobile-nav { display:flex;overflow-x:auto;gap:4px;padding:8px 12px;background:#080808;border-bottom:1px solid #111;position:sticky;top:64px;z-index:50;scrollbar-width:none; }
+          .panel-mobile-nav { display:flex;overflow-x:auto;gap:4px;padding:8px 12px;background:#f8f9fa;border-bottom:1px solid #e8e8e8;position:sticky;top:64px;z-index:50;scrollbar-width:none; }
           .panel-mobile-nav::-webkit-scrollbar { display:none; }
-          .panel-mobile-btn { display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:8px;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:10px;font-weight:600;color:#555;white-space:nowrap;flex-shrink:0;transition:all .15s; }
+          .panel-mobile-btn { display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:8px;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:10px;font-weight:600;color:#666;white-space:nowrap;flex-shrink:0;transition:all .15s; }
           .panel-mobile-btn.active { color:#E8611A;background:rgba(232,97,26,.1); }
           .panel-main { padding:16px !important; }
           .panel-chat-main { padding:12px !important; }
@@ -324,7 +324,7 @@ export default function ProyectoPanel() {
           .metrics-grid { grid-template-columns:1fr !important; }
           .team-grid { grid-template-columns:repeat(2,1fr) !important; }
           .phase-row { grid-template-columns:1fr !important; }
-          .phase-row > div:first-child { border-right:none !important;border-bottom:1px solid #111; }
+          .phase-row > div:first-child { border-right:none !important;border-bottom:1px solid #f0f0f0; }
           .suggest-grid { grid-template-columns:1fr !important; }
           .panel-header { flex-direction:column;align-items:flex-start;gap:12px; }
           .panel-regen { align-self:flex-start; }
@@ -332,7 +332,7 @@ export default function ProyectoPanel() {
         }
       `}</style>
 
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#080808', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa', fontFamily: 'Inter, sans-serif' }}>
 
         {/* ── Mobile tab bar ──────────────────────────────────────── */}
         <div className="panel-mobile-nav">
@@ -347,35 +347,35 @@ export default function ProyectoPanel() {
               }
               setActive(n.id)
             }}>
-              <Icon name={n.icon} size={16} color={activeSection === n.id ? '#E8611A' : '#444'} />
+              <Icon name={n.icon} size={16} color={activeSection === n.id ? '#E8611A' : '#777'} />
               {n.label}
             </button>
           ))}
         </div>
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
-        <aside className="panel-sidebar" style={{ width: 224, flexShrink: 0, borderRight: '1px solid #111', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
+        <aside className="panel-sidebar" style={{ width: 224, flexShrink: 0, borderRight: '1px solid #e8e8e8', background: '#ffffff', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
           <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 32, paddingLeft: 4 }}>
             <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1 }}>Equ</span>
             <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1, color: '#E8611A' }}>ia</span>
-            <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: '#333', letterSpacing: 1, textTransform: 'uppercase', border: '1px solid #222', borderRadius: 4, padding: '1px 5px' }}>Panel</span>
+            <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: 1, textTransform: 'uppercase', border: '1px solid #d0d0d0', borderRadius: 4, padding: '1px 5px' }}>Panel</span>
           </div>
 
           {/* Project name + team count */}
           <div style={{ paddingLeft: 4, marginBottom: 8 }}>
-            <div style={{ fontSize: 10, color: '#333', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Proyecto</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#ccc', lineHeight: 1.3, wordBreak: 'break-word', marginBottom: 8 }}>{idea?.title}</div>
+            <div style={{ fontSize: 10, color: '#888', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Proyecto</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', lineHeight: 1.3, wordBreak: 'break-word', marginBottom: 8 }}>{idea?.title}</div>
           </div>
 
           {/* Team mini-avatars */}
           {team.length > 0 && (
             <div style={{ paddingLeft: 4, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 0 }}>
               {team.slice(0, 5).map((m, i) => (
-                <div key={m.id} style={{ width: 26, height: 26, borderRadius: '50%', border: '2px solid #080808', marginLeft: i === 0 ? 0 : -8, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: m.isSelf ? '#E8611A' : '#555', overflow: 'hidden', flexShrink: 0 }}>
+                <div key={m.id} style={{ width: 26, height: 26, borderRadius: '50%', border: '2px solid #f8f9fa', marginLeft: i === 0 ? 0 : -8, background: '#e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: m.isSelf ? '#E8611A' : '#666', overflow: 'hidden', flexShrink: 0 }}>
                   {m.avatar_url ? <img src={m.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.name.charAt(0).toUpperCase()}
                 </div>
               ))}
-              <span style={{ marginLeft: 10, fontSize: 11, color: '#444' }}>{team.length} miembros</span>
+              <span style={{ marginLeft: 10, fontSize: 11, color: '#777' }}>{team.length} miembros</span>
             </div>
           )}
 
@@ -391,10 +391,10 @@ export default function ProyectoPanel() {
                 }
                 setActive(n.id)
               }}>
-                <Icon name={n.icon} size={15} color={activeSection === n.id ? '#E8611A' : '#444'} />
+                <Icon name={n.icon} size={15} color={activeSection === n.id ? '#E8611A' : '#777'} />
                 {n.label}
                 {n.id === 'buildlog' && buildLogs.length > 0 && (
-                  <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: '#111', color: '#555', borderRadius: 99, padding: '1px 6px', border: '1px solid #1a1a1a' }}>{buildLogs.length}</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: '#f0f0f0', color: '#666', borderRadius: 99, padding: '1px 6px', border: '1px solid #e8e8e8' }}>{buildLogs.length}</span>
                 )}
                 {n.id === 'chat' && chatHistory.length === 0 && (
                   <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,.6)', flexShrink: 0 }} />
@@ -406,9 +406,9 @@ export default function ProyectoPanel() {
             ))}
           </nav>
 
-          <div style={{ paddingTop: 16, borderTop: '1px solid #111' }}>
-            <button onClick={() => navigate('/dashboard')} className="pnav" style={{ color: '#333' }}>
-              <Icon name="back" size={15} color="#333" /> Dashboard
+          <div style={{ paddingTop: 16, borderTop: '1px solid #e8e8e8' }}>
+            <button onClick={() => navigate('/dashboard')} className="pnav" style={{ color: '#888' }}>
+              <Icon name="back" size={15} color="#888" /> Dashboard
             </button>
           </div>
         </aside>
@@ -423,15 +423,15 @@ export default function ProyectoPanel() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <span className="ai-chip"><Icon name="zap" size={10} color="#E8611A" /> Gemini AI</span>
-                    {ai?._isDemo && <span style={{ fontSize: 11, color: '#555', fontStyle: 'italic' }}>modo demo</span>}
+                    {ai?._isDemo && <span style={{ fontSize: 11, color: '#666', fontStyle: 'italic' }}>modo demo</span>}
                   </div>
-                  <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', letterSpacing: '-1px', margin: 0 }}>{NAV.find(n => n.id === activeSection)?.label}</h1>
+                  <h1 style={{ fontSize: 26, fontWeight: 900, color: '#0a0a0a', letterSpacing: '-1px', margin: 0 }}>{NAV.find(n => n.id === activeSection)?.label}</h1>
                   {ai?.vision && activeSection === 'overview' && (
-                    <p style={{ margin: '6px 0 0', fontSize: 13, color: '#555', fontStyle: 'italic' }}>{ai.vision}</p>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, color: '#666', fontStyle: 'italic' }}>{ai.vision}</p>
                   )}
                 </div>
-                <button onClick={generateAI} disabled={aiLoading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', background: aiLoading ? '#111' : 'rgba(232,97,26,.1)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 8, cursor: aiLoading ? 'not-allowed' : 'pointer', color: aiLoading ? '#444' : '#E8611A', fontSize: 13, fontWeight: 700, fontFamily: 'Inter,sans-serif', flexShrink: 0 }}>
-                  <Icon name="refresh" size={14} color={aiLoading ? '#444' : '#E8611A'} />
+                <button onClick={generateAI} disabled={aiLoading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', background: aiLoading ? '#f0f0f0' : 'rgba(232,97,26,.1)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 8, cursor: aiLoading ? 'not-allowed' : 'pointer', color: aiLoading ? '#777' : '#E8611A', fontSize: 13, fontWeight: 700, fontFamily: 'Inter,sans-serif', flexShrink: 0 }}>
+                  <Icon name="refresh" size={14} color={aiLoading ? '#777' : '#E8611A'} />
                   {aiLoading ? 'Analizando...' : 'Regenerar'}
                 </button>
               </div>
@@ -450,7 +450,7 @@ export default function ProyectoPanel() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div className="pcard">
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Resumen estratégico</div>
-                {aiLoading ? <SkeletonBlock /> : <p style={{ color: '#aaa', fontSize: 15, lineHeight: 1.75, margin: 0 }}>{ai?.resumen || '...'}</p>}
+                {aiLoading ? <SkeletonBlock /> : <p style={{ color: '#555', fontSize: 15, lineHeight: 1.75, margin: 0 }}>{ai?.resumen || '...'}</p>}
               </div>
               <div className="pcard">
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 16 }}>Próximos pasos</div>
@@ -461,7 +461,7 @@ export default function ProyectoPanel() {
                       <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(232,97,26,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <span style={{ fontSize: 10, fontWeight: 800, color: '#E8611A' }}>{i + 1}</span>
                       </div>
-                      <span style={{ color: '#bbb', fontSize: 14, lineHeight: 1.5, paddingTop: 2 }}>{step}</span>
+                      <span style={{ color: '#444', fontSize: 14, lineHeight: 1.5, paddingTop: 2 }}>{step}</span>
                     </div>
                   ))
                 }
@@ -472,7 +472,7 @@ export default function ProyectoPanel() {
                     <Icon name="sparkle" size={13} color="#E8611A" />
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase' }}>Consejo para el equipo</span>
                   </div>
-                  {aiLoading ? <Skeleton h={14} w="90%" /> : <p style={{ color: '#ccc', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{ai?.consejo_equipo}"</p>}
+                  {aiLoading ? <Skeleton h={14} w="90%" /> : <p style={{ color: '#333', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{ai?.consejo_equipo}"</p>}
                 </div>
               )}
               <AskAIButton question="¿Cuál debería ser nuestra primera prioridad esta semana para avanzar más rápido?" onAsk={askAI} />
@@ -487,17 +487,17 @@ export default function ProyectoPanel() {
                   ? <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>{[...Array(4)].map((_, i) => <SkeletonBlock key={i} />)}</div>
                   : (ai?.roadmap || []).map((phase, i) => (
                     <div key={i} className="phase-row">
-                      <div style={{ padding: '26px 22px', borderRight: '1px solid #111', background: i % 2 === 0 ? '#0a0a0a' : 'transparent' }}>
+                      <div style={{ padding: '26px 22px', borderRight: '1px solid #f0f0f0', background: i % 2 === 0 ? '#f8f9fa' : 'transparent' }}>
                         <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 5 }}>Fase {i + 1}</div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 8, lineHeight: 1.3 }}>{phase.fase.replace(/^Fase \d+:\s*/i, '')}</div>
-                        <span style={{ fontSize: 11, padding: '3px 8px', background: '#111', borderRadius: 99, color: '#555' }}>{phase.duracion}</span>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0a0a0a', marginBottom: 8, lineHeight: 1.3 }}>{phase.fase.replace(/^Fase \d+:\s*/i, '')}</div>
+                        <span style={{ fontSize: 11, padding: '3px 8px', background: '#f0f0f0', borderRadius: 99, color: '#666' }}>{phase.duracion}</span>
                       </div>
                       <div style={{ padding: '26px 22px' }}>
-                        <div style={{ fontSize: 12, color: '#555', marginBottom: 12, fontWeight: 600 }}>{phase.objetivo}</div>
+                        <div style={{ fontSize: 12, color: '#666', marginBottom: 12, fontWeight: 600 }}>{phase.objetivo}</div>
                         {(phase.tareas || []).map((t, j) => (
                           <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
-                            <div style={{ width: 15, height: 15, border: '1.5px solid #2a2a2a', borderRadius: 4, flexShrink: 0, marginTop: 1 }} />
-                            <span style={{ color: '#aaa', fontSize: 13, lineHeight: 1.5 }}>{t}</span>
+                            <div style={{ width: 15, height: 15, border: '1.5px solid #d0d0d0', borderRadius: 4, flexShrink: 0, marginTop: 1 }} />
+                            <span style={{ color: '#555', fontSize: 13, lineHeight: 1.5 }}>{t}</span>
                           </div>
                         ))}
                       </div>
@@ -512,7 +512,7 @@ export default function ProyectoPanel() {
           {/* ── IDEAS IA ──────────────────────────────────────────── */}
           {activeSection === 'ideas' && (
             <>
-              <p style={{ color: '#444', fontSize: 13, marginBottom: 18 }}>Ideas generadas por IA — ordenadas por impacto.</p>
+              <p style={{ color: '#777', fontSize: 13, marginBottom: 18 }}>Ideas generadas por IA — ordenadas por impacto.</p>
               <div className="ideas-grid">
                 {aiLoading
                   ? [...Array(6)].map((_, i) => <div key={i} className="icard"><Skeleton h={14} w="70%" /><div style={{ marginTop: 10 }}><Skeleton h={12} /></div><div style={{ marginTop: 6 }}><Skeleton h={12} w="80%" /></div></div>)
@@ -521,10 +521,10 @@ export default function ProyectoPanel() {
                     return (
                       <div key={i} className="icard">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: '#e0e0e0', lineHeight: 1.3 }}>{idea.titulo}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#222', lineHeight: 1.3 }}>{idea.titulo}</span>
                           <Pill label={idea.categoria} />
                         </div>
-                        <p style={{ color: '#555', fontSize: 12.5, lineHeight: 1.6, margin: '0 0 12px' }}>{idea.descripcion}</p>
+                        <p style={{ color: '#666', fontSize: 12.5, lineHeight: 1.6, margin: '0 0 12px' }}>{idea.descripcion}</p>
                         <div style={{ display: 'flex', gap: 5 }}>
                           <Pill label={`Impacto ${idea.impacto}`} color={ibg} textColor={itxt} />
                           <Pill label={`Esfuerzo ${idea.esfuerzo}`} />
@@ -547,9 +547,9 @@ export default function ProyectoPanel() {
                   : (ai?.metricas_clave || []).map((m, i) => (
                     <div key={i} className="pcard">
                       <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>{m.tipo}</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 4 }}>{m.meta}</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#ccc', marginBottom: 6 }}>{m.nombre}</div>
-                      <div style={{ fontSize: 12.5, color: '#555', lineHeight: 1.5 }}>{m.descripcion}</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#0a0a0a', marginBottom: 4 }}>{m.meta}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#333', marginBottom: 6 }}>{m.nombre}</div>
+                      <div style={{ fontSize: 12.5, color: '#666', lineHeight: 1.5 }}>{m.descripcion}</div>
                     </div>
                   ))
                 }
@@ -564,8 +564,8 @@ export default function ProyectoPanel() {
                     return (
                       <div key={i} className="rrisk" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, padding: '14px 0' }}>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#ddd', marginBottom: 4 }}>{r.nombre}</div>
-                          <div style={{ fontSize: 12.5, color: '#555', lineHeight: 1.5, marginBottom: 6 }}>{r.descripcion}</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#222', marginBottom: 4 }}>{r.nombre}</div>
+                          <div style={{ fontSize: 12.5, color: '#666', lineHeight: 1.5, marginBottom: 6 }}>{r.descripcion}</div>
                           <div style={{ fontSize: 12, color: '#666' }}><span style={{ fontWeight: 600 }}>Mitigación: </span>{r.mitigacion}</div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0 }}>
@@ -588,13 +588,13 @@ export default function ProyectoPanel() {
                 {team.map(member => (
                   <div key={member.id} className="tmember">
                     {member.avatar_url
-                      ? <img src={member.avatar_url} alt={member.name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, border: member.isSelf ? '2px solid #E8611A' : '2px solid #1a1a1a' }} />
-                      : <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', border: member.isSelf ? '2px solid #E8611A' : '2px solid #1a1a1a' }}>
-                          <span style={{ fontSize: 18, fontWeight: 900, color: member.isSelf ? '#E8611A' : '#555' }}>{member.name.charAt(0).toUpperCase()}</span>
+                      ? <img src={member.avatar_url} alt={member.name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, border: member.isSelf ? '2px solid #E8611A' : '2px solid #e8e8e8' }} />
+                      : <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', border: member.isSelf ? '2px solid #E8611A' : '2px solid #e8e8e8' }}>
+                          <span style={{ fontSize: 18, fontWeight: 900, color: member.isSelf ? '#E8611A' : '#666' }}>{member.name.charAt(0).toUpperCase()}</span>
                         </div>
                     }
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#e0e0e0', marginBottom: 3 }}>{member.name}</div>
-                    <div style={{ fontSize: 11, color: '#555' }}>{member.role}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#222', marginBottom: 3 }}>{member.name}</div>
+                    <div style={{ fontSize: 11, color: '#666' }}>{member.role}</div>
                     {member.isSelf && <div style={{ marginTop: 8 }}><Pill label="Vos" color="rgba(232,97,26,.15)" textColor="#E8611A" /></div>}
                   </div>
                 ))}
@@ -605,7 +605,7 @@ export default function ProyectoPanel() {
                     <Icon name="sparkle" size={13} color="#E8611A" />
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase' }}>Consejo de la IA para el equipo</span>
                   </div>
-                  <p style={{ color: '#aaa', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{ai.consejo_equipo}"</p>
+                  <p style={{ color: '#555', fontSize: 14, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>"{ai.consejo_equipo}"</p>
                 </div>
               )}
               <AskAIButton question="¿Qué roles o habilidades le faltan al equipo para maximizar las probabilidades de éxito?" onAsk={askAI} />
@@ -616,25 +616,25 @@ export default function ProyectoPanel() {
           {activeSection === 'chat' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
               {/* Chat header */}
-              <div className="panel-chat-header" style={{ padding: '24px 32px 20px', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="panel-chat-header" style={{ padding: '24px 32px 20px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff' }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(232,97,26,.15)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon name="bot" size={16} color="#E8611A" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Consultor IA del equipo</div>
-                  <div style={{ fontSize: 12, color: '#555' }}>Preguntale cualquier cosa sobre "{idea?.title}"</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#0a0a0a' }}>Consultor IA del equipo</div>
+                  <div style={{ fontSize: 12, color: '#666' }}>Preguntale cualquier cosa sobre "{idea?.title}"</div>
                 </div>
               </div>
 
               {/* Messages */}
-              <div className="panel-chat-main" style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
+              <div className="panel-chat-main" style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#f8f9fa' }}>
                 {chatHistory.length === 0 && (
                   <div style={{ textAlign: 'center', paddingTop: 32 }}>
                     <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(232,97,26,.1)', border: '1px solid rgba(232,97,26,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                       <Icon name="sparkle" size={22} color="#E8611A" />
                     </div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#ccc', marginBottom: 6 }}>Tu asesor de startup privado</div>
-                    <div style={{ fontSize: 13, color: '#444', marginBottom: 28, lineHeight: 1.6 }}>Preguntá sobre estrategia, producto, equipo o cualquier duda del proyecto.</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 6 }}>Tu asesor de startup privado</div>
+                    <div style={{ fontSize: 13, color: '#777', marginBottom: 28, lineHeight: 1.6 }}>Preguntá sobre estrategia, producto, equipo o cualquier duda del proyecto.</div>
                     <div className="suggest-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxWidth: 520, margin: '0 auto' }}>
                       {SUGGESTED.map(q => (
                         <button key={q} className="suggest-btn" onClick={() => sendChat(q)}>{q}</button>
@@ -648,7 +648,7 @@ export default function ProyectoPanel() {
               </div>
 
               {/* Input */}
-              <div className="panel-chat-input" style={{ padding: '16px 32px 24px', borderTop: '1px solid #111', background: '#080808' }}>
+              <div className="panel-chat-input" style={{ padding: '16px 32px 24px', borderTop: '1px solid #e8e8e8', background: '#ffffff' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
                   <textarea
                     className="chat-input"
@@ -657,17 +657,17 @@ export default function ProyectoPanel() {
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat() } }}
                     placeholder="Escribí tu pregunta... (Enter para enviar, Shift+Enter para nueva línea)"
                     rows={2}
-                    style={{ flex: 1, background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 10, color: '#fff', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color .15s' }}
+                    style={{ flex: 1, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, color: '#0a0a0a', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color .15s' }}
                   />
                   <button
                     onClick={() => sendChat()}
                     disabled={!chatInput.trim() || chatLoading}
-                    style={{ width: 44, height: 44, borderRadius: 10, background: chatInput.trim() && !chatLoading ? '#E8611A' : '#111', border: '1px solid #1a1a1a', cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}
+                    style={{ width: 44, height: 44, borderRadius: 10, background: chatInput.trim() && !chatLoading ? '#E8611A' : '#f0f0f0', border: '1px solid #e8e8e8', cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}
                   >
-                    <Icon name="send" size={16} color={chatInput.trim() && !chatLoading ? '#fff' : '#333'} />
+                    <Icon name="send" size={16} color={chatInput.trim() && !chatLoading ? '#fff' : '#bbb'} />
                   </button>
                 </div>
-                <div style={{ marginTop: 8, fontSize: 11, color: '#333', textAlign: 'center' }}>Powered by Gemini 1.5 Flash · Contexto del proyecto incluido</div>
+                <div style={{ marginTop: 8, fontSize: 11, color: '#888', textAlign: 'center' }}>Powered by Gemini 1.5 Flash · Contexto del proyecto incluido</div>
               </div>
             </div>
           )}
@@ -681,9 +681,9 @@ export default function ProyectoPanel() {
                   {LOG_TYPES.map(t => (
                     <button key={t.id} onClick={() => setLogType(t.id)} style={{
                       padding: '5px 14px', borderRadius: 99,
-                      border: `1px solid ${logType === t.id ? t.color + '60' : '#1a1a1a'}`,
+                      border: `1px solid ${logType === t.id ? t.color + '60' : '#e8e8e8'}`,
                       background: logType === t.id ? t.bg : 'transparent',
-                      color: logType === t.id ? t.color : '#555',
+                      color: logType === t.id ? t.color : '#666',
                       fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter,sans-serif',
                       transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5,
                     }}>
@@ -697,14 +697,14 @@ export default function ProyectoPanel() {
                   onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) addLog() }}
                   placeholder="¿Qué pasó hoy? Un avance, una decisión, un aprendizaje..."
                   rows={3}
-                  style={{ width: '100%', background: '#111', border: '1px solid #1a1a1a', borderRadius: 8, color: '#fff', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.55, boxSizing: 'border-box', transition: 'border-color .15s' }}
+                  style={{ width: '100%', background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 8, color: '#0a0a0a', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.55, boxSizing: 'border-box', transition: 'border-color .15s' }}
                   onFocus={e => e.target.style.borderColor = 'rgba(232,97,26,.4)'}
-                  onBlur={e => e.target.style.borderColor = '#1a1a1a'}
+                  onBlur={e => e.target.style.borderColor = '#e8e8e8'}
                 />
                 <button
                   onClick={addLog}
                   disabled={!newLog.trim() || logSaving}
-                  style={{ marginTop: 10, padding: '10px 20px', background: newLog.trim() ? '#E8611A' : '#111', border: 'none', borderRadius: 8, color: newLog.trim() ? '#fff' : '#444', fontWeight: 700, fontSize: 13, cursor: newLog.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Inter,sans-serif', transition: 'all .15s', opacity: logSaving ? 0.7 : 1 }}
+                  style={{ marginTop: 10, padding: '10px 20px', background: newLog.trim() ? '#E8611A' : '#f0f0f0', border: 'none', borderRadius: 8, color: newLog.trim() ? '#fff' : '#bbb', fontWeight: 700, fontSize: 13, cursor: newLog.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Inter,sans-serif', transition: 'all .15s', opacity: logSaving ? 0.7 : 1 }}
                 >
                   {logSaving ? 'Guardando...' : '+ Agregar al Build Log'}
                 </button>
@@ -713,8 +713,8 @@ export default function ProyectoPanel() {
               {buildLogs.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '48px 0' }}>
                   <div style={{ fontSize: 40, marginBottom: 14 }}>📋</div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: '#555', marginBottom: 6 }}>El historial está vacío</div>
-                  <div style={{ fontSize: 13, color: '#333', lineHeight: 1.7 }}>Cada avance, decisión o aprendizaje que agregues<br />queda registrado aquí para siempre.</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#666', marginBottom: 6 }}>El historial está vacío</div>
+                  <div style={{ fontSize: 13, color: '#888', lineHeight: 1.7 }}>Cada avance, decisión o aprendizaje que agregues<br />queda registrado aquí para siempre.</div>
                 </div>
               ) : (
                 <div>
@@ -726,17 +726,17 @@ export default function ProyectoPanel() {
                       <div key={log.id} style={{ display: 'flex', gap: 14, marginBottom: 16, animation: 'fadeUp .3s ease' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, marginTop: 4 }}>
                           <div style={{ width: 34, height: 34, borderRadius: '50%', background: type.bg, border: `1px solid ${type.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>{type.icon}</div>
-                          {i < buildLogs.length - 1 && <div style={{ width: 1, flex: 1, minHeight: 20, background: '#111', marginTop: 6 }} />}
+                          {i < buildLogs.length - 1 && <div style={{ width: 1, flex: 1, minHeight: 20, background: '#e8e8e8', marginTop: 6 }} />}
                         </div>
                         <div className="pcard" style={{ flex: 1, padding: '14px 18px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 99, background: type.bg, color: type.color }}>{type.label}</span>
-                              <span style={{ fontSize: 12, color: '#444' }}>{log.users?.name || 'Equipo'}</span>
+                              <span style={{ fontSize: 12, color: '#777' }}>{log.users?.name || 'Equipo'}</span>
                             </div>
-                            <span style={{ fontSize: 11, color: '#333' }}>{dateStr}</span>
+                            <span style={{ fontSize: 11, color: '#888' }}>{dateStr}</span>
                           </div>
-                          <p style={{ color: '#bbb', fontSize: 14, lineHeight: 1.65, margin: 0 }}>{log.content}</p>
+                          <p style={{ color: '#444', fontSize: 14, lineHeight: 1.65, margin: 0 }}>{log.content}</p>
                         </div>
                       </div>
                     )

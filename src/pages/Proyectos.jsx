@@ -48,7 +48,7 @@ export default function Proyectos() {
 
   return (
     <div className="page-wrap">
-      <div style={{ padding: '100px 24px 32px', borderBottom: '1px solid #1a1a1a', maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ padding: '100px 24px 32px', borderBottom: '1px solid #e8e8e8', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14 }}>
           {isInversor ? 'Deal flow' : 'Showcase'}
         </div>
@@ -62,18 +62,18 @@ export default function Proyectos() {
         </p>
 
         <div className="filter-row" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar proyectos..." style={{ flex: 1, minWidth: 180, padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#fff', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
-          <select value={filterCat} onChange={e => setFilterCat(e.target.value)} style={{ padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#666', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar proyectos..." style={{ flex: 1, minWidth: 180, padding: '10px 14px', background: '#f8f9fa', border: '1px solid #e8e8e8', color: '#0a0a0a', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
+          <select value={filterCat} onChange={e => setFilterCat(e.target.value)} style={{ padding: '10px 14px', background: '#f8f9fa', border: '1px solid #e8e8e8', color: '#666', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
             <option value="all">Todas las categorías</option>
             {CATEGORIES.map(c => <option key={c.label} value={c.label}>{c.icon} {c.label}</option>)}
           </select>
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '10px 14px', background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#666', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '10px 14px', background: '#f8f9fa', border: '1px solid #e8e8e8', color: '#666', fontSize: 14, borderRadius: 8, outline: 'none', fontFamily: 'Inter, sans-serif', cursor: 'pointer' }}>
             <option value="all">Todos</option>
             <option value="formed">Equipo formado</option>
             <option value="open">Buscando equipo</option>
           </select>
         </div>
-        <p style={{ fontSize: 13, color: '#555' }}>
+        <p style={{ fontSize: 13, color: '#666' }}>
           {loading ? 'Cargando...' : `${filtered.length} proyectos encontrados`}
         </p>
       </div>
@@ -81,12 +81,12 @@ export default function Proyectos() {
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 24px' }}>
         {loading ? (
           <div style={{ padding: 48, textAlign: 'center' }}>
-            <div style={{ width: 32, height: 32, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+            <div style={{ width: 32, height: 32, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
           </div>
         ) : (
           <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
             {filtered.length === 0 ? (
-              <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
+              <div style={{ padding: 48, textAlign: 'center', color: '#666', gridColumn: '1/-1' }}>
                 {projects.length === 0 ? 'Todavía no hay proyectos publicados.' : 'No se encontraron proyectos con esos filtros.'}
               </div>
             ) : (

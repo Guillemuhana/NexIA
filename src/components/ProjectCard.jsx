@@ -20,16 +20,16 @@ export default function ProjectCard({ project, onFavorite, showContact = false }
   return (
     <div
       onClick={() => navigate(`/proyectos/${project.id}`)}
-      style={{ padding: 20, background: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: 12, cursor: 'pointer', transition: 'all .2s', display: 'flex', flexDirection: 'column' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a1a1a'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
+      style={{ padding: 20, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .2s', display: 'flex', flexDirection: 'column' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e8e8'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
     >
       {/* Status row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 20, background: project.formed ? 'rgba(34,197,94,.1)' : 'rgba(232,97,26,.1)', color: project.formed ? '#22c55e' : '#E8611A', fontWeight: 700, border: `1px solid ${project.formed ? 'rgba(34,197,94,.2)' : 'rgba(232,97,26,.2)'}` }}>
           {project.formed ? '✓ Equipo formado' : '⚡ Buscando equipo'}
         </span>
-        <button onClick={handleShare} title="Compartir" style={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: '1px solid #1a1a1a', borderRadius: 6, cursor: 'pointer', color: copied ? '#22c55e' : '#444', fontSize: 14, transition: 'all .15s', flexShrink: 0 }}>
+        <button onClick={handleShare} title="Compartir" style={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: '1px solid #e8e8e8', borderRadius: 6, cursor: 'pointer', color: copied ? '#22c55e' : '#777', fontSize: 14, transition: 'all .15s', flexShrink: 0 }}>
           {copied ? '✓' : '↗'}
         </button>
       </div>
@@ -51,29 +51,29 @@ export default function ProjectCard({ project, onFavorite, showContact = false }
       {/* Team roles */}
       {project.team?.length > 0 && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: '#444', marginBottom: 6, letterSpacing: 1, textTransform: 'uppercase', fontWeight: 700 }}>Equipo</div>
+          <div style={{ fontSize: 10, color: '#777', marginBottom: 6, letterSpacing: 1, textTransform: 'uppercase', fontWeight: 700 }}>Equipo</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {project.team.slice(0, 3).map(r => (
-              <span key={r} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#111', color: '#555', border: '1px solid #1a1a1a' }}>{r}</span>
+              <span key={r} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#f0f0f0', color: '#666', border: '1px solid #e8e8e8' }}>{r}</span>
             ))}
             {project.team.length > 3 && (
-              <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#111', color: '#444', border: '1px solid #1a1a1a' }}>+{project.team.length - 3}</span>
+              <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#f0f0f0', color: '#777', border: '1px solid #e8e8e8' }}>+{project.team.length - 3}</span>
             )}
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTop: '1px solid #1a1a1a' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTop: '1px solid #e8e8e8' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#111', border: '1px solid #222', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 10, color: '#E8611A', flexShrink: 0 }}>
+          <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f0f0f0', border: '1px solid #d0d0d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 10, color: '#E8611A', flexShrink: 0 }}>
             {project.founder?.[0]?.toUpperCase() || '?'}
           </div>
-          <span style={{ fontSize: 12, color: '#555' }}>{project.founder}</span>
+          <span style={{ fontSize: 12, color: '#666' }}>{project.founder}</span>
         </div>
         <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
           {onFavorite && (
-            <button onClick={() => onFavorite(project)} style={{ padding: '5px 10px', fontSize: 12, background: 'none', border: '1px solid #222', color: '#666', borderRadius: 6, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
+            <button onClick={() => onFavorite(project)} style={{ padding: '5px 10px', fontSize: 12, background: 'none', border: '1px solid #d0d0d0', color: '#666', borderRadius: 6, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
               ★
             </button>
           )}

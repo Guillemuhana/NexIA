@@ -51,7 +51,7 @@ export default function Explorar() {
 
   return (
     <div className="page-wrap">
-      <div style={{ padding: '100px 24px 32px', borderBottom: '1px solid #1a1a1a', maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ padding: '100px 24px 32px', borderBottom: '1px solid #e8e8e8', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14 }}>Directorio</div>
         <h1 style={{ fontSize: 'clamp(32px,7vw,54px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8 }}>Talento disponible</h1>
         <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>
@@ -59,30 +59,30 @@ export default function Explorar() {
         </p>
 
         <div className="filter-row" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-          <div style={{ display: 'flex', flex: 1, minWidth: 200, border: '1px solid #1a1a1a', borderRadius: 10, padding: 8, background: '#0a0a0a', gap: 8 }}>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre, rol o habilidad..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 14, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
+          <div style={{ display: 'flex', flex: 1, minWidth: 200, border: '1px solid #e8e8e8', borderRadius: 10, padding: 8, background: '#f8f9fa', gap: 8 }}>
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre, rol o habilidad..." style={{ flex: 1, background: 'none', border: 'none', color: '#0a0a0a', fontSize: 14, outline: 'none', fontFamily: 'Inter, sans-serif' }} />
           </div>
           <select value={filterRole} onChange={e => setFilterRole(e.target.value)} className="input" style={{ width: 200, padding: '8px 12px' }}>
             <option value="all">Todos los roles</option>
             {SKILL_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px 14px', border: '1px solid #1a1a1a', borderRadius: 10, background: filterAvail ? 'rgba(34,197,94,.08)' : '#0a0a0a', color: filterAvail ? '#22c55e' : '#666', fontSize: 14, fontWeight: 500, transition: 'all .15s' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px 14px', border: '1px solid #e8e8e8', borderRadius: 10, background: filterAvail ? 'rgba(34,197,94,.08)' : '#f8f9fa', color: filterAvail ? '#22c55e' : '#666', fontSize: 14, fontWeight: 500, transition: 'all .15s' }}>
             <input type="checkbox" checked={filterAvail} onChange={e => setFilterAvail(e.target.checked)} style={{ accentColor: '#22c55e' }} />
             Solo disponibles
           </label>
         </div>
-        <p style={{ fontSize: 13, color: '#555' }}>
+        <p style={{ fontSize: 13, color: '#666' }}>
           {loading ? 'Cargando...' : `${filtered.length} profesionales encontrados`}
         </p>
       </div>
 
-      <div className="cards-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', borderLeft: '1px solid #1a1a1a', borderRight: '1px solid #1a1a1a' }}>
+      <div className="cards-grid" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', borderLeft: '1px solid #e8e8e8', borderRight: '1px solid #e8e8e8' }}>
         {loading ? (
-          <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
-            <div style={{ width: 32, height: 32, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+          <div style={{ padding: 48, textAlign: 'center', color: '#666', gridColumn: '1/-1' }}>
+            <div style={{ width: 32, height: 32, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: 48, textAlign: 'center', color: '#555', gridColumn: '1/-1' }}>
+          <div style={{ padding: 48, textAlign: 'center', color: '#666', gridColumn: '1/-1' }}>
             {talents.length === 0 ? 'Todavía no hay talentos registrados.' : 'No se encontraron perfiles con esos filtros.'}
           </div>
         ) : (

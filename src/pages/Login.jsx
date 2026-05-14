@@ -53,14 +53,14 @@ export default function Login() {
         </div>
 
         <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Bienvenido</h1>
-        <p style={{ color: '#555', fontSize: 15, marginBottom: 32 }}>Ingresá a tu cuenta de Equia.</p>
+        <p style={{ color: '#666', fontSize: 15, marginBottom: 32 }}>Ingresá a tu cuenta de Equia.</p>
 
-        {/* Google */}
+        {/* Google — kept white with border for light mode */}
         <button
           onClick={handleGoogle}
           style={{
             width: '100%', padding: '13px', marginBottom: 20,
-            background: '#fff', border: 'none', borderRadius: 10,
+            background: '#fff', border: '1px solid #d0d0d0', borderRadius: 10,
             cursor: 'pointer', fontFamily: 'Inter, sans-serif',
             fontSize: 15, fontWeight: 600, color: '#111',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
@@ -75,9 +75,9 @@ export default function Login() {
 
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ flex: 1, height: 1, background: '#1a1a1a' }} />
-          <span style={{ fontSize: 12, color: '#333' }}>o con email</span>
-          <div style={{ flex: 1, height: 1, background: '#1a1a1a' }} />
+          <div style={{ flex: 1, height: 1, background: '#e8e8e8' }} />
+          <span style={{ fontSize: 12, color: '#888' }}>o con email</span>
+          <div style={{ flex: 1, height: 1, background: '#e8e8e8' }} />
         </div>
 
         {/* Form */}
@@ -101,7 +101,7 @@ export default function Login() {
             {loading ? 'Ingresando...' : 'Ingresar →'}
           </button>
 
-          <p style={{ textAlign: 'center', fontSize: 14, color: '#555' }}>
+          <p style={{ textAlign: 'center', fontSize: 14, color: '#666' }}>
             ¿No tenés cuenta?{' '}
             <span onClick={() => navigate('/registro')} style={{ color: '#E8611A', cursor: 'pointer', fontWeight: 600 }}>Registrate gratis</span>
           </p>

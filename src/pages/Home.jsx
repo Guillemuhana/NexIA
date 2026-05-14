@@ -53,7 +53,7 @@ export default function Home() {
         background: `url(/IMG03HERO.png) center/cover no-repeat`,
         position: 'relative',
       }}>
-        {/* Overlay adaptivo */}
+        {/* Overlay — kept dark because it overlays a background image */}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.80) 50%, rgba(0,0,0,0.60) 100%)',
@@ -81,13 +81,14 @@ export default function Home() {
               Matching con IA para startups
             </div>
 
-            {/* Título — minHeight en el span evita layout shift durante la animación */}
+            {/* Título — hero text stays white over dark overlay */}
             <h1 style={{
               fontSize: 'clamp(44px, 11vw, 72px)',
               fontWeight: 900,
               lineHeight: 1.0,
               letterSpacing: '-2.5px',
               marginBottom: 20,
+              color: '#fff',
             }}>
               Tu idea,
               <span style={{
@@ -100,7 +101,7 @@ export default function Home() {
               </span>
             </h1>
 
-            {/* Descripción */}
+            {/* Descripción — hero stays white */}
             <p style={{
               fontSize: 'clamp(15px, 4vw, 17px)',
               color: '#888',
@@ -147,7 +148,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tira de confianza — anclada al fondo del hero */}
+        {/* Tira de confianza — kept semi-dark for contrast with background image */}
         <div style={{
           position: 'relative', zIndex: 1,
           borderTop: '1px solid rgba(255,255,255,0.07)',
@@ -172,26 +173,26 @@ export default function Home() {
       </div>
 
       {/* ── CÓMO FUNCIONA ── */}
-      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #1a1a1a' }}>
+      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
           <div style={{ textAlign: 'center', marginBottom: 'clamp(36px,7vw,56px)' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#555', letterSpacing: '2px', textTransform: 'uppercase' }}>Proceso</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase' }}>Proceso</span>
             <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10, lineHeight: 1.1 }}>
               De la idea al equipo<br />en minutos
             </h2>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #1a1a1a' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #e8e8e8' }}>
             {STEPS.map((s, i) => (
-              <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: 'clamp(22px,5vw,32px) clamp(20px,5vw,32px)', background: s.highlight ? 'rgba(232,97,26,.04)' : '#000', borderBottom: i < STEPS.length - 1 ? '1px solid #1a1a1a' : 'none', borderLeft: s.highlight ? '2px solid #E8611A' : '2px solid transparent', transition: 'all .2s' }}>
+              <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: 'clamp(22px,5vw,32px) clamp(20px,5vw,32px)', background: s.highlight ? 'rgba(232,97,26,.04)' : '#ffffff', borderBottom: i < STEPS.length - 1 ? '1px solid #e8e8e8' : 'none', borderLeft: s.highlight ? '2px solid #E8611A' : '2px solid transparent', transition: 'all .2s' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: s.highlight ? '#E8611A' : '#E8611A', letterSpacing: 2, flexShrink: 0, paddingTop: 2, minWidth: 28 }}>{s.n}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
                     <span style={{ fontSize: 'clamp(15px,4vw,17px)', fontWeight: 800, letterSpacing: '-.3px' }}>{s.title}</span>
                     {s.highlight && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: 'rgba(232,97,26,.15)', color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase' }}>Exclusivo</span>}
                   </div>
-                  <div style={{ fontSize: 'clamp(13px,3.5vw,14px)', color: '#555', lineHeight: 1.7 }}>{s.desc}</div>
+                  <div style={{ fontSize: 'clamp(13px,3.5vw,14px)', color: '#666', lineHeight: 1.7 }}>{s.desc}</div>
                 </div>
               </div>
             ))}
@@ -201,7 +202,7 @@ export default function Home() {
       </div>
 
       {/* ── PANEL FEATURES ── */}
-      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #1a1a1a', background: '#030303' }}>
+      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8', background: '#f8f9fa' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap', marginBottom: 'clamp(36px,7vw,52px)' }}>
@@ -211,39 +212,39 @@ export default function Home() {
                 Tu propio espacio<br />privado con IA
               </h2>
             </div>
-            <p style={{ fontSize: 'clamp(13px,3.5vw,15px)', color: '#555', lineHeight: 1.75, maxWidth: 320, paddingTop: 8 }}>
+            <p style={{ fontSize: 'clamp(13px,3.5vw,15px)', color: '#666', lineHeight: 1.75, maxWidth: 320, paddingTop: 8 }}>
               Cuando el equipo está formado, Equia les otorga automáticamente un panel exclusivo. Nadie de afuera puede verlo.
             </p>
           </div>
 
           {/* Feature grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 1, border: '1px solid #1a1a1a', marginBottom: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 1, border: '1px solid #e8e8e8', marginBottom: 40 }}>
             {PANEL_FEATURES.map((f, i) => (
-              <div key={i} style={{ padding: 'clamp(22px,4vw,28px)', background: '#000', borderRight: i % 2 === 0 ? '1px solid #1a1a1a' : 'none' }}>
+              <div key={i} style={{ padding: 'clamp(22px,4vw,28px)', background: '#ffffff', borderRight: i % 2 === 0 ? '1px solid #e8e8e8' : 'none' }}>
                 <div style={{ fontSize: 28, marginBottom: 14 }}>{f.icon}</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-.3px', marginBottom: 8 }}>{f.title}</div>
-                <div style={{ fontSize: 13, color: '#555', lineHeight: 1.7 }}>{f.desc}</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-.3px', marginBottom: 8 }}>{f.title}</div>
+                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.7 }}>{f.desc}</div>
               </div>
             ))}
           </div>
 
           {/* Preview mockup */}
-          <div style={{ border: '1px solid #1a1a1a', borderRadius: 14, overflow: 'hidden', background: '#000' }}>
+          <div style={{ border: '1px solid #e8e8e8', borderRadius: 14, overflow: 'hidden', background: '#ffffff' }}>
             {/* Fake browser bar */}
-            <div style={{ padding: '10px 16px', background: '#0a0a0a', borderBottom: '1px solid #1a1a1a', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: '10px 16px', background: '#f8f9fa', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ display: 'flex', gap: 5 }}>
                 {['#ef4444', '#f59e0b', '#22c55e'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, opacity: .5 }} />)}
               </div>
-              <div style={{ flex: 1, height: 22, background: '#111', borderRadius: 4, marginLeft: 8, display: 'flex', alignItems: 'center', paddingLeft: 10 }}>
-                <span style={{ fontSize: 11, color: '#333' }}>equia.app/panel/mi-proyecto</span>
+              <div style={{ flex: 1, height: 22, background: '#f0f0f0', borderRadius: 4, marginLeft: 8, display: 'flex', alignItems: 'center', paddingLeft: 10 }}>
+                <span style={{ fontSize: 11, color: '#888' }}>equia.app/panel/mi-proyecto</span>
               </div>
             </div>
             {/* Fake panel UI */}
             <div className="home-panel-mockup-grid" style={{ display: 'grid', gridTemplateColumns: '180px 1fr', minHeight: 220 }}>
               {/* Sidebar */}
-              <div className="home-panel-sidebar" style={{ borderRight: '1px solid #111', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div className="home-panel-sidebar" style={{ borderRight: '1px solid #f0f0f0', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {['Visión General', 'Hoja de Ruta', 'Ideas IA', 'Build Log', 'Equipo', 'Consultor IA'].map((item, i) => (
-                  <div key={item} style={{ padding: '8px 10px', borderRadius: 6, background: i === 0 ? 'rgba(232,97,26,.1)' : 'transparent', fontSize: 12, color: i === 0 ? '#E8611A' : '#333', fontWeight: i === 0 ? 700 : 400 }}>{item}</div>
+                  <div key={item} style={{ padding: '8px 10px', borderRadius: 6, background: i === 0 ? 'rgba(232,97,26,.1)' : 'transparent', fontSize: 12, color: i === 0 ? '#E8611A' : '#888', fontWeight: i === 0 ? 700 : 400 }}>{item}</div>
                 ))}
               </div>
               {/* Content */}
@@ -251,7 +252,7 @@ export default function Home() {
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Resumen estratégico</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {[90, 75, 60, 80].map((w, i) => (
-                    <div key={i} style={{ height: 9, borderRadius: 99, background: '#111', width: `${w}%` }} />
+                    <div key={i} style={{ height: 9, borderRadius: 99, background: '#f0f0f0', width: `${w}%` }} />
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
@@ -267,25 +268,25 @@ export default function Home() {
       </div>
 
       {/* ── ROLES ── */}
-      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #1a1a1a' }}>
+      <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
           <div style={{ textAlign: 'center', marginBottom: 'clamp(36px,7vw,56px)' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#555', letterSpacing: '2px', textTransform: 'uppercase' }}>Para todos</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase' }}>Para todos</span>
             <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10 }}>¿Quién sos en Equia?</h2>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #1a1a1a' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #e8e8e8' }}>
             {ROLES_DATA.map(r => (
-              <div key={r.label} style={{ padding: 'clamp(24px,5vw,36px) clamp(20px,5vw,32px)', background: r.accent ? '#050505' : '#000', display: 'flex', alignItems: 'center', gap: 20, borderBottom: '1px solid #1a1a1a', flexWrap: 'wrap' }}>
+              <div key={r.label} style={{ padding: 'clamp(24px,5vw,36px) clamp(20px,5vw,32px)', background: r.accent ? '#f5f5f5' : '#ffffff', display: 'flex', alignItems: 'center', gap: 20, borderBottom: '1px solid #e8e8e8', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 'clamp(16px,4vw,18px)', fontWeight: 900, letterSpacing: '-.5px' }}>{r.label}</span>
-                    <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: r.accent ? 'rgba(232,97,26,.12)' : 'rgba(255,255,255,.05)', color: r.accent ? '#E8611A' : '#555', border: `1px solid ${r.accent ? 'rgba(232,97,26,.2)' : '#1a1a1a'}`, fontWeight: 600 }}>
+                    <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: r.accent ? 'rgba(232,97,26,.12)' : 'rgba(0,0,0,.05)', color: r.accent ? '#E8611A' : '#666', border: `1px solid ${r.accent ? 'rgba(232,97,26,.2)' : '#e8e8e8'}`, fontWeight: 600 }}>
                       {r.tag}
                     </span>
                   </div>
-                  <p style={{ fontSize: 'clamp(13px,3.5vw,14px)', color: '#555', lineHeight: 1.7 }}>{r.desc}</p>
+                  <p style={{ fontSize: 'clamp(13px,3.5vw,14px)', color: '#666', lineHeight: 1.7 }}>{r.desc}</p>
                 </div>
                 <button
                   onClick={() => navigate(r.path)}
@@ -294,11 +295,11 @@ export default function Home() {
                     borderRadius: 9, cursor: 'pointer', fontFamily: 'Inter, sans-serif',
                     transition: 'all .15s', whiteSpace: 'nowrap',
                     background: r.accent ? '#E8611A' : 'transparent',
-                    color: r.accent ? '#fff' : '#555',
-                    border: r.accent ? 'none' : '1px solid #222',
+                    color: r.accent ? '#fff' : '#666',
+                    border: r.accent ? 'none' : '1px solid #d0d0d0',
                   }}
-                  onMouseEnter={e => { if (!r.accent) { e.currentTarget.style.borderColor = '#444'; e.currentTarget.style.color = '#ccc' } }}
-                  onMouseLeave={e => { if (!r.accent) { e.currentTarget.style.borderColor = '#222'; e.currentTarget.style.color = '#555' } }}
+                  onMouseEnter={e => { if (!r.accent) { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#333' } }}
+                  onMouseLeave={e => { if (!r.accent) { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#666' } }}
                 >
                   {r.cta} →
                 </button>
@@ -310,24 +311,24 @@ export default function Home() {
       </div>
 
       {/* ── CTA FINAL ── */}
-      <div style={{ padding: 'clamp(72px,14vw,120px) clamp(20px,6vw,32px)', textAlign: 'center', borderTop: '1px solid #1a1a1a' }}>
+      <div style={{ padding: 'clamp(72px,14vw,120px) clamp(20px,6vw,32px)', textAlign: 'center', borderTop: '1px solid #e8e8e8' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, color: '#E8611A', border: '1px solid rgba(232,97,26,.2)', borderRadius: 100, padding: '6px 14px', marginBottom: 24, background: 'rgba(232,97,26,.06)' }}>
           ⚡ Panel IA incluido para cada equipo
         </div>
         <h2 style={{ fontSize: 'clamp(32px,8vw,60px)', fontWeight: 900, letterSpacing: '-2px', marginBottom: 14, lineHeight: 1.05 }}>
           Empezá hoy.<br />Es gratis.
         </h2>
-        <p style={{ fontSize: 'clamp(14px,4vw,16px)', color: '#555', maxWidth: 360, margin: '0 auto 10px', lineHeight: 1.7 }}>
+        <p style={{ fontSize: 'clamp(14px,4vw,16px)', color: '#666', maxWidth: 360, margin: '0 auto 10px', lineHeight: 1.7 }}>
           Registrate, describí tu idea y la IA arma tu equipo ideal. Cuando el equipo esté formado, recibís tu panel privado.
         </p>
-        <p style={{ fontSize: 13, color: '#333', marginBottom: 32 }}>Sin tarjeta. Sin límite de tiempo.</p>
+        <p style={{ fontSize: 13, color: '#888', marginBottom: 32 }}>Sin tarjeta. Sin límite de tiempo.</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="btn-primary" onClick={() => navigate('/registro')} style={{ padding: '16px 44px', fontSize: 16 }}>
             Crear mi cuenta →
           </button>
-          <button onClick={() => navigate('/explorar')} style={{ padding: '16px 28px', fontSize: 15, fontWeight: 600, border: '1px solid #222', borderRadius: 10, background: 'none', color: '#555', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .2s' }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#444'; e.currentTarget.style.color = '#ccc' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#222'; e.currentTarget.style.color = '#555' }}
+          <button onClick={() => navigate('/explorar')} style={{ padding: '16px 28px', fontSize: 15, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 10, background: 'none', color: '#666', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .2s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#333' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#666' }}
           >
             Ver talentos →
           </button>
@@ -335,16 +336,16 @@ export default function Home() {
       </div>
 
       {/* ── FOOTER ── */}
-      <footer style={{ borderTop: '1px solid #1a1a1a', padding: 'clamp(20px,5vw,28px) clamp(20px,6vw,32px)' }}>
+      <footer style={{ borderTop: '1px solid #e8e8e8', padding: 'clamp(20px,5vw,28px) clamp(20px,6vw,32px)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1 }}>Equ</span>
             <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1, color: '#E8611A' }}>ia</span>
           </div>
-          <span style={{ fontSize: 12, color: '#333' }}>© 2026 Equia · Hecho en Latinoamérica</span>
+          <span style={{ fontSize: 12, color: '#888' }}>© 2026 Equia · Hecho en Latinoamérica</span>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidad', 'Términos', 'Contacto'].map(l => (
-              <span key={l} style={{ fontSize: 12, color: '#444', cursor: 'pointer' }}>{l}</span>
+              <span key={l} style={{ fontSize: 12, color: '#777', cursor: 'pointer' }}>{l}</span>
             ))}
           </div>
         </div>

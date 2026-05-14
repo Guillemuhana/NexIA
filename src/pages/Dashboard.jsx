@@ -19,14 +19,14 @@ function mapProject(idea) {
 }
 
 function Spinner() {
-  return <div style={{ width: 36, height: 36, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+  return <div style={{ width: 36, height: 36, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
 }
 
 // ── Panel del Equipo card ──────────────────────────────────────────────────
 function TeamPanelCard({ title, ideaId, members = [], category }) {
   const navigate = useNavigate()
   return (
-    <div style={{ padding: 28, background: 'linear-gradient(135deg, #0d0d0d 0%, #0a0a0a 100%)', border: '1px solid rgba(232,97,26,.18)', borderRadius: 14, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ padding: 28, background: 'linear-gradient(135deg, #f5f5f5 0%, #f8f9fa 100%)', border: '1px solid rgba(232,97,26,.18)', borderRadius: 14, position: 'relative', overflow: 'hidden' }}>
       {/* Glow background */}
       <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,97,26,.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
@@ -36,20 +36,20 @@ function TeamPanelCard({ title, ideaId, members = [], category }) {
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} />
             <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: 1, textTransform: 'uppercase' }}>Panel activo</span>
           </div>
-          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-.5px', marginBottom: 4, lineHeight: 1.25 }}>{title}</h3>
-          {category && <span style={{ fontSize: 11, color: '#555', background: '#111', border: '1px solid #1a1a1a', borderRadius: 4, padding: '2px 8px' }}>{category}</span>}
+          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-.5px', marginBottom: 4, lineHeight: 1.25 }}>{title}</h3>
+          {category && <span style={{ fontSize: 11, color: '#666', background: '#f0f0f0', border: '1px solid #e8e8e8', borderRadius: 4, padding: '2px 8px' }}>{category}</span>}
 
           {/* Mini team */}
           {members.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
               <div style={{ display: 'flex' }}>
                 {members.slice(0, 5).map((m, i) => (
-                  <div key={i} title={m.name} style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1a1a', border: '2px solid #0a0a0a', marginLeft: i === 0 ? 0 : -8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#E8611A', overflow: 'hidden', flexShrink: 0 }}>
+                  <div key={i} title={m.name} style={{ width: 28, height: 28, borderRadius: '50%', background: '#e8e8e8', border: '2px solid #f8f9fa', marginLeft: i === 0 ? 0 : -8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#E8611A', overflow: 'hidden', flexShrink: 0 }}>
                     {m.avatar_url ? <img src={m.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.name?.charAt(0)?.toUpperCase()}
                   </div>
                 ))}
               </div>
-              <span style={{ fontSize: 12, color: '#555' }}>{members.length} {members.length === 1 ? 'miembro' : 'miembros'}</span>
+              <span style={{ fontSize: 12, color: '#666' }}>{members.length} {members.length === 1 ? 'miembro' : 'miembros'}</span>
             </div>
           )}
         </div>
@@ -65,7 +65,7 @@ function TeamPanelCard({ title, ideaId, members = [], category }) {
           </button>
           <div style={{ display: 'flex', gap: 16, paddingRight: 4 }}>
             {['Roadmap', 'Ideas', 'Chat IA'].map(f => (
-              <span key={f} style={{ fontSize: 11, color: '#444', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span key={f} style={{ fontSize: 11, color: '#777', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ color: '#E8611A' }}>·</span> {f}
               </span>
             ))}
@@ -191,7 +191,7 @@ export default function Dashboard() {
               <h2 style={sectionTitle}>Espacio del equipo</h2>
               <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(232,97,26,.12)', color: '#E8611A', border: '1px solid rgba(232,97,26,.2)', borderRadius: 99, padding: '2px 10px' }}>IA</span>
             </div>
-            <p style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>Panel privado con roadmap, ideas y asesor IA para cada proyecto.</p>
+            <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Panel privado con roadmap, ideas y asesor IA para cada proyecto.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {teamPanels.map(p => <TeamPanelCard key={p.ideaId} {...p} />)}
             </div>
@@ -199,7 +199,7 @@ export default function Dashboard() {
         )}
 
         {/* ── Lanzar idea CTA ── */}
-        <div style={{ padding: '24px 28px', border: '1px solid #1a1a1a', borderRadius: 12, marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+        <div style={{ padding: '24px 28px', border: '1px solid #e8e8e8', borderRadius: 12, marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div>
             <h2 style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 4 }}>¿Tenés una nueva idea?</h2>
             <p style={{ fontSize: 13, color: '#666' }}>La IA construye el equipo perfecto en minutos.</p>
@@ -218,7 +218,7 @@ export default function Dashboard() {
           {dataLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner /></div>
           ) : data.length === 0 ? (
-            <div style={{ padding: '40px 24px', border: '1px dashed #1a1a1a', borderRadius: 12, textAlign: 'center', color: '#444' }}>
+            <div style={{ padding: '40px 24px', border: '1px dashed #e8e8e8', borderRadius: 12, textAlign: 'center', color: '#777' }}>
               <div style={{ fontSize: 28, marginBottom: 10 }}>💡</div>
               <div style={{ fontSize: 15, marginBottom: 8 }}>Todavía no lanzaste ningún proyecto.</div>
               <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '10px 20px', fontSize: 14, marginTop: 8 }}>Lanzar mi primera idea →</button>
@@ -269,7 +269,7 @@ export default function Dashboard() {
                 <h2 style={sectionTitle}>Tu espacio de equipo</h2>
                 <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(232,97,26,.12)', color: '#E8611A', border: '1px solid rgba(232,97,26,.2)', borderRadius: 99, padding: '2px 10px' }}>IA</span>
               </div>
-              <p style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>Accedé al panel privado con roadmap, ideas y asesor IA de tu proyecto.</p>
+              <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Accedé al panel privado con roadmap, ideas y asesor IA de tu proyecto.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {teamPanels.map(p => <TeamPanelCard key={p.ideaId} {...p} />)}
               </div>
@@ -277,12 +277,12 @@ export default function Dashboard() {
           )}
 
           {/* ── Estado del perfil ── */}
-          <div style={{ padding: '20px 24px', border: '1px solid #1a1a1a', borderRadius: 12, marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+          <div style={{ padding: '20px 24px', border: '1px solid #e8e8e8', borderRadius: 12, marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: profile.available ? '#22c55e' : '#555', animation: profile.available ? 'pulse 2s infinite' : 'none' }} />
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: profile.available ? '#22c55e' : '#666', animation: profile.available ? 'pulse 2s infinite' : 'none' }} />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>{profile.available ? 'Perfil activo — visible para la IA' : 'Perfil pausado'}</div>
-                <div style={{ fontSize: 12, color: '#555' }}>La IA puede invitarte a proyectos que matcheen con tu perfil</div>
+                <div style={{ fontSize: 12, color: '#666' }}>La IA puede invitarte a proyectos que matcheen con tu perfil</div>
               </div>
             </div>
             <button className="btn-outline" onClick={() => navigate('/perfil')} style={{ padding: '8px 16px', fontSize: 13 }}>Editar perfil</button>
@@ -291,18 +291,18 @@ export default function Dashboard() {
           {/* ── Invitaciones ── */}
           <div>
             <h2 style={{ ...sectionTitle, marginBottom: 4 }}>Invitaciones recibidas</h2>
-            <p style={{ fontSize: 13, color: '#555', marginBottom: 20 }}>Proyectos donde la IA eligió tu perfil.</p>
+            <p style={{ fontSize: 13, color: '#666', marginBottom: 20 }}>Proyectos donde la IA eligió tu perfil.</p>
 
             {dataLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner /></div>
             ) : data.length === 0 ? (
-              <div style={{ padding: 32, border: '1px dashed #1a1a1a', borderRadius: 12, textAlign: 'center', color: '#444' }}>
+              <div style={{ padding: 32, border: '1px dashed #e8e8e8', borderRadius: 12, textAlign: 'center', color: '#777' }}>
                 <div style={{ fontSize: 24, marginBottom: 8 }}>⚡</div>
                 <div style={{ fontSize: 14 }}>Cuando la IA te elija para un proyecto, aparece acá.</div>
               </div>
             ) : (
               data.map(m => (
-                <div key={m.id} style={{ padding: 22, border: '1px solid #1a1a1a', borderRadius: 12, background: '#0a0a0a', marginBottom: 12 }}>
+                <div key={m.id} style={{ padding: 22, border: '1px solid #e8e8e8', borderRadius: 12, background: '#f8f9fa', marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
                     <div>
                       <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{m.ideas?.title}</div>
@@ -314,7 +314,7 @@ export default function Dashboard() {
                   </div>
                   {m.ai_reasoning && (
                     <p style={{ fontSize: 13, color: '#666', lineHeight: 1.6, marginBottom: 14 }}>
-                      Te eligieron para <strong style={{ color: '#fff' }}>{m.role_suggested}</strong>. {m.ai_reasoning}
+                      Te eligieron para <strong style={{ color: '#0a0a0a' }}>{m.role_suggested}</strong>. {m.ai_reasoning}
                     </p>
                   )}
                   {m.status === 'pending' && (
@@ -350,7 +350,7 @@ export default function Dashboard() {
           {dataLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner /></div>
           ) : data.length === 0 ? (
-            <div style={{ padding: 32, border: '1px dashed #1a1a1a', borderRadius: 12, textAlign: 'center', color: '#444' }}>
+            <div style={{ padding: 32, border: '1px dashed #e8e8e8', borderRadius: 12, textAlign: 'center', color: '#777' }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>💼</div>
               <div style={{ fontSize: 14 }}>Todavía no hay proyectos con equipos formados.</div>
             </div>

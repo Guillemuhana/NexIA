@@ -174,7 +174,7 @@ export default function LanzarIdea() {
     setSent(true)
   }
 
-  const inputStyle = { padding: '12px 14px', background: '#0a0a0a', border: '1px solid #222', color: '#fff', fontFamily: 'Inter, sans-serif', fontSize: 15, borderRadius: 8, outline: 'none', width: '100%', transition: 'border-color .15s' }
+  const inputStyle = { padding: '12px 14px', background: '#f8f9fa', border: '1px solid #d0d0d0', color: '#0a0a0a', fontFamily: 'Inter, sans-serif', fontSize: 15, borderRadius: 8, outline: 'none', width: '100%', transition: 'border-color .15s' }
 
   return (
     <div className="page-wrap">
@@ -200,11 +200,11 @@ export default function LanzarIdea() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
               <label className="form-label">Nombre del proyecto *</label>
-              <input value={form.title} onChange={upd('title')} placeholder="Ej: App de salud mental para universitarios" style={inputStyle} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#222'}/>
+              <input value={form.title} onChange={upd('title')} placeholder="Ej: App de salud mental para universitarios" style={inputStyle} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#d0d0d0'}/>
             </div>
             <div>
               <label className="form-label">Descripción *</label>
-              <textarea value={form.description} onChange={upd('description')} placeholder="¿Qué problema resuelve? ¿Quién es tu usuario? ¿Cómo funciona? Cuanto más detalle, mejor el matching." rows={6} style={{ ...inputStyle, resize: 'vertical' }} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#222'}/>
+              <textarea value={form.description} onChange={upd('description')} placeholder="¿Qué problema resuelve? ¿Quién es tu usuario? ¿Cómo funciona? Cuanto más detalle, mejor el matching." rows={6} style={{ ...inputStyle, resize: 'vertical' }} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#d0d0d0'}/>
             </div>
             <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
@@ -224,10 +224,10 @@ export default function LanzarIdea() {
             </div>
             <div>
               <label className="form-label">Roles que necesitás</label>
-              <p style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>Seleccioná los perfiles que tu proyecto necesita. La IA también puede sugerir otros.</p>
+              <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>Seleccioná los perfiles que tu proyecto necesita. La IA también puede sugerir otros.</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {SKILL_ROLES.map(r => (
-                  <button key={r} onClick={() => toggleRole(r)} style={{ padding: '8px 14px', borderRadius: 6, border: `1px solid ${selRoles.includes(r) ? '#E8611A' : '#222'}`, background: selRoles.includes(r) ? 'rgba(232,97,26,.08)' : 'none', color: selRoles.includes(r) ? '#E8611A' : '#666', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}>
+                  <button key={r} onClick={() => toggleRole(r)} style={{ padding: '8px 14px', borderRadius: 6, border: `1px solid ${selRoles.includes(r) ? '#E8611A' : '#d0d0d0'}`, background: selRoles.includes(r) ? 'rgba(232,97,26,.08)' : 'none', color: selRoles.includes(r) ? '#E8611A' : '#666', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}>
                     {selRoles.includes(r) ? '✓ ' : ''}{r}
                   </button>
                 ))}
@@ -247,9 +247,9 @@ export default function LanzarIdea() {
             {/* Toggle público / privado */}
             <div style={{ display: 'flex', gap: 8 }}>
               {[{ v: true, label: '🌍 Pública', desc: 'Visible para inversores' }, { v: false, label: '🔒 Privada', desc: 'Solo vos y tu equipo' }].map(opt => (
-                <button key={String(opt.v)} onClick={() => setIsPublic(opt.v)} style={{ flex: 1, padding: '12px 16px', borderRadius: 8, border: `1px solid ${isPublic === opt.v ? '#E8611A' : '#222'}`, background: isPublic === opt.v ? 'rgba(232,97,26,.08)' : 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s', textAlign: 'left' }}>
+                <button key={String(opt.v)} onClick={() => setIsPublic(opt.v)} style={{ flex: 1, padding: '12px 16px', borderRadius: 8, border: `1px solid ${isPublic === opt.v ? '#E8611A' : '#d0d0d0'}`, background: isPublic === opt.v ? 'rgba(232,97,26,.08)' : 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s', textAlign: 'left' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: isPublic === opt.v ? '#E8611A' : '#666' }}>{opt.label}</div>
-                  <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{opt.desc}</div>
+                  <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{opt.desc}</div>
                 </button>
               ))}
             </div>
@@ -257,7 +257,7 @@ export default function LanzarIdea() {
             <button onClick={handleSubmit} style={{ width: '100%', padding: 16, fontSize: 16, fontWeight: 700, background: '#E8611A', color: '#fff', border: 'none', borderRadius: 9, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .2s', marginTop: 8 }}>
               🤖 Activar IA — Buscar mi equipo
             </button>
-            {!user && <p style={{ textAlign: 'center', fontSize: 13, color: '#555' }}>Te pediremos que te registres antes de ver los resultados.</p>}
+            {!user && <p style={{ textAlign: 'center', fontSize: 13, color: '#666' }}>Te pediremos que te registres antes de ver los resultados.</p>}
           </div>
         </div>
       )}
@@ -266,15 +266,15 @@ export default function LanzarIdea() {
       {stage === 'matching' && (
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '100px 24px', textAlign: 'center' }}>
           <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1px', marginBottom: 8 }}>IA en acción</h2>
-          <p style={{ color: '#666', marginBottom: 40, fontSize: 14 }}>Analizando: <strong style={{ color: '#fff' }}>{form.title}</strong></p>
-          <div style={{ width: 48, height: 48, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 40px' }} />
+          <p style={{ color: '#666', marginBottom: 40, fontSize: 14 }}>Analizando: <strong style={{ color: '#0a0a0a' }}>{form.title}</strong></p>
+          <div style={{ width: 48, height: 48, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 40px' }} />
           <div style={{ textAlign: 'left' }}>
             {STEPS.map((s, i) => (
               <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', opacity: i <= currentStep ? 1 : 0.2, transition: 'opacity .4s' }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: i < currentStep ? '#22c55e' : i === currentStep ? '#E8611A' : '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', flexShrink: 0, transition: 'background .3s' }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: i < currentStep ? '#22c55e' : i === currentStep ? '#E8611A' : '#d0d0d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', flexShrink: 0, transition: 'background .3s' }}>
                   {i < currentStep ? '✓' : i === currentStep ? '⟳' : ''}
                 </div>
-                <span style={{ fontSize: 14, color: i <= currentStep ? '#fff' : '#555' }}>{s}</span>
+                <span style={{ fontSize: 14, color: i <= currentStep ? '#0a0a0a' : '#666' }}>{s}</span>
               </div>
             ))}
           </div>
@@ -288,7 +288,7 @@ export default function LanzarIdea() {
           {flash && (
             <div style={{
               position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none',
-              background: 'radial-gradient(ellipse at center, rgba(232,97,26,0.18) 0%, rgba(255,255,255,0.06) 60%, transparent 100%)',
+              background: 'radial-gradient(ellipse at center, rgba(232,97,26,0.18) 0%, rgba(0,0,0,0.06) 60%, transparent 100%)',
               animation: 'lightning .7s ease forwards',
             }} />
           )}
@@ -303,14 +303,14 @@ export default function LanzarIdea() {
 
           {/* Análisis IA */}
           {aiData && (
-            <div style={{ padding: 24, marginBottom: 28, border: '1px solid #222', borderRadius: 12, background: '#0a0a0a' }}>
+            <div style={{ padding: 24, marginBottom: 28, border: '1px solid #d0d0d0', borderRadius: 12, background: '#f8f9fa' }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 16 }}>🤖 Análisis de Equia</div>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: '#ccc', marginBottom: 20 }}>{aiData.pitch}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: '#333', marginBottom: 20 }}>{aiData.pitch}</p>
               <p style={{ fontSize: 14, lineHeight: 1.7, color: '#666', marginBottom: 20, fontStyle: 'italic' }}>"{aiData.whyThisTeam}"</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 12, marginBottom: 16 }}>
                 {[['Equipo ideal', `${aiData.teamSize} personas`], ['Complejidad', aiData.complexity], ['Tiempo est.', aiData.timeEstimate]].map(([k, v]) => (
-                  <div key={k} style={{ padding: '12px 14px', background: '#000', border: '1px solid #1a1a1a', borderRadius: 8 }}>
-                    <div style={{ fontSize: 10, color: '#555', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{k}</div>
+                  <div key={k} style={{ padding: '12px 14px', background: '#ffffff', border: '1px solid #e8e8e8', borderRadius: 8 }}>
+                    <div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{k}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#E8611A' }}>{v}</div>
                   </div>
                 ))}
@@ -322,7 +322,7 @@ export default function LanzarIdea() {
 
           {/* Equipo */}
           {matched.length > 0 && (
-            <div style={{ border: '1px solid #1a1a1a', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
+            <div style={{ border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
               {matched.map((t, i) => (
                 <div key={t.id} style={{ animation: `cardReveal .5s cubic-bezier(.22,1,.36,1) ${i * 120}ms both` }}>
                   <TalentCard talent={t} showInvite={false} />
@@ -332,7 +332,7 @@ export default function LanzarIdea() {
           )}
 
           {/* Acciones */}
-          <div style={{ padding: '28px 24px', border: '1px solid #222', borderRadius: 12, textAlign: 'center', animation: 'cardReveal .5s cubic-bezier(.22,1,.36,1) .4s both' }}>
+          <div style={{ padding: '28px 24px', border: '1px solid #d0d0d0', borderRadius: 12, textAlign: 'center', animation: 'cardReveal .5s cubic-bezier(.22,1,.36,1) .4s both' }}>
             {sent ? (
               <>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>🎉</div>

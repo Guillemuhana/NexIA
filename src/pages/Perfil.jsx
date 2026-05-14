@@ -36,9 +36,9 @@ export default function Perfil() {
 
   const isTalent = profile?.type === 'talento'
   const roleInfo = profile?.type ? ROLES[profile.type] : null
-  const inputStyle = { padding: '12px 14px', background: '#0a0a0a', border: '1px solid #222', color: '#fff', fontFamily: 'Inter, sans-serif', fontSize: 15, borderRadius: 8, outline: 'none', width: '100%', transition: 'border-color .15s' }
+  const inputStyle = { padding: '12px 14px', background: '#f8f9fa', border: '1px solid #d0d0d0', color: '#0a0a0a', fontFamily: 'Inter, sans-serif', fontSize: 15, borderRadius: 8, outline: 'none', width: '100%', transition: 'border-color .15s' }
 
-  if (loading) return <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><div style={{ width: 36, height: 36, border: '2px solid #222', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /></div>
+  if (loading) return <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><div style={{ width: 36, height: 36, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /></div>
 
   return (
     <div className="page-wrap">
@@ -50,12 +50,12 @@ export default function Perfil() {
             <h1 style={{ fontSize: 'clamp(28px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8 }}>{profile?.name || 'Mi perfil'}</h1>
             {roleInfo && <span className={`role-badge role-${profile.type}`}>{roleInfo.icon} {roleInfo.label}</span>}
           </div>
-          <button onClick={() => { signOut(); navigate('/') }} style={{ padding: '8px 16px', fontSize: 13, background: 'none', border: '1px solid #222', color: '#666', borderRadius: 7, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
+          <button onClick={() => { signOut(); navigate('/') }} style={{ padding: '8px 16px', fontSize: 13, background: 'none', border: '1px solid #d0d0d0', color: '#666', borderRadius: 7, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
             Cerrar sesión
           </button>
         </div>
 
-        <div style={{ height: 1, background: '#1a1a1a', marginBottom: 36 }} />
+        <div style={{ height: 1, background: '#e8e8e8', marginBottom: 36 }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           {[
@@ -66,13 +66,13 @@ export default function Perfil() {
           ].map(([label, key, , ph]) => (
             <div key={key}>
               <label className="form-label">{label}</label>
-              <input value={form[key]} onChange={upd(key)} placeholder={ph} style={inputStyle} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#222'}/>
+              <input value={form[key]} onChange={upd(key)} placeholder={ph} style={inputStyle} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#d0d0d0'}/>
             </div>
           ))}
 
           <div>
             <label className="form-label">{isTalent ? 'Bio profesional' : 'Sobre vos'}</label>
-            <textarea value={form.bio} onChange={upd('bio')} placeholder={isTalent ? 'Contanos tu experiencia y qué proyectos te apasionan...' : 'Contanos sobre vos y tu visión...'} rows={4} style={{ ...inputStyle, resize: 'vertical' }} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#222'}/>
+            <textarea value={form.bio} onChange={upd('bio')} placeholder={isTalent ? 'Contanos tu experiencia y qué proyectos te apasionan...' : 'Contanos sobre vos y tu visión...'} rows={4} style={{ ...inputStyle, resize: 'vertical' }} onFocus={e => e.target.style.borderColor='#E8611A'} onBlur={e => e.target.style.borderColor='#d0d0d0'}/>
           </div>
 
           {isTalent && (
@@ -92,9 +92,9 @@ export default function Perfil() {
           </button>
 
           {/* Quick actions */}
-          <div style={{ height: 1, background: '#1a1a1a', margin: '8px 0' }} />
+          <div style={{ height: 1, background: '#e8e8e8', margin: '8px 0' }} />
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#555', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 14 }}>Acciones rápidas</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 14 }}>Acciones rápidas</div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {profile?.type === 'visionario' && <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '10px 18px', fontSize: 14 }}>💡 Lanzar una idea</button>}
               {profile?.type === 'talento' && <button className="btn-primary" onClick={() => navigate('/explorar')} style={{ padding: '10px 18px', fontSize: 14 }}>⚡ Ver mis invitaciones</button>}

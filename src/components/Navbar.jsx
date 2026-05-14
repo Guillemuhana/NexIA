@@ -74,8 +74,8 @@ export default function Navbar() {
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999,
         height: 64, padding: '0 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${scrolled ? '#1a1a1a' : 'transparent'}`,
+        background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${scrolled ? '#e0e0e0' : '#f0f0f0'}`,
         transition: 'border-color .3s',
       }}>
 
@@ -85,10 +85,10 @@ export default function Navbar() {
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#fff', lineHeight: 1 }}>Equ</span>
-            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#E8611A', textShadow: '0 0 22px rgba(232,97,26,0.55)', lineHeight: 1 }}>ia</span>
+            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#0a0a0a', lineHeight: 1 }}>Equ</span>
+            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#E8611A', textShadow: '0 0 22px rgba(232,97,26,0.25)', lineHeight: 1 }}>ia</span>
           </div>
-          <div style={{ height: 2.5, background: '#E8611A', borderRadius: 2, boxShadow: '0 0 8px rgba(232,97,26,0.7)' }} />
+          <div style={{ height: 2.5, background: '#E8611A', borderRadius: 2, boxShadow: '0 0 8px rgba(232,97,26,0.4)' }} />
         </div>
 
         {/* Desktop nav */}
@@ -96,14 +96,14 @@ export default function Navbar() {
           {links.map(l => (
             <button key={l.path} onClick={() => go(l.path)} style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              background: isActive(l.path) ? '#111' : 'none', border: 'none',
-              color: isActive(l.path) ? '#fff' : '#555',
+              background: isActive(l.path) ? '#f5f5f5' : 'none', border: 'none',
+              color: isActive(l.path) ? '#0a0a0a' : '#888',
               fontSize: 14, fontWeight: 500, cursor: 'pointer',
               padding: '6px 13px', borderRadius: 6, transition: 'all .15s',
               fontFamily: 'Inter, sans-serif',
             }}
-              onMouseEnter={e => { if (!isActive(l.path)) e.currentTarget.style.color = '#ccc' }}
-              onMouseLeave={e => { if (!isActive(l.path)) e.currentTarget.style.color = '#555' }}
+              onMouseEnter={e => { if (!isActive(l.path)) e.currentTarget.style.color = '#333' }}
+              onMouseLeave={e => { if (!isActive(l.path)) e.currentTarget.style.color = '#888' }}
             >
               <Icon name={PATH_ICON[l.path] || 'arrow'} size={14} />
               {l.label}
@@ -116,9 +116,9 @@ export default function Navbar() {
           {user && profile ? (
             <>
               {roleInfo && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 20, background: 'rgba(255,255,255,.04)', border: '1px solid #222' }}>
-                  <Icon name={ROLE_ICON[profile.type] || 'user'} size={13} stroke={profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#f59e0b' : '#aaa'} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#f59e0b' : '#aaa' }}>{roleInfo.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 20, background: 'rgba(0,0,0,.04)', border: '1px solid #e0e0e0' }}>
+                  <Icon name={ROLE_ICON[profile.type] || 'user'} size={13} stroke={profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#666'} />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#555' }}>{roleInfo.label}</span>
                 </div>
               )}
               <button onClick={() => go('/perfil')} style={{ width: 34, height: 34, borderRadius: '50%', background: '#E8611A', border: 'none', color: '#fff', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -127,9 +127,9 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <button onClick={() => go('/login')} style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, borderRadius: 7, cursor: 'pointer', background: 'transparent', color: '#666', border: '1px solid #222', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#444' }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#666'; e.currentTarget.style.borderColor = '#222' }}
+              <button onClick={() => go('/login')} style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, borderRadius: 7, cursor: 'pointer', background: 'transparent', color: '#888', border: '1px solid #e0e0e0', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#333'; e.currentTarget.style.borderColor = '#bbb' }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#888'; e.currentTarget.style.borderColor = '#e0e0e0' }}
               >
                 Ingresar
               </button>
@@ -140,13 +140,13 @@ export default function Navbar() {
           )}
 
           {/* Hamburger */}
-          <button onClick={() => setMenuOpen(o => !o)} style={{ width: 36, height: 36, background: 'none', border: '1px solid #222', borderRadius: 7, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, transition: 'border-color .15s' }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#444'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#222'}
+          <button onClick={() => setMenuOpen(o => !o)} style={{ width: 36, height: 36, background: 'none', border: '1px solid #e0e0e0', borderRadius: 7, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, transition: 'border-color .15s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#bbb'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#e0e0e0'}
           >
             {[0, 1, 2].map(i => (
               <span key={i} style={{
-                width: menuOpen ? 16 : i === 1 ? 12 : 16, height: 1.5, background: '#666', borderRadius: 2, display: 'block', transition: 'all .25s',
+                width: menuOpen ? 16 : i === 1 ? 12 : 16, height: 1.5, background: '#888', borderRadius: 2, display: 'block', transition: 'all .25s',
                 transform: menuOpen ? (i === 0 ? 'rotate(45deg) translate(4px, 4px)' : i === 2 ? 'rotate(-45deg) translate(4px, -4px)' : 'none') : 'none',
                 opacity: menuOpen && i === 1 ? 0 : 1,
               }} />
@@ -156,34 +156,34 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile dropdown */}
-      <div style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 998, background: '#000', borderBottom: menuOpen ? '1px solid #1a1a1a' : 'none', maxHeight: menuOpen ? 480 : 0, overflow: 'hidden', transition: 'max-height .3s cubic-bezier(.4,0,.2,1)' }}>
+      <div style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 998, background: '#fff', borderBottom: menuOpen ? '1px solid #e8e8e8' : 'none', maxHeight: menuOpen ? 480 : 0, overflow: 'hidden', transition: 'max-height .3s cubic-bezier(.4,0,.2,1)' }}>
         <div style={{ padding: '8px 12px 20px' }}>
           {links.map(l => (
             <button key={l.path} onClick={() => go(l.path)} style={{
               display: 'flex', alignItems: 'center', gap: 14, width: '100%',
-              background: isActive(l.path) ? '#0d0d0d' : 'none', border: 'none',
-              color: isActive(l.path) ? '#fff' : '#777',
+              background: isActive(l.path) ? '#f5f5f5' : 'none', border: 'none',
+              color: isActive(l.path) ? '#0a0a0a' : '#888',
               fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15,
               cursor: 'pointer', padding: '13px 12px', borderRadius: 9,
               marginBottom: 2, textAlign: 'left', transition: 'all .15s',
             }}>
-              <span style={{ width: 32, height: 32, borderRadius: 8, background: isActive(l.path) ? 'rgba(232,97,26,.12)' : '#0a0a0a', border: `1px solid ${isActive(l.path) ? 'rgba(232,97,26,.25)' : '#1a1a1a'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
-                <Icon name={PATH_ICON[l.path] || 'arrow'} size={15} stroke={isActive(l.path) ? '#E8611A' : '#555'} />
+              <span style={{ width: 32, height: 32, borderRadius: 8, background: isActive(l.path) ? 'rgba(232,97,26,.08)' : '#f5f5f5', border: `1px solid ${isActive(l.path) ? 'rgba(232,97,26,.2)' : '#e8e8e8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
+                <Icon name={PATH_ICON[l.path] || 'arrow'} size={15} stroke={isActive(l.path) ? '#E8611A' : '#888'} />
               </span>
               {l.label}
-              {isActive(l.path) && <Icon name="arrow" size={14} stroke="#333" style={{ marginLeft: 'auto' }} />}
+              {isActive(l.path) && <Icon name="arrow" size={14} stroke="#ccc" style={{ marginLeft: 'auto' }} />}
             </button>
           ))}
 
-          <div style={{ height: 1, background: '#111', margin: '10px 0' }} />
+          <div style={{ height: 1, background: '#f0f0f0', margin: '10px 0' }} />
 
           {user ? (
-            <button onClick={() => { signOut(); go('/') }} style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '13px 12px', background: 'none', border: 'none', color: '#555', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15, borderRadius: 9, cursor: 'pointer', transition: 'color .15s' }}
+            <button onClick={() => { signOut(); go('/') }} style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '13px 12px', background: 'none', border: 'none', color: '#888', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 15, borderRadius: 9, cursor: 'pointer', transition: 'color .15s' }}
               onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
-              onMouseLeave={e => e.currentTarget.style.color = '#555'}
+              onMouseLeave={e => e.currentTarget.style.color = '#888'}
             >
-              <span style={{ width: 32, height: 32, borderRadius: 8, background: '#0a0a0a', border: '1px solid #1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="logout" size={15} stroke="#555" />
+              <span style={{ width: 32, height: 32, borderRadius: 8, background: '#f5f5f5', border: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="logout" size={15} stroke="#888" />
               </span>
               Cerrar sesión
             </button>

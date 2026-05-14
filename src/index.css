@@ -1,23 +1,23 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #000;
-  --bg2: #0a0a0a;
-  --bg3: #111;
-  --border: #1a1a1a;
-  --border2: #222;
+  --bg: #ffffff;
+  --bg2: #f8f9fa;
+  --bg3: #f0f0f0;
+  --border: #e8e8e8;
+  --border2: #d0d0d0;
   --accent: #E8611A;
   --accent2: #ff7a35;
-  --text: #fff;
+  --text: #0a0a0a;
   --muted: #666;
-  --muted2: #444;
+  --muted2: #999;
   --success: #22c55e;
   --warning: #f59e0b;
 }
 
 html, body, #root {
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: #0a0a0a;
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -25,7 +25,7 @@ html, body, #root {
 
 ::selection { background: var(--accent); color: #fff; }
 ::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 2px; }
 
 a { text-decoration: none; color: inherit; }
 
@@ -38,22 +38,22 @@ a { text-decoration: none; color: inherit; }
 .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
 
 .btn-outline {
-  background: transparent; color: #fff; border: 1px solid var(--border2);
+  background: transparent; color: #0a0a0a; border: 1px solid var(--border2);
   border-radius: 9px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif; transition: all .15s;
 }
-.btn-outline:hover { border-color: #444; background: #0a0a0a; }
+.btn-outline:hover { border-color: #aaa; background: #f0f0f0; }
 
 .btn-ghost {
   background: transparent; color: var(--muted); border: none;
   font-family: 'Inter', sans-serif; cursor: pointer; transition: color .15s;
 }
-.btn-ghost:hover { color: #fff; }
+.btn-ghost:hover { color: #0a0a0a; }
 
 /* Inputs */
 .input {
   width: 100%; padding: 12px 14px; background: var(--bg2);
-  border: 1px solid var(--border2); color: #fff;
+  border: 1px solid var(--border2); color: #0a0a0a;
   font-family: 'Inter', sans-serif; font-size: 15px;
   border-radius: 8px; outline: none; transition: border-color .15s;
 }
@@ -61,7 +61,7 @@ a { text-decoration: none; color: inherit; }
 .input::placeholder { color: var(--muted); }
 textarea.input { resize: vertical; min-height: 120px; }
 select.input { cursor: pointer; }
-select.input option { background: #111; }
+select.input option { background: #fff; color: #0a0a0a; }
 
 /* Tags */
 .tag {
@@ -82,9 +82,9 @@ select.input option { background: #111; }
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
 }
-.role-visionario { background: rgba(232,97,26,.12); color: var(--accent); border: 1px solid rgba(232,97,26,.25); }
-.role-talento { background: rgba(255,255,255,.06); color: #fff; border: 1px solid #333; }
-.role-inversor { background: rgba(245,158,11,.1); color: var(--warning); border: 1px solid rgba(245,158,11,.25); }
+.role-visionario { background: rgba(232,97,26,.10); color: var(--accent); border: 1px solid rgba(232,97,26,.25); }
+.role-talento { background: rgba(0,0,0,.06); color: #333; border: 1px solid #d0d0d0; }
+.role-inversor { background: rgba(245,158,11,.1); color: #b45309; border: 1px solid rgba(245,158,11,.3); }
 
 /* Label de form */
 .form-label {
@@ -97,7 +97,7 @@ select.input option { background: #111; }
 .divider { height: 1px; background: var(--border); margin: 0; }
 
 /* Page wrapper */
-.page-wrap { background: #000; min-height: 100vh; }
+.page-wrap { background: #fff; min-height: 100vh; }
 
 /* Dot online */
 .dot-on { width: 7px; height: 7px; border-radius: 50%; background: var(--success); display: inline-block; animation: pulse 2s infinite; }
@@ -137,27 +137,20 @@ select.input option { background: #111; }
 
   .grid-2 { grid-template-columns: 1fr !important; }
 
-  /* Tighter page padding on mobile */
   .page-mobile-pad { padding-left: 16px !important; padding-right: 16px !important; }
 
-  /* Filter rows wrap tighter */
   .filter-row { flex-direction: column !important; }
   .filter-row input, .filter-row select { width: 100% !important; }
 
-  /* Home: hide panel mockup sidebar — content takes full width */
   .home-panel-sidebar { display: none !important; }
   .home-panel-mockup-grid { grid-template-columns: 1fr !important; }
 
-  /* Project/talent cards: single column on mobile */
   .cards-grid { grid-template-columns: 1fr !important; }
 
-  /* Ensure nothing overflows page width */
   .page-wrap { overflow-x: hidden; }
 }
 
 @media (max-width: 480px) {
-  /* Cards full-width on very small screens */
   .card-grid { grid-template-columns: 1fr !important; }
   .cards-grid { grid-template-columns: 1fr !important; }
 }
-
