@@ -42,6 +42,14 @@ export function AuthProvider({ children }) {
       const roles = Array.isArray(data.user_roles) ? data.user_roles : []
       const primaryRole = roles.find(r => r.is_primary)?.role_type || roles[0]?.role_type || null
       const tp = Array.isArray(data.talent_profiles) ? data.talent_profiles[0] : data.talent_profiles
+
+      // Auto-create talent_profiles for talento users who don't have one
+      if (primaryRole === 'talento' && !tp) {
+        await supabase.from('talent_profiles')
+          .upsert({ user_id: userId, available: true, main_role: '' }, { onConflict: 'user_id' })
+          .catch(() => {})
+      }
+
       setProfile({
         id: data.id,
         name: data.name,
