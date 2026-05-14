@@ -9,63 +9,67 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = async (userId) => {
-    let { data } = await supabase
-      .from('users')
-      .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
-      .eq('id', userId)
-      .single()
+    try {
+      let { data } = await supabase
+        .from('users')
+        .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+        .eq('id', userId)
+        .single()
 
-    // Usuario nuevo (Google OAuth o email): crear registro en public.users
-    if (!data) {
-      try {
-        const res = await supabase.auth.getUser()
-        const authUser = res?.data?.user
-        const meta = authUser?.user_metadata || {}
-        const { error: insertErr } = await supabase.from('users').insert({
-          id: userId,
-          name: meta.full_name || meta.name || authUser?.email?.split('@')[0] || '',
-          email: authUser?.email || '',
-          avatar_url: meta.avatar_url || meta.picture || null,
-        })
-        if (!insertErr) {
-          const refetch = await supabase
-            .from('users')
-            .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
-            .eq('id', userId)
-            .single()
-          data = refetch.data
-        }
-      } catch {}
-    }
-
-    if (data) {
-      const roles = Array.isArray(data.user_roles) ? data.user_roles : []
-      const primaryRole = roles.find(r => r.is_primary)?.role_type || roles[0]?.role_type || null
-      const tp = Array.isArray(data.talent_profiles) ? data.talent_profiles[0] : data.talent_profiles
-
-      // Auto-create talent_profiles for talento users who don't have one
-      if (primaryRole === 'talento' && !tp) {
-        await supabase.from('talent_profiles')
-          .upsert({ user_id: userId, available: true, main_role: '' }, { onConflict: 'user_id' })
-          .catch(() => {})
+      // Usuario nuevo (Google OAuth o email): crear registro en public.users
+      if (!data) {
+        try {
+          const res = await supabase.auth.getUser()
+          const authUser = res?.data?.user
+          const meta = authUser?.user_metadata || {}
+          const { error: insertErr } = await supabase.from('users').insert({
+            id: userId,
+            name: meta.full_name || meta.name || authUser?.email?.split('@')[0] || '',
+            email: authUser?.email || '',
+            avatar_url: meta.avatar_url || meta.picture || null,
+          })
+          if (!insertErr) {
+            const refetch = await supabase
+              .from('users')
+              .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+              .eq('id', userId)
+              .single()
+            data = refetch.data
+          }
+        } catch {}
       }
 
-      setProfile({
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        avatar_url: data.avatar_url,
-        location: data.location,
-        bio: data.bio,
-        portfolio: data.portfolio_url,
-        portfolio_url: data.portfolio_url,
-        linkedin_url: data.linkedin_url,
-        type: primaryRole,
-        role: tp?.main_role || '',
-        available: tp?.available ?? true,
-      })
+      if (data) {
+        const roles = Array.isArray(data.user_roles) ? data.user_roles : []
+        const primaryRole = roles.find(r => r.is_primary)?.role_type || roles[0]?.role_type || null
+        const tp = Array.isArray(data.talent_profiles) ? data.talent_profiles[0] : data.talent_profiles
+
+        // Auto-create talent_profiles for talento users who don't have one
+        if (primaryRole === 'talento' && !tp) {
+          await supabase.from('talent_profiles')
+            .upsert({ user_id: userId, available: true, main_role: '' }, { onConflict: 'user_id' })
+            .catch(() => {})
+        }
+
+        setProfile({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          avatar_url: data.avatar_url,
+          location: data.location,
+          bio: data.bio,
+          portfolio: data.portfolio_url,
+          portfolio_url: data.portfolio_url,
+          linkedin_url: data.linkedin_url,
+          type: primaryRole,
+          role: tp?.main_role || '',
+          available: tp?.available ?? true,
+        })
+      }
+    } catch {}
+    finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   useEffect(() => {
