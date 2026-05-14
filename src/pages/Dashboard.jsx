@@ -80,7 +80,8 @@ export default function Dashboard() {
   const { user, profile, loading } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState([])
-  const [teamPanels, setTeamPanels] = useState([]) // {ideaId, title, category, members[]}
+  const [teamPanels, setTeamPanels] = useState([])
+  const [founderEquity, setFounderEquity] = useState([]) // [{ideaTitle, name, role, equity_pct}]
   const [dataLoading, setDataLoading] = useState(true)
   const [paywallMatch, setPaywallMatch] = useState(null)
   const [paywallLoading, setPaywallLoading] = useState(false)
@@ -104,22 +105,27 @@ export default function Dashboard() {
         const projects = (ideas || []).map(mapProject)
         setData(projects)
 
-        // Fetch team members for each project
+        // Fetch team members + equity for each project
         if (projects.length > 0) {
+          const allEquity = []
           const panels = await Promise.all(projects.map(async p => {
             const { data: matches } = await supabase
               .from('matches')
-              .select('talent_id, users(name, avatar_url)')
+              .select('talent_id, users(name, avatar_url), equity_pct, role_suggested')
               .eq('idea_id', p.id)
               .eq('status', 'accepted')
             const founder = ideas.find(i => i.id === p.id)
             const members = [
               { name: founder?.users?.name || 'Vos', avatar_url: null },
               ...(matches || []).map(m => ({ name: m.users?.name, avatar_url: m.users?.avatar_url })),
-            ]
+            ];
+            (matches || []).forEach(m => {
+              if (m.equity_pct) allEquity.push({ ideaTitle: p.title, name: m.users?.name, role: m.role_suggested, equity_pct: parseFloat(m.equity_pct) })
+            })
             return { ideaId: p.id, title: p.title, category: p.category, members }
           }))
           setTeamPanels(panels)
+          setFounderEquity(allEquity)
         }
       }
 
@@ -197,6 +203,33 @@ export default function Dashboard() {
             <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Panel privado con roadmap, ideas y asesor IA para cada proyecto.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {teamPanels.map(p => <TeamPanelCard key={p.ideaId} {...p} />)}
+            </div>
+          </div>
+        )}
+
+        {/* ── Billetera de Equity (fundador) ── */}
+        {!dataLoading && founderEquity.length > 0 && (
+          <div style={{ marginBottom: 44 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <h2 style={sectionTitle}>Equity distribuido</h2>
+              <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(34,197,94,.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, padding: '2px 10px' }}>Activo</span>
+            </div>
+            <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Participaciones comprometidas con tu equipo.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 12 }}>
+              {founderEquity.map((e, i) => (
+                <div key={i} style={{ padding: '18px 20px', border: '1px solid rgba(34,197,94,.2)', borderRadius: 12, background: 'rgba(34,197,94,.04)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Equity</div>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#0a0a0a', letterSpacing: -1, marginBottom: 4 }}>{e.equity_pct}<span style={{ fontSize: 18 }}>%</span></div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 2 }}>{e.name}</div>
+                  <div style={{ fontSize: 12, color: '#666' }}>{e.role} · {e.ideaTitle}</div>
+                </div>
+              ))}
+              <div style={{ padding: '18px 20px', border: '1px dashed #d0d0d0', borderRadius: 12, background: '#f8f9fa', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 4, minHeight: 110 }}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: -1 }}>
+                  {founderEquity.reduce((acc, e) => acc + e.equity_pct, 0).toFixed(1)}%
+                </div>
+                <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Total entregado</div>
+              </div>
             </div>
           </div>
         )}
