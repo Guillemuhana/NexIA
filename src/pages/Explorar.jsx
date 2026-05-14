@@ -4,21 +4,6 @@ import TalentCard from '../components/TalentCard'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
-function mapTalent(tp) {
-  const u = tp.users || {}
-  return {
-    id: u.id || tp.user_id,
-    name: u.name || 'Usuario',
-    avatar: u.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?',
-    location: u.location || '',
-    bio: u.bio || '',
-    role: tp.main_role || '',
-    available: tp.available,
-    score: Math.round(tp.match_score_avg || 0),
-    projects: tp.projects_count || 0,
-    skills: (u.user_skills || []).map(us => us.skills?.name).filter(Boolean),
-  }
-}
 
 export default function Explorar() {
   const [search, setSearch] = useState('')
@@ -29,14 +14,45 @@ export default function Explorar() {
   const { profile } = useAuth()
 
   useEffect(() => {
-    supabase
-      .from('talent_profiles')
-      .select('user_id, available, main_role, match_score_avg, projects_count, users!inner(id, name, avatar_url, location, bio, user_skills(skills(name)))')
-      .then(({ data, error }) => {
-        if (!error && data) setTalents(data.map(mapTalent))
-        setLoading(false)
+    const load = async () => {
+      const { data: profiles } = await supabase
+        .from('talent_profiles')
+        .select('user_id, available, main_role, match_score_avg, projects_count, users(id, name, avatar_url, location, bio)')
+
+      if (!profiles?.length) { setLoading(false); return }
+
+      const userIds = profiles.map(p => p.user_id)
+      const { data: skillRows } = await supabase
+        .from('user_skills')
+        .select('user_id, skills(name)')
+        .in('user_id', userIds)
+
+      const skillsByUser = {}
+      ;(skillRows || []).forEach(row => {
+        if (!skillsByUser[row.user_id]) skillsByUser[row.user_id] = []
+        if (row.skills?.name) skillsByUser[row.user_id].push(row.skills.name)
       })
-      .catch(() => setLoading(false))
+
+      const mapped = profiles
+        .filter(p => p.users)
+        .map(p => ({
+          id: p.users.id || p.user_id,
+          name: p.users.name || 'Usuario',
+          avatar: (p.users.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+          avatar_url: p.users.avatar_url || null,
+          location: p.users.location || '',
+          bio: p.users.bio || '',
+          role: p.main_role || '',
+          available: p.available,
+          score: Math.round(p.match_score_avg || 0),
+          projects: p.projects_count || 0,
+          skills: skillsByUser[p.user_id] || [],
+        }))
+
+      setTalents(mapped)
+      setLoading(false)
+    }
+    load().catch(() => setLoading(false))
   }, [])
 
   const filtered = talents.filter(t => {

@@ -11,8 +11,10 @@ export default function TalentCard({ talent, onInvite, showInvite = false }) {
       onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 10, background: '#f0f0f0', border: '1px solid #d0d0d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#E8611A', flexShrink: 0 }}>
-          {talent.avatar}
+        <div style={{ width: 44, height: 44, borderRadius: 10, background: '#f0f0f0', border: '1px solid #d0d0d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#E8611A', flexShrink: 0, overflow: 'hidden' }}>
+          {talent.avatar_url
+            ? <img src={talent.avatar_url} alt={talent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : talent.avatar}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
