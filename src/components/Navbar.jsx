@@ -54,12 +54,14 @@ export default function Navbar() {
   const go = (path) => { navigate(path); setMenuOpen(false); window.scrollTo({ top: 0 }) }
   const isActive = (path) => location.pathname === path
 
+  const TEST_PANEL = '/panel/534c4a84-bbc6-4d76-9826-85c7b4603333'
+
   const getLinks = () => {
     const base = [{ path: '/', label: 'Inicio' }]
     if (!user) return [...base, { path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'visionario') return [...base, { path: '/dashboard', label: 'Mi Proyecto' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'talento') return [...base, { path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'inversor') return [...base, { path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'visionario') return [...base, { path: '/dashboard', label: 'Mi Proyecto' }, { path: '/explorar', label: 'Talento' }, { path: TEST_PANEL, label: '⚡ Panel IA' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'talento') return [...base, { path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: TEST_PANEL, label: '⚡ Panel IA' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'inversor') return [...base, { path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: TEST_PANEL, label: '⚡ Panel IA' }, { path: '/precios', label: 'Precios' }]
     return base
   }
 
