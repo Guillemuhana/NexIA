@@ -42,7 +42,7 @@ export default function LanzarIdea() {
   const [flash, setFlash] = useState(false)
   const [matched, setMatched] = useState([])
   const [selRoles, setSelRoles] = useState([])
-  const [form, setForm] = useState({ title: '', description: '', category: '', projectStage: '', budget: '' })
+  const [form, setForm] = useState({ title: '', description: '', category: '', projectStage: '', budget: '', equity: '' })
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [savedIdeaId, setSavedIdeaId] = useState(null)
@@ -142,6 +142,7 @@ export default function LanzarIdea() {
           score: t.score,
           ai_reasoning: aiData.whyThisTeam,
           status: 'invited',
+          equity_pct: form.equity ? parseFloat(form.equity) : null,
         }))
       )
 
@@ -233,6 +234,22 @@ export default function LanzarIdea() {
                 <option>A definir con el equipo</option>
               </select>
             </div>
+            <div>
+              <label className="form-label">Equity por talento (%)</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number" min="0" max="50" step="0.5"
+                  value={form.equity} onChange={upd('equity')}
+                  placeholder="Ej: 5  (opcional)"
+                  style={{ ...inputStyle, paddingRight: 40 }}
+                  onFocus={e => e.target.style.borderColor = '#E8611A'}
+                  onBlur={e => e.target.style.borderColor = '#d0d0d0'}
+                />
+                <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: '#888', pointerEvents: 'none' }}>%</span>
+              </div>
+              <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>Participación que le ofrecés a cada miembro del equipo a cambio de su trabajo.</p>
+            </div>
+
             {/* Toggle público / privado */}
             <div style={{ display: 'flex', gap: 8 }}>
               {[{ v: true, label: '🌍 Pública', desc: 'Visible para inversores' }, { v: false, label: '🔒 Privada', desc: 'Solo vos y tu equipo' }].map(opt => (

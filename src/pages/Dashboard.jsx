@@ -125,7 +125,7 @@ export default function Dashboard() {
       if (profile.type === 'talento') {
         const { data: matches } = await supabase
           .from('matches')
-          .select('id, role_suggested, score, ai_reasoning, status, ideas(id, title, category, stage, users(name))')
+          .select('id, role_suggested, score, ai_reasoning, status, equity_pct, ideas(id, title, category, stage, users(name))')
           .eq('talent_id', user.id)
           .order('created_at', { ascending: false })
         setData(matches || [])
@@ -287,6 +287,33 @@ export default function Dashboard() {
             </div>
             <button className="btn-outline" onClick={() => navigate('/perfil')} style={{ padding: '8px 16px', fontSize: 13 }}>Editar perfil</button>
           </div>
+
+          {/* ── Billetera de Equity ── */}
+          {!dataLoading && data.filter(m => m.status === 'accepted' && m.equity_pct).length > 0 && (
+            <div style={{ marginBottom: 44 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <h2 style={sectionTitle}>Billetera de equity</h2>
+                <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(34,197,94,.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, padding: '2px 10px' }}>Activa</span>
+              </div>
+              <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Participaciones comprometidas en proyectos del ecosistema.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 12, marginBottom: 16 }}>
+                {data.filter(m => m.status === 'accepted' && m.equity_pct).map(m => (
+                  <div key={m.id} style={{ padding: '18px 20px', border: '1px solid rgba(34,197,94,.2)', borderRadius: 12, background: 'rgba(34,197,94,.04)' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Equity</div>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#0a0a0a', letterSpacing: -1, marginBottom: 4 }}>{m.equity_pct}<span style={{ fontSize: 18 }}>%</span></div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 2 }}>{m.ideas?.title}</div>
+                    <div style={{ fontSize: 12, color: '#666' }}>{m.role_suggested} · {m.ideas?.stage}</div>
+                  </div>
+                ))}
+                <div style={{ padding: '18px 20px', border: '1px dashed #d0d0d0', borderRadius: 12, background: '#f8f9fa', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 4, minHeight: 110 }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: -1 }}>
+                    {data.filter(m => m.status === 'accepted' && m.equity_pct).reduce((acc, m) => acc + (m.equity_pct || 0), 0).toFixed(1)}%
+                  </div>
+                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Total acumulado</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── Invitaciones ── */}
           <div>
