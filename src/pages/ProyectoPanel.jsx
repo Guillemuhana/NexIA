@@ -308,12 +308,53 @@ export default function ProyectoPanel() {
         .chat-input:focus { outline:none;border-color:rgba(232,97,26,.4); }
         .suggest-btn { background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:8px 12px;color:#555;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;text-align:left;transition:all .15s; }
         .suggest-btn:hover { border-color:#333;color:#aaa; }
+        .panel-mobile-nav { display:none; }
+        @media (max-width:768px) {
+          .panel-sidebar { display:none !important; }
+          .panel-mobile-nav { display:flex;overflow-x:auto;gap:4px;padding:8px 12px;background:#080808;border-bottom:1px solid #111;position:sticky;top:64px;z-index:50;scrollbar-width:none; }
+          .panel-mobile-nav::-webkit-scrollbar { display:none; }
+          .panel-mobile-btn { display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:8px;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:10px;font-weight:600;color:#555;white-space:nowrap;flex-shrink:0;transition:all .15s; }
+          .panel-mobile-btn.active { color:#E8611A;background:rgba(232,97,26,.1); }
+          .panel-main { padding:16px !important; }
+          .panel-chat-main { padding:12px !important; }
+          .panel-chat-header { padding:14px 16px !important; }
+          .panel-chat-input { padding:10px 12px 16px !important; }
+          .panel-buildlog { padding:16px !important; }
+          .ideas-grid { grid-template-columns:1fr !important; }
+          .metrics-grid { grid-template-columns:1fr !important; }
+          .team-grid { grid-template-columns:repeat(2,1fr) !important; }
+          .phase-row { grid-template-columns:1fr !important; }
+          .phase-row > div:first-child { border-right:none !important;border-bottom:1px solid #111; }
+          .suggest-grid { grid-template-columns:1fr !important; }
+          .panel-header { flex-direction:column;align-items:flex-start;gap:12px; }
+          .panel-regen { align-self:flex-start; }
+          .pcard { padding:16px !important; }
+        }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh', background: '#080808', fontFamily: 'Inter, sans-serif' }}>
 
+        {/* ── Mobile tab bar ──────────────────────────────────────── */}
+        <div className="panel-mobile-nav">
+          {NAV.map(n => (
+            <button key={n.id} className={`panel-mobile-btn${activeSection === n.id ? ' active' : ''}`} onClick={() => {
+              if (n.id === 'chat' && chatHistory.length === 0 && idea && !chatGreeted) {
+                setChatGreeted(true)
+                const greeting = ai?.resumen
+                  ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
+                  : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. ¿Qué necesitan?`
+                setChatHistory([{ role: 'ai', text: greeting }])
+              }
+              setActive(n.id)
+            }}>
+              <Icon name={n.icon} size={16} color={activeSection === n.id ? '#E8611A' : '#444'} />
+              {n.label}
+            </button>
+          ))}
+        </div>
+
         {/* ── Sidebar ─────────────────────────────────────────────── */}
-        <aside style={{ width: 224, flexShrink: 0, borderRight: '1px solid #111', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
+        <aside className="panel-sidebar" style={{ width: 224, flexShrink: 0, borderRight: '1px solid #111', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
           <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 32, paddingLeft: 4 }}>
             <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1 }}>Equ</span>
             <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1, color: '#E8611A' }}>ia</span>
@@ -373,12 +414,12 @@ export default function ProyectoPanel() {
         </aside>
 
         {/* ── Main ────────────────────────────────────────────────── */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: (activeSection === 'chat' || activeSection === 'buildlog') ? 0 : '40px 48px', maxWidth: 1100, display: 'flex', flexDirection: 'column' }}>
+        <main className={activeSection !== 'chat' && activeSection !== 'buildlog' ? 'panel-main' : ''} style={{ flex: 1, overflowY: 'auto', padding: (activeSection === 'chat' || activeSection === 'buildlog') ? 0 : '40px 48px', maxWidth: 1100, display: 'flex', flexDirection: 'column' }}>
 
           {activeSection !== 'chat' && activeSection !== 'buildlog' && (
             <>
               {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32 }}>
+              <div className="panel-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32 }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <span className="ai-chip"><Icon name="zap" size={10} color="#E8611A" /> Gemini AI</span>
@@ -573,9 +614,9 @@ export default function ProyectoPanel() {
 
           {/* ── CHAT ──────────────────────────────────────────────── */}
           {activeSection === 'chat' && (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
               {/* Chat header */}
-              <div style={{ padding: '24px 32px 20px', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="panel-chat-header" style={{ padding: '24px 32px 20px', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(232,97,26,.15)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon name="bot" size={16} color="#E8611A" />
                 </div>
@@ -586,7 +627,7 @@ export default function ProyectoPanel() {
               </div>
 
               {/* Messages */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
+              <div className="panel-chat-main" style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
                 {chatHistory.length === 0 && (
                   <div style={{ textAlign: 'center', paddingTop: 32 }}>
                     <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(232,97,26,.1)', border: '1px solid rgba(232,97,26,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -594,7 +635,7 @@ export default function ProyectoPanel() {
                     </div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#ccc', marginBottom: 6 }}>Tu asesor de startup privado</div>
                     <div style={{ fontSize: 13, color: '#444', marginBottom: 28, lineHeight: 1.6 }}>Preguntá sobre estrategia, producto, equipo o cualquier duda del proyecto.</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxWidth: 520, margin: '0 auto' }}>
+                    <div className="suggest-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxWidth: 520, margin: '0 auto' }}>
                       {SUGGESTED.map(q => (
                         <button key={q} className="suggest-btn" onClick={() => sendChat(q)}>{q}</button>
                       ))}
@@ -607,7 +648,7 @@ export default function ProyectoPanel() {
               </div>
 
               {/* Input */}
-              <div style={{ padding: '16px 32px 24px', borderTop: '1px solid #111', background: '#080808' }}>
+              <div className="panel-chat-input" style={{ padding: '16px 32px 24px', borderTop: '1px solid #111', background: '#080808' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
                   <textarea
                     className="chat-input"
@@ -633,7 +674,7 @@ export default function ProyectoPanel() {
 
           {/* ── BUILD LOG ─────────────────────────────────────────── */}
           {activeSection === 'buildlog' && (
-            <div style={{ padding: '40px 48px' }}>
+            <div className="panel-buildlog" style={{ padding: '40px 48px' }}>
               <div className="pcard" style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Nueva entrada</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
