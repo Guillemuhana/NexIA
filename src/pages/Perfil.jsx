@@ -65,11 +65,14 @@ export default function Perfil() {
       let avatarUrl = profile?.avatar_url
 
       if (avatarFile) {
-        const ext = avatarFile.name.split('.').pop()
+        const ext = avatarFile.name.split('.').pop().toLowerCase()
         const path = `${user.id}/avatar.${ext}`
-        const { error: upErr } = await supabase.storage.from('avatars').upload(path, avatarFile, { upsert: true })
+        const { error: upErr } = await supabase.storage.from('avatars').upload(path, avatarFile, {
+          upsert: true,
+          contentType: avatarFile.type,
+        })
         if (upErr) {
-          setSaveError('No se pudo subir la foto. Intentá de nuevo.')
+          setSaveError(`Error al subir la foto: ${upErr.message}`)
           setSaving(false)
           return
         }
@@ -81,7 +84,7 @@ export default function Perfil() {
       if (isTalent) { updates.role = form.role; updates.available = form.available }
 
       const { error } = await updateProfile(updates)
-      if (error) { setSaveError('No se pudo guardar. Intentá de nuevo.'); setSaving(false); return }
+      if (error) { setSaveError(`Error al guardar: ${error.message}`); setSaving(false); return }
 
       if (isTalent) {
         await supabase.from('user_skills').delete().eq('user_id', user.id)
@@ -164,23 +167,16 @@ export default function Perfil() {
               onFocus={e => e.target.style.borderColor = '#E8611A'} onBlur={e => e.target.style.borderColor = '#d0d0d0'} />
           </div>
 
-          {/* Rol */}
-          <div>
-            <label className="form-label">
-              {isTalent ? 'Rol principal' : profile?.type === 'visionario' ? 'Tu rol en el proyecto' : 'Tu cargo'}
-            </label>
-            {isTalent ? (
+          {/* Rol (solo talento) */}
+          {isTalent && (
+            <div>
+              <label className="form-label">Rol principal</label>
               <select value={form.role} onChange={upd('role')} style={inputStyle}>
                 <option value="">Seleccioná tu rol...</option>
                 {SKILL_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
-            ) : (
-              <input value={form.role} onChange={upd('role')}
-                placeholder={profile?.type === 'visionario' ? 'Ej: Founder / CEO' : 'Ej: Portfolio Manager'}
-                style={inputStyle}
-                onFocus={e => e.target.style.borderColor = '#E8611A'} onBlur={e => e.target.style.borderColor = '#d0d0d0'} />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Ubicación */}
           <div>
