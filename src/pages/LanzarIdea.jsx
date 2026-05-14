@@ -89,6 +89,17 @@ export default function LanzarIdea() {
 
   const handleSaveIdea = async () => {
     if (!user || !aiData) return
+
+    const { count } = await supabase
+      .from('ideas')
+      .select('id', { count: 'exact', head: true })
+      .eq('founder_id', user.id)
+
+    if ((count || 0) >= 1) {
+      setShowPaywall(true)
+      return
+    }
+
     await doSaveIdea()
   }
 
