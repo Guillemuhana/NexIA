@@ -23,8 +23,8 @@ export default function TalentCard({ talent, onInvite, showInvite = false }) {
           {talent.location && <div style={{ fontSize: 12, color: '#777', marginTop: 2 }}>📍 {talent.location}</div>}
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: -1 }}>{talent.score}</div>
-          <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', letterSpacing: 1 }}>match %</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: -1 }}>{talent.score > 0 ? talent.score : '—'}</div>
+          <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', letterSpacing: 1 }}>{talent.score > 0 ? 'match %' : 'nuevo'}</div>
         </div>
       </div>
 

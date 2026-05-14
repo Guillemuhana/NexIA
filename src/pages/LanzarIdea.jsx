@@ -45,6 +45,7 @@ export default function LanzarIdea() {
   const [form, setForm] = useState({ title: '', description: '', category: '', projectStage: '', budget: '' })
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [savedIdeaId, setSavedIdeaId] = useState(null)
   const [isPublic, setIsPublic] = useState(true)
   const [showPaywall, setShowPaywall] = useState(false)
   const [paymentLoading, setPaymentLoading] = useState(false)
@@ -88,19 +89,6 @@ export default function LanzarIdea() {
 
   const handleSaveIdea = async () => {
     if (!user || !aiData) return
-    setSending(true)
-
-    const { count } = await supabase
-      .from('ideas')
-      .select('*', { count: 'exact', head: true })
-      .eq('founder_id', user.id)
-
-    if (count >= 1) {
-      setSending(false)
-      setShowPaywall(true)
-      return
-    }
-
     await doSaveIdea()
   }
 
@@ -171,6 +159,7 @@ export default function LanzarIdea() {
     }
 
     setSending(false)
+    setSavedIdeaId(idea.id)
     setSent(true)
   }
 
@@ -341,8 +330,10 @@ export default function LanzarIdea() {
                   El proyecto fue guardado y los talentos recibieron su invitación. Podés seguir el estado desde tu dashboard.
                 </p>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button className="btn-primary" onClick={() => navigate('/dashboard')} style={{ padding: '14px 32px', fontSize: 15 }}>Ver mi dashboard →</button>
-                  <button className="btn-outline" onClick={() => navigate('/proyectos')} style={{ padding: '14px 22px', fontSize: 15 }}>Ver proyectos</button>
+                  {savedIdeaId && (
+                    <button className="btn-primary" onClick={() => navigate(`/panel/${savedIdeaId}`)} style={{ padding: '14px 32px', fontSize: 15 }}>⚡ Abrir Panel IA →</button>
+                  )}
+                  <button className="btn-outline" onClick={() => navigate('/dashboard')} style={{ padding: '14px 22px', fontSize: 15 }}>Ver mi dashboard</button>
                 </div>
               </>
             ) : (
