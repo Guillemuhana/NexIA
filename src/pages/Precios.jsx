@@ -11,6 +11,7 @@ const PLANS = [
       'Explorar talentos disponibles',
       'Recibir invitaciones a proyectos',
       'Perfil público en el directorio',
+      'Chat con todos los usuarios — gratis por tiempo limitado 🎉',
     ],
     cta: 'Empezar gratis',
     path: '/registro',
@@ -28,6 +29,7 @@ const PLANS = [
       'Invitaciones automáticas al equipo',
       'Idea pública o privada',
       'Análisis completo de viabilidad',
+      'Chat premium con todos los usuarios (siempre)',
     ],
     cta: 'Publicar una idea',
     path: '/lanzar',
@@ -44,6 +46,7 @@ const PLANS = [
       'Pago solo al aceptar',
       'Contacto directo con el founder',
       'Tu perfil visible para la IA de matching',
+      'Chat con tu equipo formado (siempre gratis)',
     ],
     cta: 'Registrarme como talento',
     path: '/registro?rol=talento',
@@ -59,7 +62,7 @@ export default function Precios() {
     <div className="page-wrap">
       <div style={{ padding: '100px 24px 80px', maxWidth: 1000, margin: '0 auto' }}>
 
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase' }}>Precios</span>
           <h1 style={{ fontSize: 'clamp(32px,6vw,56px)', fontWeight: 900, letterSpacing: '-2px', marginTop: 12, marginBottom: 14 }}>
             Simple y transparente
@@ -67,6 +70,27 @@ export default function Precios() {
           <p style={{ fontSize: 16, color: '#666', maxWidth: 440, margin: '0 auto', lineHeight: 1.7 }}>
             Empezá gratis. Pagás solo cuando querés publicar más ideas o conectarte con un equipo.
           </p>
+        </div>
+
+        {/* Banner chat gratis por tiempo limitado */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 14, padding: '16px 22px',
+          background: 'rgba(232,97,26,.06)', border: '1px solid rgba(232,97,26,.2)',
+          borderRadius: 12, marginBottom: 36, flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 22 }}>🎉</span>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0a0a0a', marginBottom: 2 }}>
+              Chat disponible para todos — por tiempo limitado
+            </div>
+            <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5 }}>
+              Durante el lanzamiento de Equia, todos los usuarios pueden mensajearse libremente.
+              Próximamente el chat estará disponible solo para suscriptores premium o usuarios con equipo formado.
+            </div>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', background: 'rgba(232,97,26,.1)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 99, padding: '4px 12px', whiteSpace: 'nowrap' }}>
+            BETA GRATIS
+          </span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 1, border: '1px solid #e8e8e8' }}>
