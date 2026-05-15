@@ -9,7 +9,7 @@ export default function Perfil() {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
-  const [form, setForm] = useState({ name: '', role: '', bio: '', location: '', portfolio: '', available: true })
+  const [form, setForm] = useState({ name: '', role: '', bio: '', location: '', portfolio: '', linkedin: '', available: true })
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [avatarFile, setAvatarFile] = useState(null)
   const [userSkills, setUserSkills] = useState([])
@@ -28,6 +28,7 @@ export default function Perfil() {
         bio: profile.bio || '',
         location: profile.location || '',
         portfolio: profile.portfolio_url || '',
+        linkedin: profile.linkedin_url || '',
         available: profile.available ?? true,
       })
       if (profile.avatar_url) setAvatarPreview(profile.avatar_url)
@@ -80,7 +81,7 @@ export default function Perfil() {
         avatarUrl = urlData.publicUrl + '?t=' + Date.now()
       }
 
-      const updates = { name: form.name, bio: form.bio, location: form.location, portfolio: form.portfolio, avatar_url: avatarUrl }
+      const updates = { name: form.name, bio: form.bio, location: form.location, portfolio: form.portfolio, linkedin_url: form.linkedin, avatar_url: avatarUrl }
       if (isTalent) { updates.role = form.role; updates.available = form.available }
 
       const { error } = await updateProfile(updates)
@@ -189,6 +190,13 @@ export default function Perfil() {
           <div>
             <label className="form-label">Portfolio / Web</label>
             <input value={form.portfolio} onChange={upd('portfolio')} placeholder="https://miportafolio.com" style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#E8611A'} onBlur={e => e.target.style.borderColor = '#d0d0d0'} />
+          </div>
+
+          {/* LinkedIn */}
+          <div>
+            <label className="form-label">LinkedIn</label>
+            <input value={form.linkedin} onChange={upd('linkedin')} placeholder="https://linkedin.com/in/tu-perfil" style={inputStyle}
               onFocus={e => e.target.style.borderColor = '#E8611A'} onBlur={e => e.target.style.borderColor = '#d0d0d0'} />
           </div>
 
