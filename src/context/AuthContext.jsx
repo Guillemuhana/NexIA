@@ -10,15 +10,25 @@ export function AuthProvider({ children }) {
   const fetchingRef = useRef(false)
 
   const fetchProfile = async (userId) => {
-    // Prevent concurrent fetchProfile calls
     if (fetchingRef.current) return
     fetchingRef.current = true
     try {
-      let { data } = await supabase
+      let { data, error: fetchErr } = await supabase
         .from('users')
         .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
+
+      // Retry once si falló por error de red
+      if (fetchErr && !data) {
+        await new Promise(r => setTimeout(r, 800))
+        const retry = await supabase
+          .from('users')
+          .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+          .eq('id', userId)
+          .maybeSingle()
+        data = retry.data
+      }
 
       // Usuario nuevo (Google OAuth o email): crear registro en public.users
       if (!data) {
@@ -37,7 +47,7 @@ export function AuthProvider({ children }) {
               .from('users')
               .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
               .eq('id', userId)
-              .single()
+              .maybeSingle()
             data = refetch.data
           }
         } catch {}
