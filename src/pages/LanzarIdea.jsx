@@ -115,64 +115,68 @@ export default function LanzarIdea() {
 
   const doSaveIdea = async () => {
     setSending(true)
+    try {
+      // 1. Guardar idea en DB
+      const { data: idea, error: ideaError } = await supabase
+        .from('ideas')
+        .insert({
+          founder_id: user.id,
+          title: form.title,
+          description: form.description,
+          category: form.category || null,
+          stage: form.projectStage || 'Idea (solo concepto)',
+          budget: form.budget || null,
+          status: 'active',
+          ai_analysis: aiData,
+          is_public: isPublic,
+        })
+        .select()
+        .single()
 
-    // 1. Guardar idea en DB
-    const { data: idea, error: ideaError } = await supabase
-      .from('ideas')
-      .insert({
-        founder_id: user.id,
-        title: form.title,
-        description: form.description,
-        category: form.category || null,
-        stage: form.projectStage || 'Idea (solo concepto)',
-        budget: form.budget || null,
-        status: 'active',
-        ai_analysis: aiData,
-        is_public: isPublic,
-      })
-      .select()
-      .single()
+      if (ideaError) throw new Error(ideaError.message)
 
-    if (ideaError) { setSending(false); alert('Error al guardar el proyecto. Intentá de nuevo.'); return }
+      // 2. Guardar roles necesarios
+      const rolesNeeded = aiData.rolesNeeded?.length ? aiData.rolesNeeded : selRoles
+      if (rolesNeeded.length) {
+        await supabase.from('idea_roles').insert(
+          rolesNeeded.map(role => ({ idea_id: idea.id, role_name: role, filled: false }))
+        )
+      }
 
-    // 2. Guardar roles necesarios
-    const rolesNeeded = aiData.rolesNeeded?.length ? aiData.rolesNeeded : selRoles
-    if (rolesNeeded.length) {
-      await supabase.from('idea_roles').insert(
-        rolesNeeded.map(role => ({ idea_id: idea.id, role_name: role, filled: false }))
-      )
+      // 3. Matches e invitaciones (no bloquear si falla)
+      if (matched.length) {
+        const { error: matchErr } = await supabase.from('matches').insert(
+          matched.map(t => ({
+            idea_id: idea.id,
+            talent_id: t.id,
+            role_suggested: t.role,
+            score: t.score,
+            ai_reasoning: aiData.whyThisTeam,
+            status: 'invited',
+            equity_pct: form.equity ? parseFloat(form.equity) : null,
+          }))
+        )
+        if (!matchErr) {
+          supabase.from('notifications').insert(
+            matched.map(t => ({
+              user_id: t.id,
+              type: 'match_received',
+              title: `Fuiste elegido para "${form.title}"`,
+              body: `La IA te seleccionó como ${t.role} para este proyecto.`,
+              link: '/dashboard',
+              data: { idea_id: idea.id },
+            }))
+          ).catch(() => {})
+        }
+      }
+
+      setSavedIdeaId(idea.id)
+      setSent(true)
+    } catch (err) {
+      alert(`Error al guardar: ${err.message || 'Intentá de nuevo.'}`)
+    } finally {
+      setSending(false)
     }
-
-    // 3. Crear matches / invitaciones para cada talento
-    if (matched.length) {
-      await supabase.from('matches').insert(
-        matched.map(t => ({
-          idea_id: idea.id,
-          talent_id: t.id,
-          role_suggested: t.role,
-          score: t.score,
-          ai_reasoning: aiData.whyThisTeam,
-          status: 'invited',
-          equity_pct: form.equity ? parseFloat(form.equity) : null,
-        }))
-      )
-
-      // 4. Notificaciones para cada talento
-      await supabase.from('notifications').insert(
-        matched.map(t => ({
-          user_id: t.id,
-          type: 'match_received',
-          title: `Fuiste elegido para "${form.title}"`,
-          body: `La IA te seleccionó como ${t.role} para este proyecto.`,
-          link: '/dashboard',
-          data: { idea_id: idea.id },
-        }))
-      )
-    }
-
-    setSending(false)
-    setSavedIdeaId(idea.id)
-    setSent(true)
   }
 
   const inputStyle = { padding: '12px 14px', background: '#f8f9fa', border: '1px solid #d0d0d0', color: '#0a0a0a', fontFamily: 'Inter, sans-serif', fontSize: 15, borderRadius: 8, outline: 'none', width: '100%', transition: 'border-color .15s' }
