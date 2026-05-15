@@ -340,7 +340,7 @@ export default function Home() {
       <footer style={{ borderTop: '1px solid #e8e8e8', padding: 'clamp(20px,5vw,28px) clamp(20px,6vw,32px)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <LogoEquia size={18} />
-          <span style={{ fontSize: 12, color: '#888' }}>© 2026 Equia · Hecho en Latinoamérica</span>
+          <span style={{ fontSize: 12, color: '#888' }}>© 2026 Equia · Desarrollado en Argentina y EE.UU.</span>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidad', 'Términos', 'Contacto'].map(l => (
               <span key={l} style={{ fontSize: 12, color: '#777', cursor: 'pointer' }}>{l}</span>
