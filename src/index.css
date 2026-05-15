@@ -29,14 +29,49 @@ html, body, #root {
 
 a { text-decoration: none; color: inherit; }
 
-/* Logo equIA — chevron draw animation */
+/* ── Logo equIA animations ── */
+
+/* 1. Chevron se dibuja + glow pulsante después */
 .logo-chevron {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: equiaChevronDraw 0.65s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+  animation:
+    equiaChevronDraw 0.65s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards,
+    equiaChevronGlow 2.6s ease-in-out 0.85s infinite;
 }
 @keyframes equiaChevronDraw {
   to { stroke-dashoffset: 0; }
+}
+@keyframes equiaChevronGlow {
+  0%, 100% { filter: drop-shadow(0 0 1px rgba(232,97,26,0.15)); }
+  50%       { filter: drop-shadow(0 0 5px rgba(232,97,26,0.75)) drop-shadow(0 0 12px rgba(232,97,26,0.25)); }
+}
+
+/* 2. Rayos de luz — se dibujan desde el tip hacia afuera */
+.logo-ray {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation:
+    equiaRayDraw 0.35s ease-out var(--rd, 0.8s) forwards,
+    equiaRayPulse 2.6s ease-in-out calc(var(--rd, 0.8s) + 0.4s) infinite;
+}
+@keyframes equiaRayDraw {
+  from { stroke-dashoffset: 1; opacity: 0; }
+  to   { stroke-dashoffset: 0; opacity: 0.85; }
+}
+@keyframes equiaRayPulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.9; }
+}
+
+/* 3. Halo de luz en el tip — efecto lámpara */
+.logo-glow-halo {
+  opacity: 0;
+  animation: equiaHaloPulse 2.6s ease-in-out 0.8s infinite;
+}
+@keyframes equiaHaloPulse {
+  0%, 100% { opacity: 0.1;  transform: scale(1);    transform-box: fill-box; transform-origin: center; }
+  50%       { opacity: 0.45; transform: scale(1.35); transform-box: fill-box; transform-origin: center; }
 }
 
 /* Botones */
