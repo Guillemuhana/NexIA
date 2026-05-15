@@ -129,6 +129,25 @@ export default function CV() {
 
         <div style={{ height: 1, background: '#e8e8e8', marginBottom: 36 }} />
 
+        {/* Banner motivacional */}
+        <div style={{
+          padding: '20px 24px', marginBottom: 36,
+          background: 'linear-gradient(135deg, rgba(232,97,26,.06) 0%, rgba(232,97,26,.02) 100%)',
+          border: '1px solid rgba(232,97,26,.18)', borderRadius: 14,
+          display: 'flex', alignItems: 'flex-start', gap: 16,
+        }}>
+          <span style={{ fontSize: 28, flexShrink: 0 }}>📄</span>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#0a0a0a', marginBottom: 5, letterSpacing: '-.3px' }}>
+              Completá tu CV y posicionáte mejor en la app
+            </div>
+            <div style={{ fontSize: 13, color: '#666', lineHeight: 1.65 }}>
+              Los perfiles con CV completo tienen <strong style={{ color: '#E8611A' }}>3x más chances</strong> de ser elegidos por la IA de matching.
+              Tu experiencia, educación e idiomas le dan contexto al algoritmo para conectarte con los proyectos y equipos que mejor se adaptan a vos.
+            </div>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
 
           {/* Datos personales (solo lectura, vienen del perfil) */}
