@@ -58,7 +58,7 @@ export default function Navbar() {
   const getLinks = () => {
     const base = [{ path: '/', label: 'Inicio' }]
     if (!user) return [...base, { path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'visionario') return [...base, { path: '/dashboard', label: 'Mi Proyecto' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'visionario') return [...base, { path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }]
     if (profile?.type === 'talento') return [...base, { path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
     if (profile?.type === 'inversor') return [...base, { path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }]
     return base
