@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROLES } from '../lib/constants'
+import LogoEquia from '../components/LogoEquia'
 
 export default function AuthCallback() {
   const { user, profile, loading, setUserRole } = useAuth()
@@ -43,13 +44,7 @@ export default function AuthCallback() {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', padding: '80px 20px', background: '#080808', fontFamily: 'Inter, sans-serif' }}>
       <div style={{ width: '100%', maxWidth: 480 }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 40, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1.5, color: '#fff', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-          <span style={{ fontWeight: 900, fontSize: 24, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
-          <svg width="18" height="24" viewBox="0 0 18 24" fill="none" style={{ display: 'block' }}>
-            <path d="M1.5 22.5L9 2L16.5 22.5" stroke="#E8611A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        <LogoEquia size={24} dark onClick={() => navigate('/')} style={{ marginBottom: 40 }} />
 
         <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6, color: '#fff' }}>
           Un último paso

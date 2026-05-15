@@ -29,6 +29,16 @@ html, body, #root {
 
 a { text-decoration: none; color: inherit; }
 
+/* Logo equIA — chevron draw animation */
+.logo-chevron {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: equiaChevronDraw 0.65s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+}
+@keyframes equiaChevronDraw {
+  to { stroke-dashoffset: 0; }
+}
+
 /* Botones */
 .btn-primary {
   background: var(--accent); color: #fff; border: none;

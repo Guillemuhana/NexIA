@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import LogoEquia from '../components/LogoEquia'
 
 function useTypewriter(phrases) {
   const [text, setText] = useState('')
@@ -338,13 +339,7 @@ export default function Home() {
       {/* ── FOOTER ── */}
       <footer style={{ borderTop: '1px solid #e8e8e8', padding: 'clamp(20px,5vw,28px) clamp(20px,6vw,32px)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-            <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: -1, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-            <span style={{ fontWeight: 900, fontSize: 18, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
-            <svg width="14" height="18" viewBox="0 0 14 18" fill="none" style={{ display: 'block' }}>
-              <path d="M1.5 16.5L7 2L12.5 16.5" stroke="#E8611A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <LogoEquia size={18} />
           <span style={{ fontSize: 12, color: '#888' }}>© 2026 Equia · Hecho en Latinoamérica</span>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacidad', 'Términos', 'Contacto'].map(l => (

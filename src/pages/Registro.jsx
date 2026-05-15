@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROLES } from '../lib/constants'
+import LogoEquia from '../components/LogoEquia'
 
 function GoogleIcon() {
   return (
@@ -58,13 +59,7 @@ export default function Registro() {
       <div style={{ width: '100%', maxWidth: 520 }}>
 
         {/* Logo */}
-        <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 0, cursor: 'pointer', marginBottom: 44 }}>
-          <span style={{ fontWeight: 900, fontSize: 28, letterSpacing: -1.5, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-          <span style={{ fontWeight: 900, fontSize: 28, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
-          <svg width="21" height="28" viewBox="0 0 21 28" fill="none" style={{ display: 'block' }}>
-            <path d="M1.5 26L10.5 2L19.5 26" stroke="#E8611A" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        <LogoEquia size={28} onClick={() => navigate('/')} style={{ marginBottom: 44 }} />
 
         {/* ── PASO 1 — Elegir rol ── */}
         {step === 1 && (

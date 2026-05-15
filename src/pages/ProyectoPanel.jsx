@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { analyzeProject, chatWithProject } from '../lib/gemini'
+import LogoEquia from '../components/LogoEquia'
 
 function Icon({ name, size = 18, color = 'currentColor' }) {
   const paths = {
@@ -355,14 +356,7 @@ export default function ProyectoPanel() {
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
         <aside className="panel-sidebar" style={{ width: 224, flexShrink: 0, borderRight: '1px solid #e8e8e8', background: '#ffffff', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
-          <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 0, cursor: 'pointer', marginBottom: 32, paddingLeft: 4 }}>
-            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-            <span style={{ fontWeight: 900, fontSize: 20, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
-            <svg width="15" height="20" viewBox="0 0 15 20" fill="none" style={{ display: 'block' }}>
-              <path d="M1.5 18.5L7.5 2L13.5 18.5" stroke="#E8611A" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span style={{ marginLeft: 8, fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: 1, textTransform: 'uppercase', border: '1px solid #d0d0d0', borderRadius: 4, padding: '1px 5px' }}>Panel</span>
-          </div>
+          <LogoEquia size={20} onClick={() => navigate('/')} badge="Panel" style={{ marginBottom: 32, paddingLeft: 4 }} />
 
           {/* Project name + team count */}
           <div style={{ paddingLeft: 4, marginBottom: 8 }}>

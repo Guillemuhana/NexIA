@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROLES } from '../lib/constants'
+import LogoEquia from './LogoEquia'
 
 function Icon({ name, size = 16, stroke = 'currentColor', strokeWidth = 1.75 }) {
   const d = {
@@ -78,15 +79,12 @@ export default function Navbar() {
       }}>
 
         {/* Logo */}
-        <div onClick={() => go('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 0, transition: 'transform .2s ease', userSelect: 'none' }}
+        <div
+          style={{ transition: 'transform .2s ease' }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <span style={{ fontWeight: 900, fontSize: 32, letterSpacing: -1.5, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-          <span style={{ fontWeight: 900, fontSize: 32, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif', letterSpacing: 0 }}>I</span>
-          <svg width="24" height="32" viewBox="0 0 24 32" fill="none" style={{ display: 'block' }}>
-            <path d="M1.5 30L12 2L22.5 30" stroke="#E8611A" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <LogoEquia size={32} onClick={() => go('/')} />
         </div>
 
         {/* Desktop nav */}
