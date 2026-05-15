@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LogoEquia from '../components/LogoEquia'
+import { supabase } from '../lib/supabase'
 
 function useTypewriter(phrases) {
   const [text, setText] = useState('')
@@ -39,9 +40,32 @@ const ROLES_DATA = [
   { label: 'Inversor', tag: 'Buscás proyectos', desc: 'Explorá proyectos con equipos ya formados por IA. Contactá directo con el founder.', cta: 'Invertí en una idea', path: '/registro?rol=inversor', accent: false },
 ]
 
+const ROLE_COLORS = {
+  'Desarrollador Full Stack': { bg: 'rgba(232,97,26,.08)', color: '#E8611A' },
+  'Desarrollador Frontend': { bg: 'rgba(59,130,246,.08)', color: '#2563eb' },
+  'Desarrollador Backend': { bg: 'rgba(139,92,246,.08)', color: '#7c3aed' },
+  'UX/UI Designer': { bg: 'rgba(236,72,153,.08)', color: '#be185d' },
+  'Marketing Digital': { bg: 'rgba(16,185,129,.08)', color: '#059669' },
+  'Product Manager': { bg: 'rgba(245,158,11,.08)', color: '#b45309' },
+  'Data Scientist / IA': { bg: 'rgba(99,102,241,.08)', color: '#4338ca' },
+}
+
 export default function Home() {
   const navigate = useNavigate()
   const typed = useTypewriter(['el equipo ideal.', 'hace realidad tu idea.', 'encuentra tu equipo.'])
+  const [talents, setTalents] = useState([])
+
+  useEffect(() => {
+    supabase.from('talent_profiles')
+      .select('available, main_role, users(id, name, location, user_skills(skills(name)))')
+      .eq('available', true)
+      .limit(18)
+      .then(({ data }) => {
+        const shuffled = [...(data || [])].sort(() => Math.random() - 0.5).slice(0, 6)
+        setTalents(shuffled)
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="page-wrap">
@@ -310,6 +334,83 @@ export default function Home() {
 
         </div>
       </div>
+
+      {/* ── TALENTOS DISPONIBLES ── */}
+      {talents.length > 0 && (
+        <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 'clamp(32px,6vw,48px)', flexWrap: 'wrap', gap: 16 }}>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase' }}>Comunidad activa</span>
+                <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10, lineHeight: 1.1 }}>
+                  Talentos esperando<br />tu proyecto
+                </h2>
+              </div>
+              <button
+                onClick={() => navigate('/explorar')}
+                style={{ padding: '11px 22px', fontSize: 14, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 9, background: 'none', color: '#555', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#aaa'; e.currentTarget.style.color = '#111' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#555' }}
+              >
+                Ver todos →
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+              {talents.map((tp, i) => {
+                const u = tp.users
+                const skills = (u?.user_skills || []).map(us => us.skills?.name).filter(Boolean)
+                const initials = u?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
+                const roleStyle = ROLE_COLORS[tp.main_role] || { bg: '#f0f0f0', color: '#555' }
+                return (
+                  <div
+                    key={u?.id || i}
+                    onClick={() => navigate(`/talento/${u?.id}`)}
+                    style={{ padding: '20px 22px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.06)' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e8e8'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
+                  >
+                    {/* Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: '50%', background: roleStyle.bg, color: roleStyle.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 15, flexShrink: 0, border: `1px solid ${roleStyle.color}22` }}>
+                        {initials}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15, color: '#0a0a0a', letterSpacing: '-.3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u?.name}</div>
+                        <div style={{ fontSize: 12, color: '#888', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.main_role}</div>
+                      </div>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: '#22c55e', flexShrink: 0 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
+                        Disponible
+                      </span>
+                    </div>
+                    {/* Skills */}
+                    {skills.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {skills.slice(0, 3).map(s => (
+                          <span key={s} style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 4, background: '#f5f5f5', color: '#555', border: '1px solid #ebebeb' }}>{s}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 28 }}>
+              <button
+                onClick={() => navigate('/explorar')}
+                className="btn-primary"
+                style={{ padding: '13px 32px', fontSize: 15, borderRadius: 10 }}
+              >
+                Explorar todos los talentos →
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* ── CTA FINAL ── */}
       <div style={{ padding: 'clamp(72px,14vw,120px) clamp(20px,6vw,32px)', textAlign: 'center', borderTop: '1px solid #e8e8e8' }}>
