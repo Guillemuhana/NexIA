@@ -31,47 +31,65 @@ a { text-decoration: none; color: inherit; }
 
 /* ── Logo equIA animations ── */
 
-/* 1. Chevron se dibuja + glow pulsante después */
+/* Chevron: se dibuja de arriba hacia abajo */
 .logo-chevron {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation:
-    equiaChevronDraw 0.65s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards,
-    equiaChevronGlow 2.6s ease-in-out 0.85s infinite;
+  animation: equiaChevronDraw 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.08s forwards;
 }
 @keyframes equiaChevronDraw {
   to { stroke-dashoffset: 0; }
 }
-@keyframes equiaChevronGlow {
-  0%, 100% { filter: drop-shadow(0 0 1px rgba(232,97,26,0.15)); }
-  50%       { filter: drop-shadow(0 0 5px rgba(232,97,26,0.75)) drop-shadow(0 0 12px rgba(232,97,26,0.25)); }
+
+/* Halo amarillo: enciende una vez luego respira */
+.logo-halo {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    equiaHaloOn     0.45s ease-out          0.72s forwards,
+    equiaHaloBreathe 3s   ease-in-out       1.18s infinite;
+}
+@keyframes equiaHaloOn {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 0.55; transform: scale(1); }
+}
+@keyframes equiaHaloBreathe {
+  0%, 100% { opacity: 0.28; transform: scale(0.92); }
+  50%       { opacity: 0.6;  transform: scale(1.12); }
 }
 
-/* 2. Rayos de luz — se dibujan desde el tip hacia afuera */
+/* Rayos: se extienden desde el tip, luego respiran */
 .logo-ray {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation:
-    equiaRayDraw 0.35s ease-out var(--rd, 0.8s) forwards,
-    equiaRayPulse 2.6s ease-in-out calc(var(--rd, 0.8s) + 0.4s) infinite;
+    equiaRayOn      0.3s  ease-out     var(--rd, 0.76s) forwards,
+    equiaRayBreathe 3s    ease-in-out  calc(var(--rd, 0.76s) + 0.34s) infinite;
 }
-@keyframes equiaRayDraw {
+@keyframes equiaRayOn {
   from { stroke-dashoffset: 1; opacity: 0; }
-  to   { stroke-dashoffset: 0; opacity: 0.85; }
+  to   { stroke-dashoffset: 0; opacity: 0.9; }
 }
-@keyframes equiaRayPulse {
-  0%, 100% { opacity: 0.45; }
-  50%       { opacity: 0.9; }
+@keyframes equiaRayBreathe {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.95; }
 }
 
-/* 3. Halo de luz en el tip — efecto lámpara */
-.logo-glow-halo {
+/* Punto de luz en el tip */
+.logo-tip {
   opacity: 0;
-  animation: equiaHaloPulse 2.6s ease-in-out 0.8s infinite;
+  animation:
+    equiaTipOn      0.25s ease-out   0.72s forwards,
+    equiaTipBreathe 3s    ease-in-out 0.98s infinite;
 }
-@keyframes equiaHaloPulse {
-  0%, 100% { opacity: 0.1;  transform: scale(1);    transform-box: fill-box; transform-origin: center; }
-  50%       { opacity: 0.45; transform: scale(1.35); transform-box: fill-box; transform-origin: center; }
+@keyframes equiaTipOn {
+  from { opacity: 0; r: 0; }
+  to   { opacity: 1; }
+}
+@keyframes equiaTipBreathe {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
 }
 
 /* Botones */
