@@ -17,21 +17,6 @@ const STEPS = [
   '¡Equipo ideal encontrado!',
 ]
 
-function mapTalent(tp) {
-  const u = tp.users
-  return {
-    id: u.id,
-    name: u.name,
-    avatar: u.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?',
-    location: u.location || '',
-    bio: u.bio || '',
-    role: tp.main_role || '',
-    available: tp.available,
-    score: Math.round(tp.match_score_avg || 75),
-    projects: tp.projects_count || 0,
-    skills: (u.user_skills || []).map(us => us.skills?.name).filter(Boolean),
-  }
-}
 
 export default function LanzarIdea() {
   const { user } = useAuth()
@@ -65,25 +50,68 @@ export default function LanzarIdea() {
       if (step >= STEPS.length - 1) clearInterval(iv)
     }, 600)
 
-    let analysis
+    const fallbackAnalysis = { pitch: `${form.description.slice(0, 120)}...`, whyThisTeam: 'Equipo seleccionado por compatibilidad de habilidades y disponibilidad.', teamSize: 4, complexity: 'Media', timeEstimate: '4 meses', successTip: 'Empezá con un MVP simple y validá con usuarios reales antes de escalar.', risks: 'No validar el mercado antes de construir.', rolesNeeded: selRoles }
+
+    let analysis = fallbackAnalysis
     try {
-      analysis = await matchTeam({ title: form.title, description: form.description, category: form.category, roles: selRoles })
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 20000))
+      analysis = await Promise.race([
+        matchTeam({ title: form.title, description: form.description, category: form.category, roles: selRoles }),
+        timeout,
+      ])
       setAiData(analysis)
     } catch {
-      analysis = { pitch: `${form.description.slice(0, 120)}...`, whyThisTeam: 'Equipo seleccionado por compatibilidad de habilidades y disponibilidad.', teamSize: 4, complexity: 'Media', timeEstimate: '4 meses', successTip: 'Empezá con un MVP simple y validá con usuarios reales antes de escalar.', risks: 'No validar el mercado antes de construir.', rolesNeeded: selRoles }
+      analysis = fallbackAnalysis
       setAiData(analysis)
     }
 
-    // Buscar talentos reales en la DB según los roles que sugirió la IA
+    // Buscar talentos reales — queries separados para evitar joins anidados fallidos
     const rolesNeeded = analysis.rolesNeeded?.length ? analysis.rolesNeeded : selRoles
-    const { data: talentData } = await supabase
-      .from('talent_profiles')
-      .select('available, main_role, match_score_avg, projects_count, users!inner(id, name, avatar_url, location, bio, user_skills(skills(name)))')
-      .eq('available', true)
-      .in('main_role', rolesNeeded)
-      .limit(6)
+    try {
+      const { data: tpRows } = await supabase
+        .from('talent_profiles')
+        .select('user_id, available, main_role, match_score_avg, projects_count')
+        .eq('available', true)
+        .in('main_role', rolesNeeded.length ? rolesNeeded : ['__none__'])
+        .limit(6)
 
-    setMatched((talentData || []).map(mapTalent))
+      if (tpRows?.length) {
+        const uids = tpRows.map(r => r.user_id)
+        const { data: usersRows } = await supabase
+          .from('users')
+          .select('id, name, avatar_url, location, bio')
+          .in('id', uids)
+        const { data: skillRows } = await supabase
+          .from('user_skills')
+          .select('user_id, skills(name)')
+          .in('user_id', uids)
+
+        const usersById = Object.fromEntries((usersRows || []).map(u => [u.id, u]))
+        const skillsByUser = {}
+        ;(skillRows || []).forEach(r => {
+          if (!skillsByUser[r.user_id]) skillsByUser[r.user_id] = []
+          if (r.skills?.name) skillsByUser[r.user_id].push(r.skills.name)
+        })
+
+        setMatched(tpRows.filter(r => usersById[r.user_id]).map(r => {
+          const u = usersById[r.user_id]
+          return {
+            id: u.id,
+            name: u.name || 'Usuario',
+            avatar: (u.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+            avatar_url: u.avatar_url || null,
+            location: u.location || '',
+            bio: u.bio || '',
+            role: r.main_role || '',
+            available: r.available,
+            score: Math.round(r.match_score_avg || 75),
+            projects: r.projects_count || 0,
+            skills: skillsByUser[r.user_id] || [],
+          }
+        }))
+      }
+    } catch {}
+
     setTimeout(() => { setStage('results'); setFlash(true); setTimeout(() => setFlash(false), 700) }, STEPS.length * 600 + 800)
   }
 
