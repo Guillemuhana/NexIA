@@ -43,9 +43,12 @@ export default function AuthCallback() {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', padding: '80px 20px', background: '#080808', fontFamily: 'Inter, sans-serif' }}>
       <div style={{ width: '100%', maxWidth: 480 }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 40, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1 }}>Equ</span>
-          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1, color: '#E8611A' }}>ia</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 40, cursor: 'pointer' }} onClick={() => navigate('/')}>
+          <span style={{ fontWeight: 400, fontSize: 24, letterSpacing: -0.5, color: '#fff', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
+          <span style={{ fontWeight: 300, fontSize: 24, color: '#F0A500', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
+          <svg width="17" height="24" viewBox="0 0 17 24" fill="none" style={{ display: 'block', marginTop: 1 }}>
+            <path d="M1.5 22.5L8.5 2L15.5 22.5" stroke="#F0A500" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </div>
 
         <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6, color: '#fff' }}>

@@ -78,15 +78,15 @@ export default function Navbar() {
       }}>
 
         {/* Logo */}
-        <div onClick={() => go('/')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 3, transition: 'transform .2s ease', userSelect: 'none' }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
+        <div onClick={() => go('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 0, transition: 'transform .2s ease', userSelect: 'none' }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#0a0a0a', lineHeight: 1 }}>Equ</span>
-            <span style={{ fontWeight: 900, fontSize: 34, letterSpacing: -2, color: '#E8611A', textShadow: '0 0 22px rgba(232,97,26,0.25)', lineHeight: 1 }}>ia</span>
-          </div>
-          <div style={{ height: 2.5, background: '#E8611A', borderRadius: 2, boxShadow: '0 0 8px rgba(232,97,26,0.4)' }} />
+          <span style={{ fontWeight: 400, fontSize: 30, letterSpacing: -0.5, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
+          <span style={{ fontWeight: 300, fontSize: 30, color: '#F0A500', lineHeight: 1, fontFamily: 'Inter, sans-serif', letterSpacing: 0 }}>I</span>
+          <svg width="21" height="30" viewBox="0 0 21 30" fill="none" style={{ display: 'block', marginTop: 1 }}>
+            <path d="M1.5 28.5L10.5 2L19.5 28.5" stroke="#F0A500" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </div>
 
         {/* Desktop nav */}

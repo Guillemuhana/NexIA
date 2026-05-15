@@ -355,10 +355,13 @@ export default function ProyectoPanel() {
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
         <aside className="panel-sidebar" style={{ width: 224, flexShrink: 0, borderRight: '1px solid #e8e8e8', background: '#ffffff', display: 'flex', flexDirection: 'column', padding: '24px 12px', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
-          <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 32, paddingLeft: 4 }}>
-            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1 }}>Equ</span>
-            <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: -1, color: '#E8611A' }}>ia</span>
-            <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: 1, textTransform: 'uppercase', border: '1px solid #d0d0d0', borderRadius: 4, padding: '1px 5px' }}>Panel</span>
+          <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 0, cursor: 'pointer', marginBottom: 32, paddingLeft: 4 }}>
+            <span style={{ fontWeight: 400, fontSize: 20, letterSpacing: -0.3, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
+            <span style={{ fontWeight: 300, fontSize: 20, color: '#F0A500', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
+            <svg width="14" height="20" viewBox="0 0 14 20" fill="none" style={{ display: 'block', marginTop: 1 }}>
+              <path d="M1 18.5L7 2L13 18.5" stroke="#F0A500" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span style={{ marginLeft: 8, fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: 1, textTransform: 'uppercase', border: '1px solid #d0d0d0', borderRadius: 4, padding: '1px 5px' }}>Panel</span>
           </div>
 
           {/* Project name + team count */}

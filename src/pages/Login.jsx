@@ -47,9 +47,12 @@ export default function Login() {
       <div style={{ width: '100%', maxWidth: 400 }}>
 
         {/* Logo */}
-        <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', marginBottom: 44 }}>
-          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5 }}>Equ</span>
-          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: -1.5, color: '#E8611A' }}>ia</span>
+        <div onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 0, cursor: 'pointer', marginBottom: 44 }}>
+          <span style={{ fontWeight: 400, fontSize: 26, letterSpacing: -0.5, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
+          <span style={{ fontWeight: 300, fontSize: 26, color: '#F0A500', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
+          <svg width="18" height="26" viewBox="0 0 18 26" fill="none" style={{ display: 'block', marginTop: 1 }}>
+            <path d="M1.5 24.5L9 2L16.5 24.5" stroke="#F0A500" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </div>
 
         <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Bienvenido</h1>
