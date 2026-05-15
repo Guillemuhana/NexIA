@@ -47,12 +47,12 @@ export default function Home() {
     <div className="page-wrap">
 
       {/* ── HERO ── */}
-      <div style={{
+      <div className="hero-section" style={{
         minHeight: '100dvh',
         display: 'flex',
         flexDirection: 'column',
-        background: `url(/IMG03HERO.png) center/cover no-repeat`,
         position: 'relative',
+        overflow: 'hidden',
       }}>
         {/* Overlay — kept dark because it overlays a background image */}
         <div style={{

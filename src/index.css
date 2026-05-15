@@ -162,6 +162,19 @@ select.input option { background: #fff; color: #0a0a0a; }
   100%{ opacity:1; transform:scale(1)    translateY(0);    }
 }
 
+/* ── Hero background ── */
+.hero-section {
+  background-image: url('/IMG03HERO.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+@media (max-width: 640px) {
+  .hero-section {
+    background-position: center top;
+  }
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .desktop-nav { display: none !important; }
