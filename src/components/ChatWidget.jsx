@@ -44,10 +44,6 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
-  const [isTeammate, setIsTeammate] = useState(false)
-  const [teamChecked, setTeamChecked] = useState(false)
-  const [paywallMsg, setPaywallMsg] = useState(null)
-  const [paywallPaying, setPaywallPaying] = useState(false)
   const endRef = useRef(null)
   const channelRef = useRef(null)
 
@@ -134,84 +130,13 @@ export default function ChatWidget() {
     loadConversations()
   }, [user, loadConversations])
 
-  const checkTeammate = useCallback(async (otherId) => {
-    if (!user) return
-    setTeamChecked(false)
-    let teammate = false
-
-    // Founder ↔ accepted talent
-    const { data: asFounder } = await supabase
-      .from('ideas')
-      .select('id')
-      .eq('founder_id', user.id)
-      .limit(20)
-
-    if (asFounder?.length) {
-      const ideaIds = asFounder.map(i => i.id)
-      const { data: m } = await supabase
-        .from('matches')
-        .select('id')
-        .eq('talent_id', otherId)
-        .eq('status', 'accepted')
-        .in('idea_id', ideaIds)
-        .limit(1)
-      if (m?.length) teammate = true
-    }
-
-    if (!teammate) {
-      const { data: asFounder2 } = await supabase
-        .from('ideas')
-        .select('id')
-        .eq('founder_id', otherId)
-        .limit(20)
-      if (asFounder2?.length) {
-        const ideaIds = asFounder2.map(i => i.id)
-        const { data: m } = await supabase
-          .from('matches')
-          .select('id')
-          .eq('talent_id', user.id)
-          .eq('status', 'accepted')
-          .in('idea_id', ideaIds)
-          .limit(1)
-        if (m?.length) teammate = true
-      }
-    }
-
-    if (!teammate) {
-      const { data: myMatches } = await supabase
-        .from('matches')
-        .select('idea_id')
-        .eq('talent_id', user.id)
-        .eq('status', 'accepted')
-      if (myMatches?.length) {
-        const ideaIds = myMatches.map(m => m.idea_id)
-        const { data: shared } = await supabase
-          .from('matches')
-          .select('id')
-          .eq('talent_id', otherId)
-          .eq('status', 'accepted')
-          .in('idea_id', ideaIds)
-          .limit(1)
-        if (shared?.length) teammate = true
-      }
-    }
-
-    setIsTeammate(teammate)
-    setTeamChecked(true)
-  }, [user])
-
   const openChat = useCallback(async (otherUser) => {
     setActiveUser(otherUser)
     setView('chat')
     setOpen(true)
     setMessages([])
-    setIsTeammate(false)
-    setTeamChecked(false)
-    await Promise.all([
-      loadMessages(otherUser.id),
-      checkTeammate(otherUser.id),
-    ])
-  }, [loadMessages, checkTeammate])
+    await loadMessages(otherUser.id)
+  }, [loadMessages])
 
   // External trigger: dispatch 'nexia-open-chat' event from anywhere
   useEffect(() => {
@@ -230,7 +155,6 @@ export default function ChatWidget() {
   const send = async () => {
     const content = input.trim()
     if (!content || sending) return
-    if (!isTeammate) { setPaywallMsg(content); return }
     setSending(true)
     setInput('')
     const { data } = await supabase.from('direct_messages').insert({
@@ -238,17 +162,6 @@ export default function ChatWidget() {
     }).select().single()
     if (data) setMessages(m => [...m, data])
     setSending(false)
-  }
-
-  const handlePayAndSend = async () => {
-    setPaywallPaying(true)
-    await new Promise(r => setTimeout(r, 1400))
-    const { data } = await supabase.from('direct_messages').insert({
-      sender_id: user.id, receiver_id: activeUser.id, content: paywallMsg, is_read: false,
-    }).select().single()
-    if (data) { setMessages(m => [...m, data]); loadConversations() }
-    setPaywallMsg(null)
-    setPaywallPaying(false)
   }
 
   if (!user || !profile) return null
@@ -262,37 +175,6 @@ export default function ChatWidget() {
         @keyframes chat-up { from{opacity:0;transform:translateY(16px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
         .chat-input:focus { outline: none; border-color: rgba(232,97,26,.4) !important; }
       `}</style>
-
-      {/* Paywall overlay */}
-      {paywallMsg && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 100001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 18, padding: '32px 28px', maxWidth: 400, width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,.18)', animation: 'chat-up .25s ease' }}>
-            <div style={{ textAlign: 'center', fontSize: 36, marginBottom: 14 }}>🔒</div>
-            <h2 style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-.5px', textAlign: 'center', marginBottom: 8 }}>Chat Premium</h2>
-            <p style={{ color: '#666', fontSize: 14, lineHeight: 1.65, textAlign: 'center', marginBottom: 20 }}>
-              Solo los miembros del mismo equipo chatean gratis.<br />Actualizá para hablar con cualquier talento.
-            </p>
-            <div style={{ padding: '14px 16px', background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, marginBottom: 22 }}>
-              <div style={{ fontSize: 10, color: '#888', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>Tu mensaje pendiente</div>
-              <div style={{ fontSize: 14, color: '#333', fontStyle: 'italic', lineHeight: 1.5 }}>"{paywallMsg}"</div>
-            </div>
-            <button
-              onClick={handlePayAndSend}
-              disabled={paywallPaying}
-              style={{ width: '100%', padding: '14px', background: '#E8611A', border: 'none', borderRadius: 10, color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer', fontFamily: 'Inter,sans-serif', marginBottom: 10, opacity: paywallPaying ? 0.7 : 1, transition: 'opacity .15s' }}
-            >
-              {paywallPaying ? 'Enviando...' : '⚡ Enviar mensaje · $9.99/mes'}
-            </button>
-            <button
-              onClick={() => setPaywallMsg(null)}
-              disabled={paywallPaying}
-              style={{ width: '100%', padding: '12px', background: 'none', border: '1px solid #e8e8e8', borderRadius: 10, color: '#666', fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Floating widget */}
       <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}>
@@ -319,11 +201,6 @@ export default function ChatWidget() {
                   <Avatar user={activeUser} size={30} />
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeUser.name}</div>
-                    {teamChecked && (
-                      <div style={{ fontSize: 10, fontWeight: 600, color: isTeammate ? '#22c55e' : '#E8611A' }}>
-                        {isTeammate ? '● Compañero de equipo' : '🔒 Chat premium'}
-                      </div>
-                    )}
                   </div>
                 </div>
               ) : (
@@ -399,11 +276,6 @@ export default function ChatWidget() {
 
                 {/* Input area */}
                 <div style={{ padding: '10px 12px', borderTop: '1px solid #f0f0f0', background: '#fff', flexShrink: 0 }}>
-                  {teamChecked && !isTeammate && (
-                    <div style={{ fontSize: 11, color: '#E8611A', marginBottom: 7, display: 'flex', alignItems: 'center', gap: 5 }}>
-                      🔒 <span>No son equipo — enviar mensaje requiere plan premium</span>
-                    </div>
-                  )}
                   <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
                     <textarea
                       className="chat-input"
