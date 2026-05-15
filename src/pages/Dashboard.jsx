@@ -107,27 +107,32 @@ export default function Dashboard() {
         const projects = (ideas || []).map(mapProject)
         setData(projects)
 
-        // Fetch team members + equity for each project
+        // Mostrar paneles inmediatamente con los proyectos — nunca bloquear por matches
         if (projects.length > 0) {
-          const allEquity = []
-          const panels = await Promise.all(projects.map(async p => {
+          setTeamPanels(projects.map(p => ({ ideaId: p.id, title: p.title, category: p.category, members: [{ name: (ideas || []).find(i => i.id === p.id)?.users?.name || 'Vos', avatar_url: null }] })))
+
+          // Enriquecer con miembros y equity en background (no bloquea el render)
+          Promise.all(projects.map(async p => {
             const { data: matches } = await supabase
               .from('matches')
               .select('talent_id, users(name, avatar_url), equity_pct, role_suggested')
               .eq('idea_id', p.id)
               .eq('status', 'accepted')
-            const founder = ideas.find(i => i.id === p.id)
+            const founder = (ideas || []).find(i => i.id === p.id)
             const members = [
               { name: founder?.users?.name || 'Vos', avatar_url: null },
               ...(matches || []).map(m => ({ name: m.users?.name, avatar_url: m.users?.avatar_url })),
-            ];
-            (matches || []).forEach(m => {
-              if (m.equity_pct) allEquity.push({ ideaTitle: p.title, name: m.users?.name, role: m.role_suggested, equity_pct: parseFloat(m.equity_pct) })
-            })
-            return { ideaId: p.id, title: p.title, category: p.category, members }
-          }))
-          setTeamPanels(panels)
-          setFounderEquity(allEquity)
+            ]
+            return { ideaId: p.id, title: p.title, category: p.category, members, matches: matches || [] }
+          })).then(enriched => {
+            if (cancelled) return
+            setTeamPanels(enriched.map(({ matches: _, ...p }) => p))
+            const allEquity = []
+            enriched.forEach(e => e.matches.forEach(m => {
+              if (m.equity_pct) allEquity.push({ ideaTitle: e.title, name: m.users?.name, role: m.role_suggested, equity_pct: parseFloat(m.equity_pct) })
+            }))
+            setFounderEquity(allEquity)
+          }).catch(() => {})
         }
       }
 
