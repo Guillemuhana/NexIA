@@ -198,22 +198,94 @@ export default function Dashboard() {
     <div className="page-wrap">
       <div style={s}>
         <span style={lbl}>Dashboard</span>
-        <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Visionario'} 👋</h1>
-        <p style={{ color: '#666', fontSize: 15, marginBottom: 40 }}>Gestioná tus proyectos y el espacio privado de tu equipo.</p>
-
-        {/* ── Paneles activos ── */}
-        {teamPanels.length > 0 && (
-          <div style={{ marginBottom: 44 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <h2 style={sectionTitle}>Espacio del equipo</h2>
-              <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(232,97,26,.12)', color: '#E8611A', border: '1px solid rgba(232,97,26,.2)', borderRadius: 99, padding: '2px 10px' }}>IA</span>
-            </div>
-            <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Panel privado con roadmap, ideas y asesor IA para cada proyecto.</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {teamPanels.map(p => <TeamPanelCard key={p.ideaId} {...p} />)}
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 40 }}>
+          <div>
+            <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Visionario'} 👋</h1>
+            <p style={{ color: '#666', fontSize: 15 }}>Tus ideas y el espacio privado de cada equipo.</p>
           </div>
-        )}
+          <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '11px 22px', fontSize: 14, flexShrink: 0 }}>
+            + Nueva idea
+          </button>
+        </div>
+
+        {/* ── Mis Ideas (unified: idea info + panel button) ── */}
+        <div style={{ marginBottom: 44 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h2 style={sectionTitle}>Mis ideas</h2>
+            <button className="btn-ghost" onClick={() => navigate('/proyectos')} style={{ fontSize: 14 }}>Ver todas →</button>
+          </div>
+
+          {dataLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner /></div>
+          ) : data.length === 0 ? (
+            <div style={{ padding: '48px 24px', border: '1px dashed #e8e8e8', borderRadius: 14, textAlign: 'center', color: '#777' }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>💡</div>
+              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Todavía no lanzaste ninguna idea.</div>
+              <div style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>La IA construye el equipo perfecto en minutos.</div>
+              <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '11px 24px', fontSize: 14 }}>Lanzar mi primera idea →</button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {data.map(p => {
+                const panel = teamPanels.find(tp => tp.ideaId === p.id)
+                const members = panel?.members || []
+                return (
+                  <div key={p.id} style={{ border: '1px solid #e8e8e8', borderRadius: 14, overflow: 'hidden', background: '#fff', transition: 'border-color .2s' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = '#d0d0d0'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = '#e8e8e8'}
+                  >
+                    <div style={{ padding: '22px 24px', cursor: 'pointer' }} onClick={() => navigate(`/proyectos/${p.id}`)}>
+                      {/* Top row */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: p.formed ? 'rgba(34,197,94,.1)' : 'rgba(232,97,26,.1)', color: p.formed ? '#22c55e' : '#E8611A', border: `1px solid ${p.formed ? 'rgba(34,197,94,.2)' : 'rgba(232,97,26,.2)'}` }}>
+                          {p.formed ? '✓ Equipo formado' : '⚡ Buscando equipo'}
+                        </span>
+                        {p.category && <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#f0f0f0', color: '#666', border: '1px solid #e8e8e8' }}>{p.category}</span>}
+                        {p.stage && <span style={{ fontSize: 11, color: '#999' }}>{p.stage}</span>}
+                      </div>
+                      {/* Title + description */}
+                      <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-.4px', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</h3>
+                      <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, marginBottom: members.length > 0 ? 14 : 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {p.description}
+                      </p>
+                      {/* Team members */}
+                      {members.length > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ display: 'flex' }}>
+                            {members.slice(0, 5).map((m, i) => (
+                              <div key={i} title={m.name} style={{ width: 26, height: 26, borderRadius: '50%', background: '#f0f0f0', border: '2px solid #fff', marginLeft: i === 0 ? 0 : -8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#E8611A', overflow: 'hidden', flexShrink: 0 }}>
+                                {m.avatar_url ? <img src={m.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.name?.charAt(0)?.toUpperCase()}
+                              </div>
+                            ))}
+                          </div>
+                          <span style={{ fontSize: 12, color: '#888' }}>{members.length} {members.length === 1 ? 'miembro' : 'miembros'}</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Footer with panel button */}
+                    <div style={{ borderTop: '1px solid #f0f0f0', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa', flexWrap: 'wrap', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 16 }}>
+                        {['Roadmap', 'Ideas IA', 'Consultor'].map(f => (
+                          <span key={f} style={{ fontSize: 11, color: '#999', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ color: '#E8611A' }}>·</span> {f}
+                          </span>
+                        ))}
+                      </div>
+                      <button
+                        onClick={e => { e.stopPropagation(); navigate(`/panel/${p.id}`) }}
+                        style={{ padding: '8px 18px', background: '#E8611A', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'background .15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#d4561a'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#E8611A'}
+                      >
+                        ⚡ Panel IA →
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
         {/* ── Billetera de Equity (fundador) ── */}
         {!dataLoading && founderEquity.length > 0 && (
@@ -242,37 +314,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── Lanzar idea CTA ── */}
-        <div style={{ padding: '24px 28px', border: '1px solid #e8e8e8', borderRadius: 12, marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-          <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 4 }}>¿Tenés una nueva idea?</h2>
-            <p style={{ fontSize: 13, color: '#666' }}>La IA construye el equipo perfecto en minutos.</p>
-          </div>
-          <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '11px 22px', fontSize: 14 }}>
-            💡 Lanzar mi idea →
-          </button>
-        </div>
-
-        {/* ── Mis proyectos ── */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h2 style={sectionTitle}>Mis proyectos</h2>
-            <button className="btn-ghost" onClick={() => navigate('/proyectos')} style={{ fontSize: 14 }}>Ver todos →</button>
-          </div>
-          {dataLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner /></div>
-          ) : data.length === 0 ? (
-            <div style={{ padding: '40px 24px', border: '1px dashed #e8e8e8', borderRadius: 12, textAlign: 'center', color: '#777' }}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>💡</div>
-              <div style={{ fontSize: 15, marginBottom: 8 }}>Todavía no lanzaste ningún proyecto.</div>
-              <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '10px 20px', fontSize: 14, marginTop: 8 }}>Lanzar mi primera idea →</button>
-            </div>
-          ) : (
-            <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 16 }}>
-              {data.map(p => <ProjectCard key={p.id} project={p} />)}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )

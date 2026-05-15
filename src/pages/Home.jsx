@@ -54,6 +54,7 @@ export default function Home() {
   const navigate = useNavigate()
   const typed = useTypewriter(['el equipo ideal.', 'hace realidad tu idea.', 'encuentra tu equipo.'])
   const [talents, setTalents] = useState([])
+  const [ideas, setIdeas] = useState([])
 
   useEffect(() => {
     supabase.from('talent_profiles')
@@ -64,6 +65,15 @@ export default function Home() {
         const shuffled = [...(data || [])].sort(() => Math.random() - 0.5).slice(0, 6)
         setTalents(shuffled)
       })
+      .catch(() => {})
+
+    supabase.from('ideas')
+      .select('id, title, description, category, stage, users(name), idea_roles(role_name)')
+      .eq('is_public', true)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(6)
+      .then(({ data }) => setIdeas(data || []))
       .catch(() => {})
   }, [])
 
@@ -334,6 +344,88 @@ export default function Home() {
 
         </div>
       </div>
+
+      {/* ── IDEAS ACTIVAS ── */}
+      {ideas.length > 0 && (
+        <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8', background: '#f8f9fa' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 'clamp(32px,6vw,48px)', flexWrap: 'wrap', gap: 16 }}>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '2px', textTransform: 'uppercase' }}>Ideas buscando equipo</span>
+                <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10, lineHeight: 1.1 }}>
+                  Proyectos que necesitan<br />tu talento
+                </h2>
+              </div>
+              <button
+                onClick={() => navigate('/proyectos')}
+                style={{ padding: '11px 22px', fontSize: 14, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 9, background: 'none', color: '#555', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#aaa'; e.currentTarget.style.color = '#111' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#555' }}
+              >
+                Ver todos →
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 10 }}>
+              {ideas.map((idea, i) => {
+                const roles = (idea.idea_roles || []).map(r => r.role_name).filter(Boolean)
+                const founderInitial = idea.users?.name?.charAt(0)?.toUpperCase() || '?'
+                return (
+                  <div
+                    key={idea.id}
+                    onClick={() => navigate(`/proyectos/${idea.id}`)}
+                    style={{ padding: '22px 22px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .15s', display: 'flex', flexDirection: 'column' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,.06)' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e8e8'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
+                  >
+                    {/* Category + stage */}
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                      {idea.category && <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: 'rgba(232,97,26,.1)', color: '#E8611A', border: '1px solid rgba(232,97,26,.15)' }}>{idea.category}</span>}
+                      {idea.stage && <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0f0f0', color: '#777', border: '1px solid #e8e8e8' }}>{idea.stage}</span>}
+                    </div>
+                    {/* Title */}
+                    <h3 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-.3px', marginBottom: 8, lineHeight: 1.3 }}>{idea.title}</h3>
+                    {/* Description */}
+                    <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, flex: 1, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {idea.description}
+                    </p>
+                    {/* Roles needed */}
+                    {roles.length > 0 && (
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 14 }}>
+                        {roles.slice(0, 2).map(r => (
+                          <span key={r} style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 4, background: '#f5f5f5', color: '#555', border: '1px solid #ebebeb' }}>{r}</span>
+                        ))}
+                        {roles.length > 2 && <span style={{ fontSize: 11, color: '#999' }}>+{roles.length - 2} más</span>}
+                      </div>
+                    )}
+                    {/* Footer: founder */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#E8611A', border: '1px solid #e8e8e8', flexShrink: 0 }}>
+                        {founderInitial}
+                      </div>
+                      <span style={{ fontSize: 12, color: '#888' }}>{idea.users?.name}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#E8611A' }}>⚡ Buscando equipo</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 28 }}>
+              <button
+                onClick={() => navigate('/proyectos')}
+                style={{ padding: '13px 32px', fontSize: 15, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 10, background: 'none', color: '#444', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#111' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#444' }}
+              >
+                Ver todos los proyectos →
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* ── TALENTOS DISPONIBLES ── */}
       {talents.length > 0 && (
