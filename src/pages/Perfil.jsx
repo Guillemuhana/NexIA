@@ -276,6 +276,7 @@ export default function Perfil() {
               {profile?.type === 'visionario' && <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '10px 18px', fontSize: 14 }}>💡 Lanzar una idea</button>}
               {profile?.type === 'talento' && <button className="btn-primary" onClick={() => navigate('/explorar')} style={{ padding: '10px 18px', fontSize: 14 }}>⚡ Ver mis invitaciones</button>}
               {profile?.type === 'inversor' && <button className="btn-primary" onClick={() => navigate('/proyectos')} style={{ padding: '10px 18px', fontSize: 14 }}>💼 Explorar proyectos</button>}
+              <button className="btn-outline" onClick={() => navigate('/cv')} style={{ padding: '10px 18px', fontSize: 14 }}>📄 Mi CV digital</button>
               <button className="btn-outline" onClick={() => navigate('/dashboard')} style={{ padding: '10px 18px', fontSize: 14 }}>Mi dashboard →</button>
             </div>
           </div>

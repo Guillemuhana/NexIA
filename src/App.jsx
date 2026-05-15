@@ -16,6 +16,7 @@ import ProyectoDetalle from './pages/ProyectoDetalle'
 import PerfilPublico from './pages/PerfilPublico'
 import AuthCallback from './pages/AuthCallback'
 import ProyectoPanel from './pages/ProyectoPanel'
+import CV from './pages/CV'
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/precios" element={<Precios />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/panel/:id" element={<ProyectoPanel />} />
+        <Route path="/cv" element={<CV />} />
       </Routes>
     </AuthProvider>
   )
