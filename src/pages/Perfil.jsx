@@ -99,8 +99,8 @@ export default function Perfil() {
       setAvatarFile(null)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-    } catch {
-      setSaveError('Error inesperado. Intentá de nuevo.')
+    } catch (err) {
+      setSaveError(`Error inesperado: ${err?.message || String(err)}`)
     } finally {
       setSaving(false)
     }

@@ -162,7 +162,10 @@ export function AuthProvider({ children }) {
   const updateProfile = async (updates) => {
     if (!user?.id) return { data: null, error: { message: 'No autenticado' } }
     const { type, role, available, portfolio, ...rest } = updates
-    const userUpdates = { ...rest }
+
+    // Filtrar valores undefined para no mandar campos vacíos a Postgres
+    const userUpdates = {}
+    Object.entries(rest).forEach(([k, v]) => { if (v !== undefined) userUpdates[k] = v })
     if (portfolio !== undefined) userUpdates.portfolio_url = portfolio
 
     const { data, error } = await supabase
@@ -170,9 +173,10 @@ export function AuthProvider({ children }) {
       .update(userUpdates)
       .eq('id', user.id)
       .select()
-      .single()
 
     if (error) return { data, error }
+    const row = Array.isArray(data) ? data[0] : data
+    if (!row) return { data: null, error: { message: 'No se pudo guardar. Verificá tu sesión.' } }
 
     if (role !== undefined || available !== undefined) {
       const tpUpdates = { user_id: user.id }
