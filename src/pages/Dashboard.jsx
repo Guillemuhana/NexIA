@@ -90,10 +90,12 @@ export default function Dashboard() {
   useEffect(() => { if (!loading && user && !profile?.type) navigate('/onboarding') }, [loading, user, profile])
 
   useEffect(() => {
-    if (!user || !profile) return
+    if (!user?.id || !profile?.type) return
+
+    let cancelled = false
+    const safetyTimer = setTimeout(() => { if (!cancelled) setDataLoading(false) }, 8000)
 
     const fetchData = async () => {
-      if (!profile.type) { setDataLoading(false); return }
       setDataLoading(true)
 
       if (profile.type === 'visionario') {
@@ -170,8 +172,9 @@ export default function Dashboard() {
       setDataLoading(false)
     }
 
-    fetchData().catch(() => setDataLoading(false))
-  }, [user, profile])
+    fetchData().catch(() => { if (!cancelled) setDataLoading(false) }).finally(() => clearTimeout(safetyTimer))
+    return () => { cancelled = true; clearTimeout(safetyTimer) }
+  }, [user?.id, profile?.type])
 
   if (loading) return (
     <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
