@@ -5,14 +5,14 @@ import { supabase } from '../lib/supabase'
 import ProjectCard from '../components/ProjectCard'
 import PaywallModal from '../components/PaywallModal'
 
-function mapProject(idea) {
+function mapProject(idea, founderName = '') {
   return {
     id: idea.id,
     title: idea.title,
     description: idea.description,
     category: idea.category || '',
     stage: idea.stage || '',
-    founder: idea.users?.name || '',
+    founder: founderName,
     team: (idea.idea_roles || []).map(r => r.role_name),
     formed: idea.status === 'team_formed',
   }
@@ -101,15 +101,16 @@ export default function Dashboard() {
       if (profile.type === 'visionario') {
         const { data: ideas } = await supabase
           .from('ideas')
-          .select('id, title, description, category, stage, status, users(name), idea_roles(role_name)')
+          .select('id, title, description, category, stage, status, idea_roles(role_name)')
           .eq('founder_id', user.id)
           .order('created_at', { ascending: false })
-        const projects = (ideas || []).map(mapProject)
+        const founderName = profile.name || ''
+        const projects = (ideas || []).map(i => mapProject(i, founderName))
         setData(projects)
 
         // Mostrar paneles inmediatamente con los proyectos — nunca bloquear por matches
         if (projects.length > 0) {
-          setTeamPanels(projects.map(p => ({ ideaId: p.id, title: p.title, category: p.category, members: [{ name: (ideas || []).find(i => i.id === p.id)?.users?.name || 'Vos', avatar_url: null }] })))
+          setTeamPanels(projects.map(p => ({ ideaId: p.id, title: p.title, category: p.category, members: [{ name: founderName || 'Vos', avatar_url: null }] })))
 
           // Enriquecer con miembros y equity en background (no bloquea el render)
           Promise.all(projects.map(async p => {
@@ -118,9 +119,8 @@ export default function Dashboard() {
               .select('talent_id, users(name, avatar_url), equity_pct, role_suggested')
               .eq('idea_id', p.id)
               .eq('status', 'accepted')
-            const founder = (ideas || []).find(i => i.id === p.id)
             const members = [
-              { name: founder?.users?.name || 'Vos', avatar_url: null },
+              { name: founderName || 'Vos', avatar_url: null },
               ...(matches || []).map(m => ({ name: m.users?.name, avatar_url: m.users?.avatar_url })),
             ]
             return { ideaId: p.id, title: p.title, category: p.category, members, matches: matches || [] }

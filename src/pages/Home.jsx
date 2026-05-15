@@ -68,7 +68,7 @@ export default function Home() {
       .catch(() => {})
 
     supabase.from('ideas')
-      .select('id, title, description, category, stage, users(name), idea_roles(role_name)')
+      .select('id, title, description, category, stage, idea_roles(role_name)')
       .eq('is_public', true)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
@@ -370,7 +370,6 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 10 }}>
               {ideas.map((idea, i) => {
                 const roles = (idea.idea_roles || []).map(r => r.role_name).filter(Boolean)
-                const founderInitial = idea.users?.name?.charAt(0)?.toUpperCase() || '?'
                 return (
                   <div
                     key={idea.id}
@@ -387,26 +386,19 @@ export default function Home() {
                     {/* Title */}
                     <h3 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-.3px', marginBottom: 8, lineHeight: 1.3 }}>{idea.title}</h3>
                     {/* Description */}
-                    <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, flex: 1, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, flex: 1, marginBottom: roles.length > 0 ? 14 : 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {idea.description}
                     </p>
                     {/* Roles needed */}
                     {roles.length > 0 && (
-                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 14 }}>
-                        {roles.slice(0, 2).map(r => (
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', marginRight: 4 }}>⚡</span>
+                        {roles.slice(0, 3).map(r => (
                           <span key={r} style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 4, background: '#f5f5f5', color: '#555', border: '1px solid #ebebeb' }}>{r}</span>
                         ))}
-                        {roles.length > 2 && <span style={{ fontSize: 11, color: '#999' }}>+{roles.length - 2} más</span>}
+                        {roles.length > 3 && <span style={{ fontSize: 11, color: '#999' }}>+{roles.length - 3} más</span>}
                       </div>
                     )}
-                    {/* Footer: founder */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#E8611A', border: '1px solid #e8e8e8', flexShrink: 0 }}>
-                        {founderInitial}
-                      </div>
-                      <span style={{ fontSize: 12, color: '#888' }}>{idea.users?.name}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#E8611A' }}>⚡ Buscando equipo</span>
-                    </div>
                   </div>
                 )
               })}
