@@ -14,18 +14,22 @@ export default function Explorar() {
   const { profile } = useAuth()
 
   useEffect(() => {
+    let cancelled = false
+    const timer = setTimeout(() => { if (!cancelled) setLoading(false) }, 10000)
+
     const load = async () => {
+      // Fetch talent profiles + users in one query
       const { data: profiles } = await supabase
         .from('talent_profiles')
         .select('user_id, available, main_role, match_score_avg, projects_count, users(id, name, avatar_url, location, bio)')
+        .order('user_id')
 
-      if (!profiles?.length) { setLoading(false); return }
+      if (!profiles?.length) { if (!cancelled) setLoading(false); return }
 
-      const userIds = profiles.map(p => p.user_id)
+      // Fetch skills separately to avoid nested join issues
       const { data: skillRows } = await supabase
         .from('user_skills')
         .select('user_id, skills(name)')
-        .in('user_id', userIds)
 
       const skillsByUser = {}
       ;(skillRows || []).forEach(row => {
@@ -49,10 +53,11 @@ export default function Explorar() {
           skills: skillsByUser[p.user_id] || [],
         }))
 
-      setTalents(mapped)
-      setLoading(false)
+      if (!cancelled) { setTalents(mapped); setLoading(false) }
     }
-    load().catch(() => setLoading(false))
+
+    load().catch(() => { if (!cancelled) setLoading(false) }).finally(() => clearTimeout(timer))
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [])
 
   const filtered = talents.filter(t => {

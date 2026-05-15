@@ -11,7 +11,7 @@ function mapProject(idea) {
     description: idea.description,
     category: idea.category || '',
     stage: idea.stage || '',
-    founder: idea.users?.name || '',
+    founder: '',
     team: (idea.idea_roles || []).map(r => r.role_name),
     formed: idea.status === 'team_formed',
   }
@@ -27,15 +27,21 @@ export default function Proyectos() {
   const isInversor = profile?.type === 'inversor'
 
   useEffect(() => {
+    let cancelled = false
+    const timer = setTimeout(() => { if (!cancelled) setLoading(false) }, 10000)
+
     supabase
       .from('ideas')
-      .select('id, title, description, category, stage, status, users(name), idea_roles(role_name)')
+      .select('id, title, description, category, stage, status, idea_roles(role_name)')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .then(({ data }) => {
-        setProjects((data || []).map(mapProject))
-        setLoading(false)
+        if (!cancelled) { setProjects((data || []).map(mapProject)); setLoading(false) }
       })
+      .catch(() => { if (!cancelled) setLoading(false) })
+      .finally(() => clearTimeout(timer))
+
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [])
 
   const filtered = projects.filter(p => {
