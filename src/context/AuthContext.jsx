@@ -106,12 +106,6 @@ export function AuthProvider({ children }) {
     // Safety timeout: never stay loading more than 8 seconds
     const safetyTimer = setTimeout(() => setLoading(false), 8000)
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
-      else setLoading(false)
-    })
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
