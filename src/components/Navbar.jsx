@@ -82,10 +82,10 @@ export default function Navbar() {
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <span style={{ fontWeight: 400, fontSize: 30, letterSpacing: -0.5, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-          <span style={{ fontWeight: 300, fontSize: 30, color: '#F0A500', lineHeight: 1, fontFamily: 'Inter, sans-serif', letterSpacing: 0 }}>I</span>
-          <svg width="21" height="30" viewBox="0 0 21 30" fill="none" style={{ display: 'block', marginTop: 1 }}>
-            <path d="M1.5 28.5L10.5 2L19.5 28.5" stroke="#F0A500" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+          <span style={{ fontWeight: 900, fontSize: 32, letterSpacing: -1.5, color: '#0a0a0a', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
+          <span style={{ fontWeight: 900, fontSize: 32, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif', letterSpacing: 0 }}>I</span>
+          <svg width="24" height="32" viewBox="0 0 24 32" fill="none" style={{ display: 'block' }}>
+            <path d="M1.5 30L12 2L22.5 30" stroke="#E8611A" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
 

@@ -44,10 +44,10 @@ export default function AuthCallback() {
       <div style={{ width: '100%', maxWidth: 480 }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 40, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <span style={{ fontWeight: 400, fontSize: 24, letterSpacing: -0.5, color: '#fff', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
-          <span style={{ fontWeight: 300, fontSize: 24, color: '#F0A500', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
-          <svg width="17" height="24" viewBox="0 0 17 24" fill="none" style={{ display: 'block', marginTop: 1 }}>
-            <path d="M1.5 22.5L8.5 2L15.5 22.5" stroke="#F0A500" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+          <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: -1.5, color: '#fff', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>equ</span>
+          <span style={{ fontWeight: 900, fontSize: 24, color: '#E8611A', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>I</span>
+          <svg width="18" height="24" viewBox="0 0 18 24" fill="none" style={{ display: 'block' }}>
+            <path d="M1.5 22.5L9 2L16.5 22.5" stroke="#E8611A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
 
