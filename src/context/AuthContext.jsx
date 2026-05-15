@@ -64,15 +64,7 @@ export function AuthProvider({ children }) {
             .catch(() => {})
         }
 
-        // Para visionario: obtener ID de su idea más reciente para link directo al panel
-        let idea_id = null
-        if (primaryRole === 'visionario') {
-          const { data: idea } = await supabase
-            .from('ideas').select('id').eq('founder_id', userId)
-            .order('created_at', { ascending: false }).limit(1).maybeSingle()
-          idea_id = idea?.id || null
-        }
-
+        // Setear perfil primero — nunca bloquear esto
         setProfile({
           id: data.id,
           name: data.name,
@@ -86,8 +78,20 @@ export function AuthProvider({ children }) {
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
-          idea_id,
+          idea_id: null,
         })
+
+        // Para visionario: buscar idea_id en background y actualizar
+        if (primaryRole === 'visionario') {
+          supabase
+            .from('ideas').select('id').eq('founder_id', userId)
+            .order('created_at', { ascending: false }).limit(1).maybeSingle()
+            .then(({ data: idea }) => {
+              if (idea?.id) {
+                setProfile(prev => prev ? { ...prev, idea_id: idea.id } : prev)
+              }
+            }).catch(() => {})
+        }
       }
     } catch {}
     finally {
