@@ -31,65 +31,33 @@ a { text-decoration: none; color: inherit; }
 
 /* ── Logo equIA animations ── */
 
-/* Chevron: se dibuja de arriba hacia abajo */
+/* Chevron: se dibuja + fluye entre colores */
 .logo-chevron {
+  stroke: #E8611A;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: equiaChevronDraw 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.08s forwards;
+  animation:
+    equiaChevronDraw  0.6s  cubic-bezier(0.4, 0, 0.2, 1) 0.08s forwards,
+    equiaColorFlow    4s    ease-in-out                   0.75s infinite;
 }
 @keyframes equiaChevronDraw {
   to { stroke-dashoffset: 0; }
 }
-
-/* Halo amarillo: enciende una vez luego respira */
-.logo-halo {
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation:
-    equiaHaloOn     0.45s ease-out          0.72s forwards,
-    equiaHaloBreathe 3s   ease-in-out       1.18s infinite;
-}
-@keyframes equiaHaloOn {
-  from { opacity: 0; transform: scale(0.4); }
-  to   { opacity: 0.55; transform: scale(1); }
-}
-@keyframes equiaHaloBreathe {
-  0%, 100% { opacity: 0.28; transform: scale(0.92); }
-  50%       { opacity: 0.6;  transform: scale(1.12); }
+@keyframes equiaColorFlow {
+  0%, 100% { stroke: #E8611A; }
+  35%       { stroke: #FF2D1A; }
+  70%       { stroke: #FFB800; }
 }
 
-/* Rayos: se extienden desde el tip, luego respiran */
-.logo-ray {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation:
-    equiaRayOn      0.3s  ease-out     var(--rd, 0.76s) forwards,
-    equiaRayBreathe 3s    ease-in-out  calc(var(--rd, 0.76s) + 0.34s) infinite;
+/* "I": sincronizada con el chevron */
+.logo-i {
+  color: #E8611A;
+  animation: equiaIColorFlow 4s ease-in-out 0.75s infinite;
 }
-@keyframes equiaRayOn {
-  from { stroke-dashoffset: 1; opacity: 0; }
-  to   { stroke-dashoffset: 0; opacity: 0.9; }
-}
-@keyframes equiaRayBreathe {
-  0%, 100% { opacity: 0.4; }
-  50%       { opacity: 0.95; }
-}
-
-/* Punto de luz en el tip */
-.logo-tip {
-  opacity: 0;
-  animation:
-    equiaTipOn      0.25s ease-out   0.72s forwards,
-    equiaTipBreathe 3s    ease-in-out 0.98s infinite;
-}
-@keyframes equiaTipOn {
-  from { opacity: 0; r: 0; }
-  to   { opacity: 1; }
-}
-@keyframes equiaTipBreathe {
-  0%, 100% { opacity: 0.55; }
-  50%       { opacity: 1; }
+@keyframes equiaIColorFlow {
+  0%, 100% { color: #E8611A; }
+  35%       { color: #FF2D1A; }
+  70%       { color: #FFB800; }
 }
 
 /* Botones */
