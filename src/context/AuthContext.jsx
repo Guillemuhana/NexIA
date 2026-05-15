@@ -13,25 +13,26 @@ export function AuthProvider({ children }) {
     if (fetchingRef.current) return
     fetchingRef.current = true
     try {
-      let { data, error: fetchErr } = await supabase
+      // Query 1: base user record (no nested joins)
+      let { data: userData, error: userErr } = await supabase
         .from('users')
-        .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url')
         .eq('id', userId)
         .maybeSingle()
 
-      // Retry once si falló por error de red
-      if (fetchErr && !data) {
+      // Retry once on network error
+      if (userErr && !userData) {
         await new Promise(r => setTimeout(r, 800))
         const retry = await supabase
           .from('users')
-          .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url')
           .eq('id', userId)
           .maybeSingle()
-        data = retry.data
+        userData = retry.data
       }
 
-      // Usuario nuevo (Google OAuth o email): crear registro en public.users
-      if (!data) {
+      // New user (Google OAuth or email): create record in public.users
+      if (!userData) {
         try {
           const res = await supabase.auth.getUser()
           const authUser = res?.data?.user
@@ -45,18 +46,31 @@ export function AuthProvider({ children }) {
           if (!insertErr) {
             const refetch = await supabase
               .from('users')
-              .select('*, user_roles(role_type, is_primary), talent_profiles(available, main_role)')
+              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url')
               .eq('id', userId)
               .maybeSingle()
-            data = refetch.data
+            userData = refetch.data
           }
         } catch {}
       }
 
-      if (data) {
-        const roles = Array.isArray(data.user_roles) ? data.user_roles : []
+      if (userData) {
+        // Query 2: user_roles separately (avoids nested join failure)
+        const { data: rolesData } = await supabase
+          .from('user_roles')
+          .select('role_type, is_primary')
+          .eq('user_id', userId)
+
+        // Query 3: talent_profile separately
+        const { data: tpData } = await supabase
+          .from('talent_profiles')
+          .select('available, main_role')
+          .eq('user_id', userId)
+          .maybeSingle()
+
+        const roles = Array.isArray(rolesData) ? rolesData : []
         const primaryRole = roles.find(r => r.is_primary)?.role_type || roles[0]?.role_type || null
-        const tp = Array.isArray(data.talent_profiles) ? data.talent_profiles[0] : data.talent_profiles
+        const tp = tpData || null
 
         if (primaryRole === 'talento' && !tp) {
           await supabase.from('talent_profiles')
@@ -64,24 +78,23 @@ export function AuthProvider({ children }) {
             .catch(() => {})
         }
 
-        // Setear perfil primero — nunca bloquear esto
         setProfile({
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          avatar_url: data.avatar_url,
-          location: data.location,
-          bio: data.bio,
-          portfolio: data.portfolio_url,
-          portfolio_url: data.portfolio_url,
-          linkedin_url: data.linkedin_url,
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          avatar_url: userData.avatar_url,
+          location: userData.location,
+          bio: userData.bio,
+          portfolio: userData.portfolio_url,
+          portfolio_url: userData.portfolio_url,
+          linkedin_url: userData.linkedin_url,
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
           idea_id: null,
         })
 
-        // Para visionario: buscar idea_id en background y actualizar
+        // For visionario: fetch idea_id in background
         if (primaryRole === 'visionario') {
           supabase
             .from('ideas').select('id').eq('founder_id', userId)

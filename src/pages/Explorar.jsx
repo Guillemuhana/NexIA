@@ -18,15 +18,25 @@ export default function Explorar() {
     const timer = setTimeout(() => { if (!cancelled) setLoading(false) }, 10000)
 
     const load = async () => {
-      // Fetch talent profiles + users in one query
+      // Query 1: talent profiles (no nested joins)
       const { data: profiles } = await supabase
         .from('talent_profiles')
-        .select('user_id, available, main_role, match_score_avg, projects_count, users(id, name, avatar_url, location, bio)')
+        .select('user_id, available, main_role, match_score_avg, projects_count')
         .order('user_id')
 
       if (!profiles?.length) { if (!cancelled) setLoading(false); return }
 
-      // Fetch skills separately to avoid nested join issues
+      // Query 2: users separately
+      const userIds = profiles.map(p => p.user_id)
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('id, name, avatar_url, location, bio')
+        .in('id', userIds)
+
+      const usersById = {}
+      ;(usersData || []).forEach(u => { usersById[u.id] = u })
+
+      // Query 3: skills separately
       const { data: skillRows } = await supabase
         .from('user_skills')
         .select('user_id, skills(name)')
@@ -38,20 +48,23 @@ export default function Explorar() {
       })
 
       const mapped = profiles
-        .filter(p => p.users)
-        .map(p => ({
-          id: p.users.id || p.user_id,
-          name: p.users.name || 'Usuario',
-          avatar: (p.users.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
-          avatar_url: p.users.avatar_url || null,
-          location: p.users.location || '',
-          bio: p.users.bio || '',
-          role: p.main_role || '',
-          available: p.available,
-          score: Math.round(p.match_score_avg || 0),
-          projects: p.projects_count || 0,
-          skills: skillsByUser[p.user_id] || [],
-        }))
+        .filter(p => usersById[p.user_id])
+        .map(p => {
+          const u = usersById[p.user_id]
+          return {
+            id: u.id,
+            name: u.name || 'Usuario',
+            avatar: (u.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+            avatar_url: u.avatar_url || null,
+            location: u.location || '',
+            bio: u.bio || '',
+            role: p.main_role || '',
+            available: p.available,
+            score: Math.round(p.match_score_avg || 0),
+            projects: p.projects_count || 0,
+            skills: skillsByUser[p.user_id] || [],
+          }
+        })
 
       if (!cancelled) { setTalents(mapped); setLoading(false) }
     }
