@@ -139,7 +139,7 @@ export default function Dashboard() {
       if (profile.type === 'talento') {
         const { data: matches } = await supabase
           .from('matches')
-          .select('id, role_suggested, score, ai_reasoning, status, equity_pct, ideas(id, title, category, stage, users(name))')
+          .select('id, role_suggested, score, ai_reasoning, status, equity_pct, ideas(id, title, category, stage)')
           .eq('talent_id', user.id)
           .order('created_at', { ascending: false })
         setData(matches || [])
@@ -148,18 +148,26 @@ export default function Dashboard() {
         const accepted = (matches || []).filter(m => m.status === 'accepted')
         if (accepted.length > 0) {
           const panels = await Promise.all(accepted.map(async m => {
+            const ideaId = m.ideas?.id
+            if (!ideaId) return null
             const { data: teamMatches } = await supabase
               .from('matches')
-              .select('talent_id, users(name, avatar_url)')
-              .eq('idea_id', m.ideas?.id)
+              .select('talent_id')
+              .eq('idea_id', ideaId)
               .eq('status', 'accepted')
-            const members = [
-              { name: m.ideas?.users?.name || 'Fundador', avatar_url: null },
-              ...(teamMatches || []).map(tm => ({ name: tm.users?.name, avatar_url: tm.users?.avatar_url })),
-            ]
-            return { ideaId: m.ideas?.id, title: m.ideas?.title, category: m.ideas?.category, members }
+            const talentIds = (teamMatches || []).map(tm => tm.talent_id)
+            let members = [{ name: 'Fundador', avatar_url: null }]
+            if (talentIds.length) {
+              const { data: talentUsers } = await supabase
+                .from('users').select('id, name, avatar_url').in('id', talentIds)
+              members = [
+                { name: 'Fundador', avatar_url: null },
+                ...(talentUsers || []).map(u => ({ name: u.name, avatar_url: u.avatar_url })),
+              ]
+            }
+            return { ideaId, title: m.ideas?.title, category: m.ideas?.category, members }
           }))
-          setTeamPanels(panels)
+          setTeamPanels(panels.filter(Boolean))
         }
       }
 

@@ -124,10 +124,11 @@ export function AuthProvider({ children }) {
       if (session?.user) {
         await fetchProfile(session.user.id)
 
-        // Aplicar rol pendiente (Google OAuth o email signup) — sin bloquear loading
+        // Aplicar rol pendiente (Google OAuth o email signup)
         if (event === 'SIGNED_IN') {
           const pendingRole = localStorage.getItem('nexia_pending_role')
           if (pendingRole) {
+            setLoading(true) // Mantener spinner hasta que el rol esté asignado y el perfil refrescado
             localStorage.removeItem('nexia_pending_role')
             try {
               const { error: rpcErr } = await supabase.rpc('assign_user_role', { p_role_type: pendingRole })
@@ -136,10 +137,11 @@ export function AuthProvider({ children }) {
                   user_id: session.user.id, role_type: pendingRole, is_primary: true,
                 }).select()
               }
-              // Refresh profile silently in the background
               fetchingRef.current = false
               await fetchProfile(session.user.id)
-            } catch {}
+            } catch {
+              setLoading(false)
+            }
           }
         }
       } else {
