@@ -157,10 +157,9 @@ export default function Home() {
               >
                 Tengo una idea →
               </button>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
                   { label: 'Postúlate', path: '/registro?rol=talento' },
-                  { label: 'Invertí en una idea', path: '/registro?rol=inversor' },
                   { label: `💡 ${ideas.length || '–'} ideas`, path: '/proyectos' },
                 ].map(b => (
                   <button
@@ -172,7 +171,6 @@ export default function Home() {
                       cursor: 'pointer', background: 'rgba(255,255,255,0.04)',
                       color: '#888', fontFamily: 'Inter, sans-serif',
                       transition: 'all .2s', backdropFilter: 'blur(4px)',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#ccc'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#888'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
@@ -181,6 +179,20 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+              <button
+                onClick={() => navigate('/registro?rol=inversor')}
+                style={{
+                  padding: '14px 10px', fontSize: 13, fontWeight: 600,
+                  border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
+                  cursor: 'pointer', background: 'rgba(255,255,255,0.04)',
+                  color: '#888', fontFamily: 'Inter, sans-serif',
+                  transition: 'all .2s', backdropFilter: 'blur(4px)', width: '100%',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#ccc'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#888'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+              >
+                Invertí en una idea
+              </button>
             </div>
 
           </div>

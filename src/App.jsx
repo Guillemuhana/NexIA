@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
@@ -18,7 +19,22 @@ import AuthCallback from './pages/AuthCallback'
 import ProyectoPanel from './pages/ProyectoPanel'
 import CV from './pages/CV'
 
+const FOOTER_TEXT = '© 2026 · Etapa beta · Idea: Nicolás Hercun · Diseño y desarrollo: Guillermo Muhana'
+
 function Footer() {
+  const [displayed, setDisplayed] = useState('')
+  const [done, setDone] = useState(false)
+
+  useEffect(() => {
+    let i = 0
+    const iv = setInterval(() => {
+      i++
+      setDisplayed(FOOTER_TEXT.slice(0, i))
+      if (i >= FOOTER_TEXT.length) { clearInterval(iv); setDone(true) }
+    }, 38)
+    return () => clearInterval(iv)
+  }, [])
+
   return (
     <footer style={{
       borderTop: '1px solid #e8e8e8',
@@ -28,9 +44,10 @@ function Footer() {
       color: '#bbb',
       background: '#fff',
       fontFamily: 'Inter, sans-serif',
-      letterSpacing: '0.5px',
+      letterSpacing: '0.3px',
     }}>
-      equia · etapa beta
+      {displayed}
+      <span style={{ opacity: done ? 0 : 1, animation: done ? 'none' : 'blink 1s infinite', marginLeft: 1 }}>|</span>
     </footer>
   )
 }
