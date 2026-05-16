@@ -18,6 +18,23 @@ import AuthCallback from './pages/AuthCallback'
 import ProyectoPanel from './pages/ProyectoPanel'
 import CV from './pages/CV'
 
+function Footer() {
+  return (
+    <footer style={{
+      borderTop: '1px solid #e8e8e8',
+      padding: '14px 24px',
+      textAlign: 'center',
+      fontSize: 12,
+      color: '#bbb',
+      background: '#fff',
+      fontFamily: 'Inter, sans-serif',
+      letterSpacing: '0.5px',
+    }}>
+      equia · etapa beta
+    </footer>
+  )
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -40,6 +57,7 @@ export default function App() {
         <Route path="/panel/:id" element={<ProyectoPanel />} />
         <Route path="/cv" element={<CV />} />
       </Routes>
+      <Footer />
     </AuthProvider>
   )
 }
