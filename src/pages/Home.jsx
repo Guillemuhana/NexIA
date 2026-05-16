@@ -118,10 +118,11 @@ export default function Home() {
 
             {/* Título — hero text stays white over dark overlay */}
             <h1 style={{
-              fontSize: 'clamp(44px, 11vw, 72px)',
+              fontSize: 'clamp(52px, 13vw, 88px)',
+              fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 900,
               lineHeight: 1.0,
-              letterSpacing: '-2.5px',
+              letterSpacing: '-1px',
               marginBottom: 20,
               color: '#fff',
             }}>
@@ -156,13 +157,14 @@ export default function Home() {
               >
                 Tengo una idea →
               </button>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {[
                   { label: 'Postúlate', path: '/registro?rol=talento' },
                   { label: 'Invertí en una idea', path: '/registro?rol=inversor' },
+                  { label: `💡 ${ideas.length || '–'} ideas`, path: '/proyectos' },
                 ].map(b => (
                   <button
-                    key={b.path}
+                    key={b.path + b.label}
                     onClick={() => navigate(b.path)}
                     style={{
                       padding: '14px 10px', fontSize: 13, fontWeight: 600,
@@ -170,6 +172,7 @@ export default function Home() {
                       cursor: 'pointer', background: 'rgba(255,255,255,0.04)',
                       color: '#888', fontFamily: 'Inter, sans-serif',
                       transition: 'all .2s', backdropFilter: 'blur(4px)',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#ccc'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#888'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}

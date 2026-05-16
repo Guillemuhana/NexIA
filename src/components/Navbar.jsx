@@ -56,12 +56,11 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path
 
   const getLinks = () => {
-    const base = [{ path: '/', label: 'Inicio' }]
-    if (!user) return [...base, { path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'visionario') return [...base, { path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'talento') return [...base, { path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'inversor') return [...base, { path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }]
-    return base
+    if (!user) return [{ path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'visionario') return [{ path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'talento') return [{ path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
+    if (profile?.type === 'inversor') return [{ path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }]
+    return []
   }
 
   const links = getLinks()

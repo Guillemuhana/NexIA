@@ -31,13 +31,19 @@ a { text-decoration: none; color: inherit; }
 
 /* ── Logo equIA animations ── */
 
+/* Entrada letra a letra */
+@keyframes logoLetterReveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Chevron: se dibuja + fluye entre colores */
 .logo-chevron {
   stroke: #E8611A;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation:
-    equiaChevronDraw  0.6s  cubic-bezier(0.4, 0, 0.2, 1) 0.08s forwards,
+    equiaChevronDraw  0.5s  cubic-bezier(0.4, 0, 0.2, 1) 0.32s forwards,
     equiaColorFlow    4s    ease-in-out                   0.75s infinite;
 }
 @keyframes equiaChevronDraw {
@@ -49,10 +55,12 @@ a { text-decoration: none; color: inherit; }
   70%       { stroke: #FFB800; }
 }
 
-/* "I": sincronizada con el chevron */
+/* "I": entra con las letras + fluye con el chevron */
 .logo-i {
   color: #E8611A;
-  animation: equiaIColorFlow 4s ease-in-out 0.75s infinite;
+  animation:
+    logoLetterReveal  0.35s cubic-bezier(.22,1,.36,1) 210ms both,
+    equiaIColorFlow   4s   ease-in-out                0.75s infinite;
 }
 @keyframes equiaIColorFlow {
   0%, 100% { color: #E8611A; }
