@@ -38,13 +38,15 @@ function Footer() {
   return (
     <footer style={{
       borderTop: '1px solid #e8e8e8',
-      padding: '14px 24px',
+      padding: 'clamp(12px,3vw,18px) clamp(16px,6vw,32px)',
       textAlign: 'center',
-      fontSize: 12,
+      fontSize: 'clamp(10px,2.8vw,12px)',
       color: '#bbb',
       background: '#fff',
       fontFamily: 'Inter, sans-serif',
       letterSpacing: '0.3px',
+      lineHeight: 1.6,
+      wordBreak: 'break-word',
     }}>
       {displayed}
       <span style={{ opacity: done ? 0 : 1, animation: done ? 'none' : 'blink 1s infinite', marginLeft: 1 }}>|</span>
