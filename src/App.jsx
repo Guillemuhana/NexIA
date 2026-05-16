@@ -19,7 +19,7 @@ import AuthCallback from './pages/AuthCallback'
 import ProyectoPanel from './pages/ProyectoPanel'
 import CV from './pages/CV'
 
-const FOOTER_TEXT = '© 2026 · Etapa beta · Idea: Nicolás Hercun · Diseño y desarrollo: Guillermo Muhana'
+const FOOTER_TEXT = '© 2026 Equia · Beta\nIdea por Nicolás Hercun · Diseñado y desarrollado por Guillermo Muhana\n🇦🇷 ↔ 🇺🇸'
 
 function Footer() {
   const [displayed, setDisplayed] = useState('')
@@ -45,8 +45,9 @@ function Footer() {
       background: '#fff',
       fontFamily: 'Inter, sans-serif',
       letterSpacing: '0.3px',
-      lineHeight: 1.6,
+      lineHeight: 1.8,
       wordBreak: 'break-word',
+      whiteSpace: 'pre-line',
     }}>
       {displayed}
       <span style={{ opacity: done ? 0 : 1, animation: done ? 'none' : 'blink 1s infinite', marginLeft: 1 }}>|</span>
