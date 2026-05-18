@@ -428,10 +428,10 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid #e8e8e8' }}>
             {ROLES_DATA.map((r, i) => (
               <div key={r.label} style={{ padding: 'clamp(24px,5vw,36px) clamp(20px,5vw,32px)', background: r.accent ? '#f5f5f5' : '#fff', display: 'flex', alignItems: 'center', gap: 20, borderBottom: '1px solid #e8e8e8', flexWrap: 'wrap', opacity: rolesVis ? 1 : 0, transform: rolesVis ? 'none' : 'translateX(-16px)', transition: `all .5s ease ${i * 0.12}s` }}>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 'clamp(16px,4vw,18px)', fontWeight: 900, letterSpacing: '-.5px' }}>{r.label}</span>
-                    <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: r.accent ? 'rgba(232,97,26,.12)' : 'rgba(0,0,0,.05)', color: r.accent ? '#E8611A' : '#666', border: `1px solid ${r.accent ? 'rgba(232,97,26,.2)' : '#e8e8e8'}`, fontWeight: 600 }}>{r.tag}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 'clamp(15px,4vw,18px)', fontWeight: 900, letterSpacing: '-.5px' }}>{r.label}</span>
+                    <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: r.accent ? 'rgba(232,97,26,.12)' : 'rgba(0,0,0,.05)', color: r.accent ? '#E8611A' : '#666', border: `1px solid ${r.accent ? 'rgba(232,97,26,.2)' : '#e8e8e8'}`, fontWeight: 600, whiteSpace: 'nowrap' }}>{r.tag}</span>
                   </div>
                   <p style={{ fontSize: 'clamp(13px,3.5vw,14px)', color: '#666', lineHeight: 1.7 }}>{r.desc}</p>
                 </div>
@@ -464,12 +464,12 @@ export default function Home() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(270px,1fr))', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(270px,100%),1fr))', gap: 10 }}>
               {ideas.map(idea => {
                 const roles = (idea.idea_roles || []).map(r => r.role_name).filter(Boolean)
                 return (
                   <div key={idea.id} onClick={() => navigate(`/proyectos/${idea.id}`)}
-                    style={{ padding: '22px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .15s', display: 'flex', flexDirection: 'column' }}
+                    style={{ padding: '22px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .15s', display: 'flex', flexDirection: 'column', minWidth: 0, wordBreak: 'break-word' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor='#d0d0d0'; e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.06)' }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='none' }}>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
@@ -519,7 +519,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(260px,100%),1fr))', gap: 10 }}>
               {talents.map((tp, i) => {
                 const u = tp.users
                 const skills = (u?.user_skills || []).map(us => us.skills?.name).filter(Boolean)

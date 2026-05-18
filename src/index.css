@@ -199,6 +199,10 @@ select.input option { background: #fff; color: #0a0a0a; }
 
   .steps-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
 
+  /* ideas & talentos: 1 columna, sin overflow */
+  .ideas-grid, .talents-grid { grid-template-columns: 1fr !important; }
+  .idea-card, .talent-card { min-width: 0 !important; word-break: break-word; }
+
   .cards-grid { grid-template-columns: 1fr !important; }
 
   .page-wrap { overflow-x: hidden; }
