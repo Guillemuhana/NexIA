@@ -447,79 +447,84 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ══ IDEAS ACTIVAS ══ */}
+      {/* ══ IDEAS ACTIVAS — lista compacta ══ */}
       {ideas.length > 0 && (
-        <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8', background: '#f8f9fa' }}>
+        <div style={{ padding: 'clamp(40px,8vw,72px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8', background: '#f8f9fa' }}>
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 'clamp(32px,6vw,48px)', flexWrap: 'wrap', gap: 16 }}>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '2px', textTransform: 'uppercase' }}>Ideas buscando equipo</span>
-                <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10, lineHeight: 1.1 }}>Proyectos que necesitan<br />tu talento</h2>
+
+            {/* header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Zap size={16} color="#E8611A" />
+                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-.3px' }}>Ideas activas</span>
+                <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: 'rgba(232,97,26,.1)', color: '#E8611A' }}>{ideas.length}</span>
               </div>
               <button onClick={() => navigate('/proyectos')}
-                style={{ padding: '11px 22px', fontSize: 14, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 9, background: 'none', color: '#555', cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'all .15s', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor='#aaa'; e.currentTarget.style.color='#111' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='#d0d0d0'; e.currentTarget.style.color='#555' }}>
-                Ver todos <ArrowRight size={14} />
+                style={{ fontSize: 13, fontWeight: 600, color: '#E8611A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
+                Ver todas <ArrowRight size={13} />
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(270px,100%),1fr))', gap: 10 }}>
-              {ideas.map(idea => {
+            {/* filas */}
+            <div style={{ border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
+              {ideas.map((idea, i) => {
                 const roles = (idea.idea_roles || []).map(r => r.role_name).filter(Boolean)
                 return (
                   <div key={idea.id} onClick={() => navigate(`/proyectos/${idea.id}`)}
-                    style={{ padding: '22px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .15s', display: 'flex', flexDirection: 'column', minWidth: 0, wordBreak: 'break-word' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor='#d0d0d0'; e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.06)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='none' }}>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-                      {idea.category && <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: 'rgba(232,97,26,.1)', color: '#E8611A', border: '1px solid rgba(232,97,26,.15)' }}>{idea.category}</span>}
-                      {idea.stage && <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#f0f0f0', color: '#777', border: '1px solid #e8e8e8' }}>{idea.stage}</span>}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: i < ideas.length - 1 ? '1px solid #f0f0f0' : 'none', cursor: 'pointer', transition: 'background .15s', minWidth: 0 }}
+                    onMouseEnter={e => e.currentTarget.style.background='#fafafa'}
+                    onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+
+                    {/* categoría dot */}
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#E8611A', flexShrink: 0, opacity: .7 }} />
+
+                    {/* título + roles */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{idea.title}</div>
+                      {roles.length > 0 && (
+                        <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'nowrap', overflow: 'hidden' }}>
+                          {roles.slice(0, 2).map(r => (
+                            <span key={r} style={{ fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 4, background: '#f0f0f0', color: '#666', whiteSpace: 'nowrap', flexShrink: 0 }}>{r}</span>
+                          ))}
+                          {roles.length > 2 && <span style={{ fontSize: 10, color: '#999', flexShrink: 0 }}>+{roles.length - 2}</span>}
+                        </div>
+                      )}
                     </div>
-                    <h3 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-.3px', marginBottom: 8, lineHeight: 1.3 }}>{idea.title}</h3>
-                    <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, flex: 1, marginBottom: roles.length > 0 ? 14 : 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{idea.description}</p>
-                    {roles.length > 0 && (
-                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingTop: 12, borderTop: '1px solid #f0f0f0', alignItems: 'center' }}>
-                        <Zap size={12} color="#E8611A" />
-                        {roles.slice(0, 3).map(r => <span key={r} style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 4, background: '#f5f5f5', color: '#555', border: '1px solid #ebebeb' }}>{r}</span>)}
-                        {roles.length > 3 && <span style={{ fontSize: 11, color: '#999' }}>+{roles.length - 3} más</span>}
-                      </div>
-                    )}
+
+                    {/* etiquetas derecha */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      {idea.category && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: 'rgba(232,97,26,.1)', color: '#E8611A', whiteSpace: 'nowrap' }}>{idea.category}</span>}
+                      <ArrowRight size={14} color="#ccc" />
+                    </div>
                   </div>
                 )
               })}
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: 28 }}>
-              <button onClick={() => navigate('/proyectos')}
-                style={{ padding: '13px 32px', fontSize: 15, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 10, background: 'none', color: '#444', cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'all .15s', display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor='#bbb'; e.currentTarget.style.color='#111' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='#d0d0d0'; e.currentTarget.style.color='#444' }}>
-                Ver todos los proyectos <ArrowRight size={15} />
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* ══ TALENTOS ══ */}
+      {/* ══ TALENTOS — lista compacta ══ */}
       {talents.length > 0 && (
-        <div style={{ padding: 'clamp(56px,10vw,96px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8' }}>
+        <div style={{ padding: 'clamp(40px,8vw,72px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8' }}>
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 'clamp(32px,6vw,48px)', flexWrap: 'wrap', gap: 16 }}>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase' }}>Comunidad activa</span>
-                <h2 style={{ fontSize: 'clamp(26px,6vw,44px)', fontWeight: 900, letterSpacing: '-1.5px', marginTop: 10, lineHeight: 1.1 }}>Talentos esperando<br />tu proyecto</h2>
+
+            {/* header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Users size={16} color="#666" />
+                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-.3px' }}>Talentos disponibles</span>
+                <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: '#f0f0f0', color: '#666' }}>{talents.length}</span>
               </div>
               <button onClick={() => navigate('/explorar')}
-                style={{ padding: '11px 22px', fontSize: 14, fontWeight: 600, border: '1px solid #d0d0d0', borderRadius: 9, background: 'none', color: '#555', cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'all .15s', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor='#aaa'; e.currentTarget.style.color='#111' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='#d0d0d0'; e.currentTarget.style.color='#555' }}>
-                Ver todos <ArrowRight size={14} />
+                style={{ fontSize: 13, fontWeight: 600, color: '#E8611A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
+                Ver todos <ArrowRight size={13} />
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(260px,100%),1fr))', gap: 10 }}>
+            {/* filas */}
+            <div style={{ border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
               {talents.map((tp, i) => {
                 const u = tp.users
                 const skills = (u?.user_skills || []).map(us => us.skills?.name).filter(Boolean)
@@ -527,34 +532,32 @@ export default function Home() {
                 const rc = ROLE_COLORS[tp.main_role] || { bg: '#f0f0f0', color: '#555' }
                 return (
                   <div key={u?.id || i} onClick={() => navigate(`/talento/${u?.id}`)}
-                    style={{ padding: '20px 22px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, cursor: 'pointer', transition: 'all .15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor='#d0d0d0'; e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.06)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='none' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                      <div style={{ width: 44, height: 44, borderRadius: '50%', background: rc.bg, color: rc.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 15, flexShrink: 0, border: `1px solid ${rc.color}22` }}>{initials}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 15, color: '#0a0a0a', letterSpacing: '-.3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u?.name}</div>
-                        <div style={{ fontSize: 12, color: '#888', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tp.main_role}</div>
-                      </div>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: '#22c55e', flexShrink: 0 }}>
-                        <CheckCircle2 size={13} color="#22c55e" /> Disponible
-                      </span>
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderBottom: i < talents.length - 1 ? '1px solid #f0f0f0' : 'none', cursor: 'pointer', transition: 'background .15s', minWidth: 0 }}
+                    onMouseEnter={e => e.currentTarget.style.background='#fafafa'}
+                    onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+
+                    {/* avatar */}
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: rc.bg, color: rc.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 12, flexShrink: 0, border: `1px solid ${rc.color}22` }}>{initials}</div>
+
+                    {/* nombre + rol */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u?.name}</div>
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tp.main_role}</div>
                     </div>
-                    {skills.length > 0 && (
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {skills.slice(0, 3).map(s => <span key={s} style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 4, background: '#f5f5f5', color: '#555', border: '1px solid #ebebeb' }}>{s}</span>)}
-                      </div>
-                    )}
+
+                    {/* skills + disponible */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      {skills.slice(0, 1).map(s => (
+                        <span key={s} style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4, background: '#f5f5f5', color: '#666', whiteSpace: 'nowrap' }}>{s}</span>
+                      ))}
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', flexShrink: 0 }} />
+                      <ArrowRight size={14} color="#ccc" />
+                    </div>
                   </div>
                 )
               })}
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: 28 }}>
-              <button onClick={() => navigate('/explorar')} className="btn-primary" style={{ padding: '13px 32px', fontSize: 15, borderRadius: 10, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                Explorar todos los talentos <ArrowRight size={16} />
-              </button>
-            </div>
           </div>
         </div>
       )}
