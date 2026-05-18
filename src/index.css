@@ -197,6 +197,8 @@ select.input option { background: #fff; color: #0a0a0a; }
   .home-panel-sidebar { display: none !important; }
   .home-panel-mockup-grid { grid-template-columns: 1fr !important; }
 
+  .steps-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+
   .cards-grid { grid-template-columns: 1fr !important; }
 
   .page-wrap { overflow-x: hidden; }
@@ -205,4 +207,5 @@ select.input option { background: #fff; color: #0a0a0a; }
 @media (max-width: 480px) {
   .card-grid { grid-template-columns: 1fr !important; }
   .cards-grid { grid-template-columns: 1fr !important; }
+  .steps-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
 }
