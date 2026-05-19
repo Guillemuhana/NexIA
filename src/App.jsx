@@ -18,6 +18,7 @@ import PerfilPublico from './pages/PerfilPublico'
 import AuthCallback from './pages/AuthCallback'
 import ProyectoPanel from './pages/ProyectoPanel'
 import CV from './pages/CV'
+import FAQ from './pages/FAQ'
 
 const FOOTER_TEXT = '© 2026 Equia · Beta\nIdea por Nicolás Hercun · Diseñado y desarrollado por Guillermo Muhana\n🇦🇷 ↔ 🇺🇸'
 
@@ -76,6 +77,7 @@ export default function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/panel/:id" element={<ProyectoPanel />} />
         <Route path="/cv" element={<CV />} />
+        <Route path="/faq" element={<FAQ />} />
       </Routes>
       <Footer />
     </AuthProvider>

@@ -203,6 +203,12 @@ select.input option { background: #fff; color: #0a0a0a; }
   .ideas-grid, .talents-grid { grid-template-columns: 1fr !important; }
   .idea-card, .talent-card { min-width: 0 !important; word-break: break-word; }
 
+  /* FAQ: ocultar sidebar, mostrar tabs */
+  .faq-sidebar { display: none !important; }
+  .faq-tabs { display: flex !important; }
+  /* FAQ grid: 1 columna */
+  .faq-grid { grid-template-columns: 1fr !important; }
+
   .cards-grid { grid-template-columns: 1fr !important; }
 
   .page-wrap { overflow-x: hidden; }

@@ -16,6 +16,7 @@ function Icon({ name, size = 16, stroke = 'currentColor', strokeWidth = 1.75 }) 
     briefcase:<><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12.01" y2="12"/></>,
     logout:   <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>,
     arrow:    <path d="M5 12h14M12 5l7 7-7 7" />,
+    help:     <><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
   }
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -31,6 +32,7 @@ const PATH_ICON = {
   '/dashboard': 'gauge',
   '/precios':   'tag',
   '/lanzar':    'zap',
+  '/faq':       'help',
 }
 
 const ROLE_ICON = {
@@ -56,10 +58,10 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path
 
   const getLinks = () => {
-    if (!user) return [{ path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'visionario') return [{ path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'talento') return [{ path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }]
-    if (profile?.type === 'inversor') return [{ path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }]
+    if (!user) return [{ path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
+    if (profile?.type === 'visionario') return [{ path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
+    if (profile?.type === 'talento') return [{ path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
+    if (profile?.type === 'inversor') return [{ path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
     return []
   }
 
