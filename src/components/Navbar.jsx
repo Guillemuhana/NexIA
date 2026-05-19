@@ -115,7 +115,9 @@ export default function Navbar() {
               {roleInfo && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 20, background: 'rgba(0,0,0,.04)', border: '1px solid #e0e0e0' }}>
                   <Icon name={ROLE_ICON[profile.type] || 'user'} size={13} stroke={profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#666'} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#555' }}>{roleInfo.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#555' }}>
+                    {profile.cv_data?.job_title || roleInfo.label}
+                  </span>
                 </div>
               )}
               <button onClick={() => go('/perfil')} style={{ width: 34, height: 34, borderRadius: '50%', background: '#E8611A', border: 'none', color: '#fff', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 0 }}>

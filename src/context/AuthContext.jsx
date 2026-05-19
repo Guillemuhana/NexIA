@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
       // Query 1: base user record (no nested joins)
       let { data: userData, error: userErr } = await supabase
         .from('users')
-        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url')
+        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data')
         .eq('id', userId)
         .maybeSingle()
 
@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
         await new Promise(r => setTimeout(r, 800))
         const retry = await supabase
           .from('users')
-          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url')
+          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data')
           .eq('id', userId)
           .maybeSingle()
         userData = retry.data
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
           if (!insertErr) {
             const refetch = await supabase
               .from('users')
-              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url')
+              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data')
               .eq('id', userId)
               .maybeSingle()
             userData = refetch.data
@@ -88,6 +88,7 @@ export function AuthProvider({ children }) {
           portfolio: userData.portfolio_url,
           portfolio_url: userData.portfolio_url,
           linkedin_url: userData.linkedin_url,
+          cv_data: userData.cv_data || null,
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
