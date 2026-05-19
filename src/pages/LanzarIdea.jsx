@@ -43,76 +43,63 @@ export default function LanzarIdea() {
     setStage('matching')
     setCurrentStep(0)
 
-    let step = 0
-    const iv = setInterval(() => {
-      step++
-      setCurrentStep(step)
-      if (step >= STEPS.length - 1) clearInterval(iv)
-    }, 600)
-
     const fallbackAnalysis = { pitch: `${form.description.slice(0, 120)}...`, whyThisTeam: 'Equipo seleccionado por compatibilidad de habilidades y disponibilidad.', teamSize: 4, complexity: 'Media', timeEstimate: '4 meses', successTip: 'Empezá con un MVP simple y validá con usuarios reales antes de escalar.', risks: 'No validar el mercado antes de construir.', rolesNeeded: selRoles }
 
-    let analysis = fallbackAnalysis
-    try {
-      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 20000))
-      analysis = await Promise.race([
-        matchTeam({ title: form.title, description: form.description, category: form.category, roles: selRoles }),
-        timeout,
-      ])
+    // Animación y API corren en paralelo — transicionamos cuando AMBAS terminan
+    const animationDone = new Promise(resolve => {
+      let step = 0
+      const iv = setInterval(() => {
+        step++
+        setCurrentStep(step)
+        if (step >= STEPS.length - 1) { clearInterval(iv); setTimeout(resolve, 600) }
+      }, 600)
+    })
+
+    const dataDone = (async () => {
+      let analysis = fallbackAnalysis
+      try {
+        const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 20000))
+        analysis = await Promise.race([
+          matchTeam({ title: form.title, description: form.description, category: form.category, roles: selRoles }),
+          timeout,
+        ])
+      } catch { /* usa fallback */ }
       setAiData(analysis)
-    } catch {
-      analysis = fallbackAnalysis
-      setAiData(analysis)
-    }
 
-    // Buscar talentos reales — queries separados para evitar joins anidados fallidos
-    const rolesNeeded = analysis.rolesNeeded?.length ? analysis.rolesNeeded : selRoles
-    try {
-      const { data: tpRows } = await supabase
-        .from('talent_profiles')
-        .select('user_id, available, main_role, match_score_avg, projects_count')
-        .eq('available', true)
-        .in('main_role', rolesNeeded.length ? rolesNeeded : ['__none__'])
-        .limit(6)
+      const rolesNeeded = analysis.rolesNeeded?.length ? analysis.rolesNeeded : selRoles
+      try {
+        const { data: tpRows } = await supabase
+          .from('talent_profiles')
+          .select('user_id, available, main_role, match_score_avg, projects_count')
+          .eq('available', true)
+          .in('main_role', rolesNeeded.length ? rolesNeeded : ['__none__'])
+          .limit(6)
 
-      if (tpRows?.length) {
-        const uids = tpRows.map(r => r.user_id)
-        const { data: usersRows } = await supabase
-          .from('users')
-          .select('id, name, avatar_url, location, bio')
-          .in('id', uids)
-        const { data: skillRows } = await supabase
-          .from('user_skills')
-          .select('user_id, skills(name)')
-          .in('user_id', uids)
+        if (tpRows?.length) {
+          const uids = tpRows.map(r => r.user_id)
+          const [{ data: usersRows }, { data: skillRows }] = await Promise.all([
+            supabase.from('users').select('id, name, avatar_url, location, bio').in('id', uids),
+            supabase.from('user_skills').select('user_id, skills(name)').in('user_id', uids),
+          ])
+          const usersById = Object.fromEntries((usersRows || []).map(u => [u.id, u]))
+          const skillsByUser = {}
+          ;(skillRows || []).forEach(r => {
+            if (!skillsByUser[r.user_id]) skillsByUser[r.user_id] = []
+            if (r.skills?.name) skillsByUser[r.user_id].push(r.skills.name)
+          })
+          setMatched(tpRows.filter(r => usersById[r.user_id]).map(r => {
+            const u = usersById[r.user_id]
+            return { id: u.id, name: u.name || 'Usuario', avatar: (u.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), avatar_url: u.avatar_url || null, location: u.location || '', bio: u.bio || '', role: r.main_role || '', available: r.available, score: Math.round(r.match_score_avg || 75), projects: r.projects_count || 0, skills: skillsByUser[r.user_id] || [] }
+          }))
+        }
+      } catch {}
+    })()
 
-        const usersById = Object.fromEntries((usersRows || []).map(u => [u.id, u]))
-        const skillsByUser = {}
-        ;(skillRows || []).forEach(r => {
-          if (!skillsByUser[r.user_id]) skillsByUser[r.user_id] = []
-          if (r.skills?.name) skillsByUser[r.user_id].push(r.skills.name)
-        })
-
-        setMatched(tpRows.filter(r => usersById[r.user_id]).map(r => {
-          const u = usersById[r.user_id]
-          return {
-            id: u.id,
-            name: u.name || 'Usuario',
-            avatar: (u.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
-            avatar_url: u.avatar_url || null,
-            location: u.location || '',
-            bio: u.bio || '',
-            role: r.main_role || '',
-            available: r.available,
-            score: Math.round(r.match_score_avg || 75),
-            projects: r.projects_count || 0,
-            skills: skillsByUser[r.user_id] || [],
-          }
-        }))
-      }
-    } catch {}
-
-    setTimeout(() => { setStage('results'); setFlash(true); setTimeout(() => setFlash(false), 700) }, STEPS.length * 600 + 800)
+    // Esperar animación Y datos — lo que tarde más
+    await Promise.all([animationDone, dataDone])
+    setStage('results')
+    setFlash(true)
+    setTimeout(() => setFlash(false), 700)
   }
 
   const handleSaveIdea = async () => {
