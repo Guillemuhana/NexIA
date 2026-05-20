@@ -21,6 +21,7 @@ import ProyectoPanel from './pages/ProyectoPanel'
 import CV from './pages/CV'
 import FAQ from './pages/FAQ'
 import ProfileChat from './pages/ProfileChat'
+import CVChat from './pages/CVChat'
 
 const FOOTER_TEXT = '© 2026 Equia · Beta\nIdea por Nicolás Hercun · Diseñado y desarrollado por Guillermo Muhana\n🇦🇷 ↔ 🇺🇸'
 
@@ -82,6 +83,7 @@ export default function App() {
         <Route path="/cv" element={<CV />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/perfil-chat" element={<ProfileChat />} />
+        <Route path="/cv-chat" element={<CVChat />} />
       </Routes>
       <Footer />
     </AuthProvider>

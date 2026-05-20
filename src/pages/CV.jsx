@@ -3,6 +3,23 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
+function AIBanner({ onNavigate }) {
+  return (
+    <div style={{ padding: '16px 20px', background: 'linear-gradient(135deg,rgba(232,97,26,.08),rgba(232,97,26,.04))', border: '1px solid rgba(232,97,26,.2)', borderRadius: 12, marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: 24 }}>🤖</span>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#E8611A', marginBottom: 2 }}>Completar con IA — más rápido y fácil</div>
+          <div style={{ fontSize: 13, color: '#666' }}>Respondé 4 preguntas en chat y la IA arma todo tu CV automáticamente.</div>
+        </div>
+      </div>
+      <button onClick={onNavigate} style={{ padding: '10px 20px', background: '#E8611A', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Inter,sans-serif', flexShrink: 0, whiteSpace: 'nowrap' }}>
+        Completar con IA →
+      </button>
+    </div>
+  )
+}
+
 const LANGUAGE_LEVELS = ['Básico', 'Intermedio', 'Avanzado', 'Bilingüe', 'Nativo']
 const uid = () => Math.random().toString(36).slice(2)
 
@@ -114,6 +131,8 @@ export default function CV() {
   return (
     <div className="page-wrap">
       <div style={{ padding: '100px 24px 80px', maxWidth: 720, margin: '0 auto' }}>
+
+        <AIBanner onNavigate={() => navigate('/cv-chat')} />
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, flexWrap: 'wrap', gap: 16 }}>
