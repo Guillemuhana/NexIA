@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { extractProfile } from '../lib/claude'
 
 const fn = (name = '') => (name || '').split(' ')[0] || name
 
@@ -114,7 +115,7 @@ export default function ProfileChat() {
       setTimeout(() => {
         setTyping(false)
         setSaving(true)
-        setMessages(prev => [...prev, { role: 'bot', text: `¡Perfecto, ${fn(upd.name || profile?.name)}! Guardando tu perfil... ⏳` }])
+        setMessages(prev => [...prev, { role: 'bot', text: `¡Perfecto, ${fn(upd.name || profile?.name)}! Analizando tus respuestas con Gemini... ✨` }])
         doSave(upd)
       }, 600)
     } else {
@@ -129,48 +130,64 @@ export default function ProfileChat() {
 
   const doSave = async (a) => {
     try {
+      // Gemini extrae datos estructurados de toda la conversación
+      let ai = null
+      try {
+        ai = await extractProfile({ history: messages, userRole: profile.type })
+      } catch { /* fallback a extracción manual */ }
+
+      // Fallback manual si Gemini falla
       const links = parseLinks(a.links || '')
-      const isAvail = !((a.available || '').toLowerCase().includes('no por ahora'))
+      const name    = ai?.name     || a.name     || profile.name
+      const location = ai?.location || a.location || ''
+      const bio      = ai?.bio      || a.bio      || ''
+      const role     = ai?.role     || a.role     || ''
+      const liUrl    = ai?.linkedin_url  || links.linkedin_url
+      const ptUrl    = ai?.portfolio_url || links.portfolio_url
+      const isAvail  = ai?.available  ?? !((a.available || '').toLowerCase().includes('no por ahora'))
 
       const updates = {
-        name: a.name || profile.name,
-        location: a.location || '',
-        bio: a.bio || '',
+        name, location, bio,
         cv_data: {
           ...(profile.cv_data || {}),
-          job_title: a.role || '',
+          job_title: role,
           experience_raw: a.experience || '',
+          skills_ai: ai?.skills || [],
           setup_via: 'ai_chat',
           setup_date: new Date().toISOString(),
         },
       }
-      if (links.linkedin_url) updates.linkedin_url = links.linkedin_url
-      if (links.portfolio_url) updates.portfolio = links.portfolio_url
-      if (profile.type === 'talento') { updates.role = a.role || ''; updates.available = isAvail }
+      if (liUrl) updates.linkedin_url = liUrl
+      if (ptUrl) updates.portfolio    = ptUrl
+      if (profile.type === 'talento') { updates.role = role; updates.available = isAvail }
 
       await updateProfile(updates)
 
-      // Match skills for talento
+      // Guardar skills: combina los que detectó Gemini + búsqueda en texto
       if (profile.type === 'talento' && allSkills.length > 0) {
+        const aiSkills = (ai?.skills || []).map(s => s.toLowerCase())
         const raw = ((a.experience || '') + ' ' + (a.bio || '')).toLowerCase()
-        const matched = allSkills.filter(s => raw.includes(s.name.toLowerCase()))
+        const matched = allSkills.filter(s => {
+          const n = s.name.toLowerCase()
+          return aiSkills.some(as => as.includes(n) || n.includes(as)) || raw.includes(n)
+        })
         if (matched.length) {
           await supabase.from('user_skills').delete().eq('user_id', user.id).catch(() => {})
           await supabase.from('user_skills').insert(matched.map(s => ({ user_id: user.id, skill_id: s.id }))).catch(() => {})
         }
       }
 
-      const name = fn(a.name || profile?.name)
+      const displayName = fn(name)
       const msg = profile.type === 'talento'
-        ? `✅ ¡Listo, ${name}! Tu perfil está activo.\n\nYa sos visible para la IA de Equia. Cuando una idea matchee con tu perfil, te llegará una invitación automática.`
+        ? `✅ ¡Listo, ${displayName}! Tu perfil está activo.\n\nYa sos visible para la IA de Equia. Cuando una idea matchee con tu perfil, te llegará una invitación automática.`
         : profile.type === 'visionario'
-        ? `✅ ¡Listo, ${name}! Tu perfil está configurado.\n\nAhora podés lanzar tu primera idea y la IA va a construir el equipo perfecto para vos.`
-        : `✅ ¡Listo, ${name}! Tu perfil de inversor está activo.\n\nYa podés explorar proyectos con equipos formados por IA.`
+        ? `✅ ¡Listo, ${displayName}! Tu perfil está configurado.\n\nAhora podés lanzar tu primera idea y la IA va a construir el equipo perfecto para vos.`
+        : `✅ ¡Listo, ${displayName}! Tu perfil de inversor está activo.\n\nYa podés explorar proyectos con equipos formados por IA.`
 
       setMessages(prev => [...prev, { role: 'bot', text: msg, final: true }])
       setDone(true)
     } catch {
-      setMessages(prev => [...prev, { role: 'bot', text: '⚠️ Hubo un error al guardar. Podés completar tu perfil manualmente desde la sección "Mi perfil".' }])
+      setMessages(prev => [...prev, { role: 'bot', text: '⚠️ Hubo un error al guardar. Podés completar tu perfil manualmente desde "Mi perfil".' }])
     } finally {
       setSaving(false)
     }
