@@ -93,10 +93,11 @@ export default function LanzarIdea() {
           }))
         }
       } catch {}
-    })()
+    })().catch(() => {}) // siempre resuelve — nunca bloquea Promise.all
 
-    // Esperar animación Y datos — lo que tarde más
-    await Promise.all([animationDone, dataDone])
+    // Safety: si todo cuelga más de 25s, avanzar igual
+    const hardTimeout = new Promise(resolve => setTimeout(resolve, 25000))
+    await Promise.race([Promise.all([animationDone, dataDone]), hardTimeout])
     setStage('results')
     setFlash(true)
     setTimeout(() => setFlash(false), 700)

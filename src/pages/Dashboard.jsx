@@ -82,6 +82,7 @@ export default function Dashboard() {
   const [data, setData] = useState([])
   const [teamPanels, setTeamPanels] = useState([])
   const [founderEquity, setFounderEquity] = useState([]) // [{ideaTitle, name, role, equity_pct}]
+  const [publicIdeas, setPublicIdeas] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [paywallMatch, setPaywallMatch] = useState(null)
   const [paywallLoading, setPaywallLoading] = useState(false)
@@ -107,6 +108,17 @@ export default function Dashboard() {
         const founderName = profile.name || ''
         const projects = (ideas || []).map(i => mapProject(i, founderName))
         setData(projects)
+
+        // Cuando no tiene ideas propias, mostrar proyectos públicos de la plataforma
+        if (projects.length === 0) {
+          const { data: pubIdeas } = await supabase
+            .from('ideas')
+            .select('id, title, description, category, stage, status, users(name), idea_roles(role_name)')
+            .eq('is_public', true)
+            .order('created_at', { ascending: false })
+            .limit(6)
+          setPublicIdeas((pubIdeas || []).map(i => mapProject(i, i.users?.name || '')))
+        }
 
         // Mostrar paneles inmediatamente con los proyectos — nunca bloquear por matches
         if (projects.length > 0) {
@@ -226,12 +238,28 @@ export default function Dashboard() {
           {dataLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner /></div>
           ) : data.length === 0 ? (
-            <div style={{ padding: '48px 24px', border: '1px dashed #e8e8e8', borderRadius: 14, textAlign: 'center', color: '#777' }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>💡</div>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Todavía no lanzaste ninguna idea.</div>
-              <div style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>La IA construye el equipo perfecto en minutos.</div>
-              <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '11px 24px', fontSize: 14 }}>Lanzar mi primera idea →</button>
-            </div>
+            <>
+              <div style={{ padding: '36px 24px', border: '1px dashed #e8e8e8', borderRadius: 14, textAlign: 'center', color: '#777', marginBottom: publicIdeas.length > 0 ? 40 : 0 }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>💡</div>
+                <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Todavía no lanzaste ninguna idea.</div>
+                <div style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>La IA construye el equipo perfecto en minutos.</div>
+                <button className="btn-primary" onClick={() => navigate('/lanzar')} style={{ padding: '11px 24px', fontSize: 14 }}>Lanzar mi primera idea →</button>
+              </div>
+              {publicIdeas.length > 0 && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <div>
+                      <h2 style={sectionTitle}>Proyectos en la plataforma</h2>
+                      <p style={{ fontSize: 13, color: '#666', marginTop: 2 }}>Ideas activas de otros visionarios — explorá el ecosistema.</p>
+                    </div>
+                    <button className="btn-ghost" onClick={() => navigate('/proyectos')} style={{ fontSize: 14 }}>Ver todos →</button>
+                  </div>
+                  <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(300px,100%),1fr))', gap: 16 }}>
+                    {publicIdeas.map(p => <ProjectCard key={p.id} project={p} onFavorite={() => {}} />)}
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {data.map(p => {
