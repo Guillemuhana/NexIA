@@ -52,10 +52,10 @@ export async function analyzeProject({ projectTitle, projectDescription, project
   }
 }
 
-export async function chatWithProject({ projectTitle, projectDescription, projectCategory, question, history = [] }) {
+export async function chatWithProject({ projectTitle, projectDescription, projectCategory, projectStage, question, history = [], team = [], buildLogs = [], aiSummary = '', userInfo = null }) {
   try {
     const { data, error } = await supabase.functions.invoke('gemini-proxy', {
-      body: { mode: 'chat', projectTitle, projectDescription, projectCategory, question, history },
+      body: { mode: 'chat', projectTitle, projectDescription, projectCategory, projectStage, question, history, team, buildLogs, aiSummary, userInfo },
     })
     if (error || !data || data.error) throw new Error('API error')
     return { answer: data.answer, _isDemo: false }

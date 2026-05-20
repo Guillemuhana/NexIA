@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import ChatWidget from './components/ChatWidget'
+import AssistantWidget from './components/AssistantWidget'
 import Home from './pages/Home'
 import Explorar from './pages/Explorar'
 import LanzarIdea from './pages/LanzarIdea'
@@ -62,6 +63,7 @@ export default function App() {
     <AuthProvider>
       <Navbar />
       <ChatWidget />
+      <AssistantWidget />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explorar" element={<Explorar />} />

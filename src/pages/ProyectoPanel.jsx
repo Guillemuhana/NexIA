@@ -129,7 +129,7 @@ const SUGGESTED = [
 export default function ProyectoPanel() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
 
   const [idea, setIdea]             = useState(null)
   const [team, setTeam]             = useState([])
@@ -166,13 +166,25 @@ export default function ProyectoPanel() {
       if (!ideaData) { setAccess(false); return }
       setIdea(ideaData)
 
-      if (ideaData.founder_id === user.id) { setAccess(true); loadTeam(ideaData); loadLogs(); return }
+      if (ideaData.founder_id === user.id) { setAccess(true); loadTeam(ideaData); loadLogs(); loadChatHistory(); return }
 
       const { data: match } = await supabase
         .from('matches').select('id').eq('idea_id', id).eq('talent_id', user.id).eq('status', 'accepted').single()
 
-      if (match) { setAccess(true); loadTeam(ideaData); loadLogs() }
+      if (match) { setAccess(true); loadTeam(ideaData); loadLogs(); loadChatHistory() }
       else setAccess(false)
+    }
+
+    async function loadChatHistory() {
+      const { data } = await supabase
+        .from('ai_chat_history')
+        .select('role, text')
+        .eq('idea_id', id)
+        .order('created_at', { ascending: true })
+      if (data && data.length > 0) {
+        setChatHistory(data.map(m => ({ role: m.role, text: m.text })))
+        setChatGreeted(true)
+      }
     }
 
     async function loadLogs() {
@@ -216,18 +228,30 @@ export default function ProyectoPanel() {
     if (!question || chatLoading || !idea) return
     setChatInput('')
     const userMsg = { role: 'user', text: question }
+    const historySnapshot = chatHistory
     setChatHistory(h => [...h, userMsg])
     setChatLoading(true)
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
 
-    const { answer, _isDemo } = await chatWithProject({
-      projectTitle: idea.title,
-      projectDescription: idea.description,
-      projectCategory: idea.category,
-      question,
-      history: chatHistory.slice(-6),
-    })
+    const userRole = team.find(m => m.id === user?.id)?.role || 'Miembro del equipo'
+    const [, { answer, _isDemo }] = await Promise.all([
+      supabase.from('ai_chat_history').insert({ idea_id: id, user_id: user?.id, role: 'user', text: question }),
+      chatWithProject({
+        projectTitle: idea.title,
+        projectDescription: idea.description,
+        projectCategory: idea.category,
+        projectStage: idea.stage,
+        question,
+        history: historySnapshot,
+        team: team.map(m => ({ name: m.name, role: m.role })),
+        buildLogs: buildLogs.slice(0, 15).map(l => ({ type: l.type, content: l.content })),
+        aiSummary: ai?.resumen || '',
+        userInfo: { name: profile?.name || '', role: userRole },
+      }),
+    ])
+
     setChatHistory(h => [...h, { role: 'ai', text: answer, _isDemo }])
+    if (!_isDemo) supabase.from('ai_chat_history').insert({ idea_id: id, user_id: user?.id, role: 'ai', text: answer })
     setChatLoading(false)
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
@@ -243,14 +267,18 @@ export default function ProyectoPanel() {
     setLogSaving(false)
   }
 
+  const showGreeting = useCallback(() => {
+    if (chatGreeted || chatHistory.length > 0 || !idea) return
+    setChatGreeted(true)
+    const greeting = ai?.resumen
+      ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
+      : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. Pregúntenme sobre estrategia, producto, decisiones o cualquier desafío. ¿Qué necesitan?`
+    setChatHistory([{ role: 'ai', text: greeting }])
+    supabase.from('ai_chat_history').insert({ idea_id: id, user_id: null, role: 'ai', text: greeting })
+  }, [chatGreeted, chatHistory.length, idea, ai, id])
+
   const askAI = (question) => {
-    if (!chatGreeted && chatHistory.length === 0 && idea) {
-      setChatGreeted(true)
-      const greeting = ai?.resumen
-        ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
-        : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. Pregúntenme sobre estrategia, producto, decisiones o cualquier desafío. ¿Qué necesitan?`
-      setChatHistory([{ role: 'ai', text: greeting }])
-    }
+    showGreeting()
     setActive('chat')
     setTimeout(() => {
       if (question) sendChat(question)
@@ -339,13 +367,7 @@ export default function ProyectoPanel() {
         <div className="panel-mobile-nav">
           {NAV.map(n => (
             <button key={n.id} className={`panel-mobile-btn${activeSection === n.id ? ' active' : ''}`} onClick={() => {
-              if (n.id === 'chat' && chatHistory.length === 0 && idea && !chatGreeted) {
-                setChatGreeted(true)
-                const greeting = ai?.resumen
-                  ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
-                  : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. ¿Qué necesitan?`
-                setChatHistory([{ role: 'ai', text: greeting }])
-              }
+              if (n.id === 'chat') showGreeting()
               setActive(n.id)
             }}>
               <Icon name={n.icon} size={16} color={activeSection === n.id ? '#E8611A' : '#777'} />
@@ -379,13 +401,7 @@ export default function ProyectoPanel() {
           <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             {NAV.map(n => (
               <button key={n.id} className={`pnav${activeSection === n.id ? ' active' : ''}`} onClick={() => {
-                if (n.id === 'chat' && chatHistory.length === 0 && idea && !chatGreeted) {
-                  setChatGreeted(true)
-                  const greeting = ai?.resumen
-                    ? `¡Hola equipo de ${idea.title}! 👋\n\nYa analicé el proyecto. ${ai.resumen.slice(0, 220)}\n\n¿En qué los puedo ayudar hoy?`
-                    : `¡Hola equipo de ${idea.title}! 👋\n\nSoy el consultor IA del equipo. Pregúntenme sobre estrategia, producto, decisiones o cualquier desafío. ¿Qué necesitan?`
-                  setChatHistory([{ role: 'ai', text: greeting }])
-                }
+                if (n.id === 'chat') showGreeting()
                 setActive(n.id)
               }}>
                 <Icon name={n.icon} size={15} color={activeSection === n.id ? '#E8611A' : '#777'} />
@@ -664,7 +680,7 @@ export default function ProyectoPanel() {
                     <Icon name="send" size={16} color={chatInput.trim() && !chatLoading ? '#fff' : '#bbb'} />
                   </button>
                 </div>
-                <div style={{ marginTop: 8, fontSize: 11, color: '#888', textAlign: 'center' }}>Powered by Gemini 1.5 Flash · Contexto del proyecto incluido</div>
+                <div style={{ marginTop: 8, fontSize: 11, color: '#888', textAlign: 'center' }}>Powered by Gemini 2.0 Flash · Memoria del proyecto incluida</div>
               </div>
             </div>
           )}
