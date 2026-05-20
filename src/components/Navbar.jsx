@@ -59,7 +59,7 @@ export default function Navbar() {
 
   const getLinks = () => {
     if (!user) return [{ path: '/explorar', label: 'Explorar' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
-    if (profile?.type === 'visionario') return [{ path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/explorar', label: 'Talento' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
+    if (profile?.type === 'visionario') return [{ path: profile.idea_id ? `/panel/${profile.idea_id}` : '/dashboard', label: 'Mi Panel' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
     if (profile?.type === 'talento') return [{ path: '/dashboard', label: 'Invitaciones' }, { path: '/proyectos', label: 'Proyectos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
     if (profile?.type === 'inversor') return [{ path: '/proyectos', label: 'Proyectos' }, { path: '/dashboard', label: 'Favoritos' }, { path: '/precios', label: 'Precios' }, { path: '/faq', label: 'FAQ' }]
     return []

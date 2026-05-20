@@ -10,10 +10,14 @@ function Spinner() {
 export default function ProyectoDetalle() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { profile } = useAuth()
+  const { user, profile } = useAuth()
   const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [applied, setApplied] = useState(false)
+  const [applying, setApplying] = useState(false)
+  const [applyRole, setApplyRole] = useState('')
+  const [applyMsg, setApplyMsg] = useState('')
 
   useEffect(() => {
     supabase
@@ -23,6 +27,38 @@ export default function ProyectoDetalle() {
       .single()
       .then(({ data }) => { setProject(data); setLoading(false) })
   }, [id])
+
+  useEffect(() => {
+    if (!user?.id || !id) return
+    supabase.from('matches').select('id').eq('idea_id', id).eq('talent_id', user.id).maybeSingle()
+      .then(({ data }) => { if (data) setApplied(true) })
+  }, [user?.id, id])
+
+  const handleApply = async () => {
+    if (!user) { navigate('/registro'); return }
+    if (!applyRole) return
+    setApplying(true)
+    try {
+      await supabase.from('matches').insert({
+        idea_id: id,
+        talent_id: user.id,
+        role_suggested: applyRole,
+        score: 80,
+        ai_reasoning: applyMsg || 'Solicitud de colaboración enviada directamente.',
+        status: 'pending',
+      })
+      await supabase.from('notifications').insert({
+        user_id: project.users?.id,
+        type: 'match_received',
+        title: `${profile?.name || 'Alguien'} quiere unirse a "${project.title}"`,
+        body: `Solicita el rol de ${applyRole}.${applyMsg ? ' ' + applyMsg : ''}`,
+        link: `/panel/${id}`,
+        data: { idea_id: id },
+      }).catch(() => {})
+      setApplied(true)
+    } catch {}
+    setApplying(false)
+  }
 
   const handleShare = async () => {
     const url = window.location.href
@@ -133,15 +169,70 @@ export default function ProyectoDetalle() {
           </div>
         )}
 
-        {/* CTA for talent */}
-        {!isFormed && !profile && (
-          <div style={{ padding: 24, border: '1px solid #E8611A', borderRadius: 12, background: 'rgba(232,97,26,.04)', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, marginBottom: 8 }}>⚡</div>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Este proyecto busca talento</div>
-            <p style={{ fontSize: 14, color: '#666', marginBottom: 18, lineHeight: 1.6 }}>Registrate como talento y la IA evaluará si sos un buen match.</p>
-            <button className="btn-primary" onClick={() => navigate('/registro?rol=talento')} style={{ padding: '12px 28px', fontSize: 14 }}>Unirme →</button>
-          </div>
-        )}
+        {/* CTA — unirse al proyecto */}
+        {!isFormed && (() => {
+          const isOwner = user?.id && project.users?.id === user.id
+          if (isOwner) return null
+
+          // No logueado
+          if (!user) return (
+            <div style={{ padding: 24, border: '1px solid #E8611A', borderRadius: 12, background: 'rgba(232,97,26,.04)', textAlign: 'center' }}>
+              <div style={{ fontSize: 22, marginBottom: 8 }}>⚡</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Este proyecto busca colaboradores</div>
+              <p style={{ fontSize: 14, color: '#666', marginBottom: 18, lineHeight: 1.6 }}>Registrate y aplicá directamente a un rol disponible.</p>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button className="btn-primary" onClick={() => navigate('/registro?rol=talento')} style={{ padding: '12px 24px', fontSize: 14 }}>Soy Talento →</button>
+                <button className="btn-outline" onClick={() => navigate('/registro?rol=visionario')} style={{ padding: '12px 24px', fontSize: 14 }}>Soy Visionario →</button>
+              </div>
+            </div>
+          )
+
+          // Ya aplicó
+          if (applied) return (
+            <div style={{ padding: 24, border: '1px solid rgba(34,197,94,.3)', borderRadius: 12, background: 'rgba(34,197,94,.04)', textAlign: 'center' }}>
+              <div style={{ fontSize: 22, marginBottom: 8 }}>✅</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#22c55e', marginBottom: 6 }}>Solicitud enviada</div>
+              <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>El founder recibió tu solicitud. Si la acepta, aparecerás en el equipo.</p>
+            </div>
+          )
+
+          // Logueado y no aplicó aún
+          const openRoles = (project.idea_roles || []).filter(r => !r.filled).map(r => r.role_name)
+          return (
+            <div style={{ padding: 24, border: '1px solid #E8611A', borderRadius: 12, background: 'rgba(232,97,26,.04)' }}>
+              <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>⚡ Quiero unirme a este proyecto</div>
+              <p style={{ fontSize: 13, color: '#666', marginBottom: 18, lineHeight: 1.6 }}>Elegí el rol que querés ocupar y enviá tu solicitud al founder.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <select
+                  value={applyRole}
+                  onChange={e => setApplyRole(e.target.value)}
+                  style={{ padding: '11px 14px', background: '#fff', border: '1px solid #d0d0d0', borderRadius: 8, fontSize: 14, fontFamily: 'Inter, sans-serif', color: applyRole ? '#0a0a0a' : '#888', outline: 'none' }}
+                >
+                  <option value="">Seleccioná un rol...</option>
+                  {openRoles.length > 0
+                    ? openRoles.map(r => <option key={r} value={r}>{r}</option>)
+                    : <option value="Colaborador">Colaborador (rol a definir)</option>
+                  }
+                </select>
+                <textarea
+                  value={applyMsg}
+                  onChange={e => setApplyMsg(e.target.value)}
+                  placeholder="Contale brevemente por qué querés sumarte (opcional)"
+                  rows={3}
+                  style={{ padding: '11px 14px', background: '#fff', border: '1px solid #d0d0d0', borderRadius: 8, fontSize: 14, fontFamily: 'Inter, sans-serif', resize: 'vertical', outline: 'none' }}
+                />
+                <button
+                  className="btn-primary"
+                  onClick={handleApply}
+                  disabled={applying || !applyRole}
+                  style={{ padding: '13px', fontSize: 15, opacity: !applyRole ? 0.5 : 1 }}
+                >
+                  {applying ? 'Enviando...' : 'Enviar solicitud →'}
+                </button>
+              </div>
+            </div>
+          )
+        })()}
 
       </div>
     </div>
