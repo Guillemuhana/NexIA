@@ -79,9 +79,7 @@ export default function Onboarding() {
   const roleInfo = ROLES[profile.type]
 
   const nextStep = () => {
-    if (profile.type === 'visionario') navigate('/lanzar')
-    else if (profile.type === 'talento') navigate('/perfil')
-    else navigate('/proyectos')
+    navigate('/perfil-chat')
   }
 
   const mySteps = STEPS[profile.type] || STEPS.talento
@@ -111,7 +109,7 @@ export default function Onboarding() {
         </div>
 
         <button className="btn-primary" onClick={nextStep} style={{ width: '100%', padding: '16px', fontSize: 17, borderRadius: 10 }}>
-          {profile.type === 'visionario' ? '💡 Lanzar mi primera idea →' : profile.type === 'talento' ? '⚡ Completar mi perfil →' : '💼 Explorar proyectos →'}
+          🤖 Configurar mi perfil con IA →
         </button>
       </div>
     </div>
