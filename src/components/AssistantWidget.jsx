@@ -53,33 +53,40 @@ export default function AssistantWidget() {
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 300) }, [open])
 
   const loadContext = async () => {
-    const [{ data: skillsData }, { data: ideasData }, { data: histData }] = await Promise.all([
-      supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
-      supabase.from('ideas').select('title, status').eq('founder_id', user.id).order('created_at', { ascending: false }).limit(5),
-      supabase.from('assistant_messages').select('role, text').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
-    ])
+    try {
+      const [{ data: skillsData }, { data: ideasData }, { data: histData }] = await Promise.all([
+        supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
+        supabase.from('ideas').select('title, status').eq('founder_id', user.id).order('created_at', { ascending: false }).limit(5),
+        supabase.from('assistant_messages').select('role, text').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
+      ])
 
-    const skills = (skillsData || []).map(s => s.skills?.name).filter(Boolean)
-    setUserContext({
-      name: profile?.name,
-      type: profile?.type,
-      role: profile?.role,
-      bio: profile?.bio,
-      skills,
-      location: profile?.location,
-      available: profile?.available,
-      ideas: ideasData || [],
-    })
+      const skills = (skillsData || []).map(s => s.skills?.name).filter(Boolean)
+      setUserContext({
+        name: profile?.name,
+        type: profile?.type,
+        role: profile?.role,
+        bio: profile?.bio,
+        skills,
+        location: profile?.location,
+        available: profile?.available,
+        ideas: ideasData || [],
+      })
 
-    if (histData && histData.length > 0) {
-      setMessages(histData.reverse().map(m => ({ role: m.role, text: m.text })))
-    } else {
+      if (histData && histData.length > 0) {
+        setMessages(histData.reverse().map(m => ({ role: m.role, text: m.text })))
+      } else {
+        const fn = profile?.name?.split(' ')[0] || 'hola'
+        const greeting = `¡Hola ${fn}! Soy tu asistente en Equia 🤖\n\nPuedo ayudarte con:\n• Lanzar una nueva idea de startup\n• Actualizar tu perfil\n• Explorar proyectos y aplicar\n• Cualquier consulta sobre startups\n\n¿En qué empezamos?`
+        setMessages([{ role: 'ai', text: greeting }])
+        supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: greeting })
+      }
+    } catch {
       const fn = profile?.name?.split(' ')[0] || 'hola'
-      const greeting = `¡Hola ${fn}! Soy tu asistente en Equia 🤖\n\nPuedo ayudarte con:\n• Lanzar una nueva idea de startup\n• Actualizar tu perfil\n• Explorar proyectos y aplicar\n• Cualquier consulta sobre startups\n\n¿En qué empezamos?`
+      const greeting = `¡Hola ${fn}! Soy tu asistente en Equia. ¿En qué puedo ayudarte?`
       setMessages([{ role: 'ai', text: greeting }])
-      supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: greeting })
+    } finally {
+      setContextLoaded(true)
     }
-    setContextLoaded(true)
   }
 
   useEffect(() => { if (messages.length > 0) scrollToBottom() }, [messages])
@@ -96,27 +103,31 @@ export default function AssistantWidget() {
 
     supabase.from('assistant_messages').insert({ user_id: user.id, role: 'user', text })
 
-    const { data, error } = await supabase.functions.invoke('claude-proxy', {
-      body: { action: 'assistantChat', message: text, history: historySnapshot.slice(-14), userContext },
-    })
+    try {
+      const { data, error } = await supabase.functions.invoke('claude-proxy', {
+        body: { action: 'assistantChat', message: text, history: historySnapshot.slice(-14), userContext },
+      })
 
-    setLoading(false)
+      const rawText = data?.content?.[0]?.text || (error ? 'Hubo un error al conectarme. Intentá de nuevo.' : 'Sin respuesta del servidor.')
+      const match = rawText.match(ACTION_REGEX)
+      let displayText = rawText
+      let parsedAction = null
 
-    const rawText = data?.content?.[0]?.text || (error ? 'Hubo un error al conectarme. Intentá de nuevo.' : '')
-    const match = rawText.match(ACTION_REGEX)
-    let displayText = rawText
-    let parsedAction = null
+      if (match) {
+        try {
+          parsedAction = JSON.parse(match[1])
+          displayText = rawText.replace(ACTION_REGEX, '').trim()
+        } catch { /* ignore */ }
+      }
 
-    if (match) {
-      try {
-        parsedAction = JSON.parse(match[1])
-        displayText = rawText.replace(ACTION_REGEX, '').trim()
-      } catch { /* ignore */ }
+      setMessages(h => [...h, { role: 'ai', text: displayText }])
+      supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: displayText })
+      if (parsedAction) setPendingAction(parsedAction)
+    } catch {
+      setMessages(h => [...h, { role: 'ai', text: 'Error de conexión. Intentá de nuevo.' }])
+    } finally {
+      setLoading(false)
     }
-
-    setMessages(h => [...h, { role: 'ai', text: displayText }])
-    supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: displayText })
-    if (parsedAction) setPendingAction(parsedAction)
     scrollToBottom()
   }, [input, loading, userContext, messages, user])
 
