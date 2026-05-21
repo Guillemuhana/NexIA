@@ -39,6 +39,7 @@ export default function Onboarding() {
   const { profile, loading, user, setUserRole } = useAuth()
   const navigate = useNavigate()
   const [assigning, setAssigning] = useState(false)
+  const [roleError, setRoleError] = useState('')
 
   if (loading || assigning) return <Spinner />
 
@@ -50,12 +51,19 @@ export default function Onboarding() {
         <h1 style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6, color: '#fff' }}>¿Quién sos?</h1>
         <p style={{ color: '#555', fontSize: 15, marginBottom: 32, lineHeight: 1.6 }}>Elegí tu rol para personalizar tu experiencia.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {roleError && (
+            <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 8, color: '#ef4444', fontSize: 13, marginBottom: 8 }}>
+              {roleError}
+            </div>
+          )}
           {Object.values(ROLES).map(role => (
             <button key={role.id} onClick={async () => {
               if (!user?.id) return
+              setRoleError('')
               setAssigning(true)
-              await setUserRole(user.id, role.id).catch(() => {})
+              const { error } = await setUserRole(user.id, role.id).catch(e => ({ error: e }))
               setAssigning(false)
+              if (error) setRoleError('No se pudo guardar el rol. Verificá tu conexión e intentá de nuevo.')
             }} style={{
               display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 20px',
               background: '#0a0a0a', border: '1px solid #222', borderRadius: 10,
