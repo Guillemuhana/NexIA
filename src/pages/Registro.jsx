@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROLES } from '../lib/constants'
@@ -22,9 +22,11 @@ export default function Registro() {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signUp, signInWithGoogle } = useAuth()
+  const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  useEffect(() => { if (!authLoading && user) navigate('/dashboard', { replace: true }) }, [user, authLoading])
 
   const handleRegister = async () => {
     if (!form.name || !form.email || !form.password) { setError('Completá todos los campos'); return }

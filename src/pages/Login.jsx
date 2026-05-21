@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import LogoEquia from '../components/LogoEquia'
@@ -18,9 +18,11 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signInWithGoogle, user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  useEffect(() => { if (!authLoading && user) navigate('/dashboard', { replace: true }) }, [user, authLoading])
 
   const handleLogin = async () => {
     if (!form.email || !form.password) { setError('Completá todos los campos'); return }
