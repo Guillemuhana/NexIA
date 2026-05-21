@@ -188,8 +188,15 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.rpc('assign_user_role', { p_role_type: roleType })
     if (!error) {
       fetchingRef.current = false
-      await fetchProfile(userId)
+      // Timeout safety: si fetchProfile tarda más de 10s, continuar igual
+      await Promise.race([
+        fetchProfile(userId),
+        new Promise(resolve => setTimeout(resolve, 10000)),
+      ])
     }
+    // Garantizar que loading sea false cuando setUserRole termina,
+    // incluso si fetchProfile retornó early por fetchingRef concurrente
+    setLoading(false)
     return { error }
   }
 
