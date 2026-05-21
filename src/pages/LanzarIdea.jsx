@@ -109,6 +109,7 @@ export default function LanzarIdea() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [savedIdeaId, setSavedIdeaId] = useState(null)
+  const [saveError, setSaveError] = useState('')
   const [showPaywall, setShowPaywall] = useState(false)
   const [paymentLoading, setPaymentLoading] = useState(false)
 
@@ -247,9 +248,11 @@ export default function LanzarIdea() {
   }
 
   const handleSaveIdea = async () => {
-    if (!user || !aiData) return
+    if (!user) { navigate('/registro?rol=visionario'); return }
+    setSaveError('')
+    setSending(true)
     const { count } = await supabase.from('ideas').select('id', { count: 'exact', head: true }).eq('founder_id', user.id)
-    if ((count || 0) >= 1) { setShowPaywall(true); return }
+    if ((count || 0) >= 1) { setSending(false); setShowPaywall(true); return }
     await doSaveIdea()
   }
 
@@ -258,11 +261,12 @@ export default function LanzarIdea() {
     await new Promise(r => setTimeout(r, 1200))
     setPaymentLoading(false)
     setShowPaywall(false)
+    setSending(true)
     await doSaveIdea()
   }
 
   const doSaveIdea = async () => {
-    setSending(true)
+    setSaveError('')
     const roles = parseRoles(answers.roles || '')
     const isPublic = !answers.visibility?.includes('Privada')
     try {
@@ -273,42 +277,45 @@ export default function LanzarIdea() {
         category: answers.category || null,
         stage: answers.stage || 'Idea (solo concepto)',
         status: 'active',
-        ai_analysis: aiData,
+        ai_analysis: aiData || null,
         is_public: isPublic,
       }).select().single()
 
       if (ideaError) throw new Error(ideaError.message)
 
+      // Fire-and-forget — errors here never block the idea from saving
       const rolesNeeded = aiData?.rolesNeeded?.length ? aiData.rolesNeeded : roles
       if (rolesNeeded.length) {
-        await supabase.from('idea_roles').insert(
-          rolesNeeded.map(role => ({ idea_id: idea.id, role_name: role, filled: false }))
-        )
+        supabase.from('idea_roles')
+          .insert(rolesNeeded.map(r => ({ idea_id: idea.id, role_name: r, filled: false })))
+          .catch(() => {})
       }
 
       if (matched.length) {
-        const { error: matchErr } = await supabase.from('matches').insert(
-          matched.map(t => ({
+        supabase.from('matches')
+          .insert(matched.map(t => ({
             idea_id: idea.id, talent_id: t.id, role_suggested: t.role,
-            score: t.score, ai_reasoning: aiData?.whyThisTeam, status: 'invited',
-          }))
-        )
-        if (!matchErr) {
-          supabase.from('notifications').insert(
-            matched.map(t => ({
-              user_id: t.id, type: 'match_received',
-              title: `Fuiste elegido para "${answers.title}"`,
-              body: `La IA te seleccionó como ${t.role} para este proyecto.`,
-              link: '/dashboard', data: { idea_id: idea.id },
-            }))
-          ).catch(() => {})
-        }
+            score: t.score, ai_reasoning: aiData?.whyThisTeam || '', status: 'invited',
+          })))
+          .then(({ error }) => {
+            if (!error) {
+              supabase.from('notifications').insert(
+                matched.map(t => ({
+                  user_id: t.id, type: 'match_received',
+                  title: `Fuiste elegido para "${answers.title}"`,
+                  body: `La IA te seleccionó como ${t.role} para este proyecto.`,
+                  link: '/dashboard', data: { idea_id: idea.id },
+                }))
+              ).catch(() => {})
+            }
+          })
+          .catch(() => {})
       }
 
       setSavedIdeaId(idea.id)
       setSent(true)
     } catch (err) {
-      alert(`Error al guardar: ${err.message || 'Intentá de nuevo.'}`)
+      setSaveError(err.message || 'No se pudo guardar. Verificá tu conexión e intentá de nuevo.')
     } finally {
       setSending(false)
     }
@@ -486,11 +493,14 @@ export default function LanzarIdea() {
             <div style={{ padding: '28px 24px', border: '1px solid #d0d0d0', borderRadius: 12, textAlign: 'center' }}>
               {sent ? (
                 <>
-                  <div style={{ fontSize: 36, marginBottom: 12 }}>🎉</div>
-                  <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 8 }}>¡Invitaciones enviadas!</h3>
-                  <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>El proyecto fue guardado y los talentos recibieron su invitación.</p>
+                  <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 8 }}>Proyecto guardado</h3>
+                  <p style={{ fontSize: 14, color: '#666', marginBottom: 24, lineHeight: 1.6 }}>
+                    {matched.length > 0
+                      ? 'Tu proyecto fue guardado y los talentos recibieron su invitación.'
+                      : 'Tu proyecto fue guardado. Cuando haya talentos disponibles, se enviarán invitaciones automáticas.'}
+                  </p>
                   <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {savedIdeaId && <button className="btn-primary" onClick={() => navigate(`/panel/${savedIdeaId}`)} style={{ padding: '14px 32px', fontSize: 15 }}>⚡ Abrir Panel IA →</button>}
+                    {savedIdeaId && <button className="btn-primary" onClick={() => navigate(`/panel/${savedIdeaId}`)} style={{ padding: '14px 32px', fontSize: 15 }}>Abrir Panel IA →</button>}
                     <button className="btn-outline" onClick={() => navigate('/dashboard')} style={{ padding: '14px 22px', fontSize: 15 }}>Ver mi dashboard</button>
                   </div>
                 </>
@@ -502,9 +512,14 @@ export default function LanzarIdea() {
                       ? 'Se guardará tu proyecto y se enviarán invitaciones personalizadas a cada talento.'
                       : 'Se guardará tu proyecto. Cuando haya talentos disponibles, podrás invitarlos.'}
                   </p>
+                  {saveError && (
+                    <div style={{ padding: '11px 14px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 8, color: '#ef4444', fontSize: 13, marginBottom: 16, textAlign: 'left' }}>
+                      {saveError}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                     <button className="btn-primary" onClick={handleSaveIdea} disabled={sending} style={{ padding: '14px 32px', fontSize: 15, opacity: sending ? 0.7 : 1 }}>
-                      {sending ? 'Guardando...' : matched.length > 0 ? '📨 Guardar y enviar invitaciones' : '💾 Guardar proyecto'}
+                      {sending ? 'Guardando...' : matched.length > 0 ? 'Guardar y enviar invitaciones' : 'Guardar proyecto'}
                     </button>
                     <button className="btn-outline" onClick={() => { setStage('chat'); setAiData(null); setMatched([]); setSent(false); setAwaitingConfirm(false); setChatStepIdx(0); setAnswers({}); setMessages([]); setTimeout(() => { setIsTyping(true); setTimeout(() => { setIsTyping(false); setMessages([{ role: 'bot', text: botMsg('title', {}) }]) }, 700) }, 100) }} style={{ padding: '14px 22px', fontSize: 15 }}>✏️ Editar idea</button>
                   </div>
