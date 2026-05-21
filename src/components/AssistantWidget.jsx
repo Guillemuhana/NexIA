@@ -75,6 +75,11 @@ export default function AssistantWidget() {
     loadContext()
   }, [open, user, contextLoaded])
 
+  // Reset loading state when widget closes (handles hung requests)
+  useEffect(() => {
+    if (!open) setLoading(false)
+  }, [open])
+
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 300) }, [open])
 
   const loadContext = async () => {
@@ -107,6 +112,7 @@ export default function AssistantWidget() {
       }
     } catch {
       const fn = profile?.name?.split(' ')[0] || ''
+      setUserContext({ name: profile?.name, type: profile?.type, role: profile?.role, skills: [], ideas: [] })
       setMessages([{ role: 'ai', text: `Hola${fn ? ` ${fn}` : ''}! ¿En qué puedo ayudarte?` }])
     } finally {
       setContextLoaded(true)
@@ -128,14 +134,19 @@ export default function AssistantWidget() {
     supabase.from('assistant_messages').insert({ user_id: user.id, role: 'user', text })
 
     try {
-      const { data, error } = await supabase.functions.invoke('claude-proxy', {
+      const invokePromise = supabase.functions.invoke('claude-proxy', {
         body: { action: 'assistantChat', message: text, history: historySnapshot.slice(-14), userContext },
       })
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 25000)
+      )
+
+      const { data, error } = await Promise.race([invokePromise, timeoutPromise])
 
       const rawText = data?.content?.[0]?.text || (error ? null : 'Sin respuesta.')
 
       if (!rawText) {
-        setMessages(h => [...h, { role: 'ai', text: 'El servicio de IA no está disponible en este momento. Podés usar los accesos directos de abajo para navegar.' }])
+        setMessages(h => [...h, { role: 'ai', text: 'El servicio de IA no está disponible. Podés usar los accesos directos de abajo para navegar.' }])
         return
       }
 
