@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [profileFetched, setProfileFetched] = useState(false)
   const fetchingRef = useRef(false)
 
   const fetchProfile = async (userId) => {
@@ -111,6 +112,7 @@ export function AuthProvider({ children }) {
     finally {
       fetchingRef.current = false
       setLoading(false)
+      setProfileFetched(true)
     }
   }
 
@@ -147,6 +149,7 @@ export function AuthProvider({ children }) {
         }
       } else {
         setProfile(null)
+        setProfileFetched(true)
         setLoading(false)
       }
     })
@@ -232,7 +235,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signInWithGoogle, signOut, updateProfile, fetchProfile, setUserRole }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileFetched, signUp, signIn, signInWithGoogle, signOut, updateProfile, fetchProfile, setUserRole }}>
       {children}
     </AuthContext.Provider>
   )

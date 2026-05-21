@@ -77,7 +77,7 @@ function TeamPanelCard({ title, ideaId, members = [], category }) {
 }
 
 export default function Dashboard() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, profileFetched } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState([])
   const [teamPanels, setTeamPanels] = useState([])
@@ -88,7 +88,8 @@ export default function Dashboard() {
   const [paywallLoading, setPaywallLoading] = useState(false)
 
   useEffect(() => { if (!loading && !user) navigate('/login') }, [user, loading])
-  useEffect(() => { if (!loading && user && !profile?.type) navigate('/onboarding') }, [loading, user, profile])
+  // Only redirect to onboarding once profileFetched=true (profile actually loaded from DB, not just auth timeout)
+  useEffect(() => { if (profileFetched && user && !profile?.type) navigate('/onboarding') }, [profileFetched, user, profile])
 
   useEffect(() => {
     if (!user?.id || !profile?.type) return
