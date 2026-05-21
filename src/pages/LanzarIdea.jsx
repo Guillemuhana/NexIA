@@ -45,19 +45,29 @@ function parseBold(text) {
   )
 }
 
+function BotAvatar() {
+  return (
+    <div style={{
+      width: 28, height: 28, borderRadius: 7, background: '#111',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      flexShrink: 0, marginRight: 10, marginTop: 2,
+      fontSize: 10, fontWeight: 800, color: '#E8611A', letterSpacing: '-0.3px',
+    }}>EQ</div>
+  )
+}
+
 function ChatBubble({ msg }) {
   const isUser = msg.role === 'user'
   return (
-    <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 14 }}>
-      {!isUser && (
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(232,97,26,.12)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: 10, marginTop: 2, fontSize: 14 }}>🤖</div>
-      )}
+    <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
+      {!isUser && <BotAvatar />}
       <div style={{
         maxWidth: '78%', padding: '11px 15px',
         borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-        background: isUser ? '#E8611A' : '#f0f0f0',
-        border: isUser ? 'none' : '1px solid #e8e8e8',
-        fontSize: 14, color: isUser ? '#fff' : '#333', lineHeight: 1.65, whiteSpace: 'pre-wrap',
+        background: isUser ? '#E8611A' : '#fff',
+        border: isUser ? 'none' : '1px solid #ebebeb',
+        fontSize: 14, color: isUser ? '#fff' : '#111', lineHeight: 1.75, whiteSpace: 'pre-wrap',
+        boxShadow: '0 1px 4px rgba(0,0,0,.04)',
       }}>
         {parseBold(msg.text)}
       </div>
@@ -67,11 +77,11 @@ function ChatBubble({ msg }) {
 
 function TypingDots() {
   return (
-    <div style={{ display: 'flex', marginBottom: 14 }}>
-      <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(232,97,26,.12)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: 10, fontSize: 14 }}>🤖</div>
-      <div style={{ display: 'inline-flex', gap: 5, alignItems: 'center', padding: '11px 15px', background: '#f0f0f0', border: '1px solid #e8e8e8', borderRadius: '16px 16px 16px 4px' }}>
+    <div style={{ display: 'flex', marginBottom: 12 }}>
+      <BotAvatar />
+      <div style={{ display: 'inline-flex', gap: 5, alignItems: 'center', padding: '11px 15px', background: '#fff', border: '1px solid #ebebeb', borderRadius: '16px 16px 16px 4px' }}>
         {[0, 1, 2].map(i => (
-          <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#E8611A', animation: `lanzar-bounce 1.2s ${i * 0.2}s ease-in-out infinite` }} />
+          <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#c8c8c8', animation: `lanzar-bounce 1.2s ${i * 0.2}s ease-in-out infinite` }} />
         ))}
       </div>
     </div>
@@ -330,7 +340,7 @@ export default function LanzarIdea() {
           <div style={{ border: '1px solid #e8e8e8', borderRadius: 14, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 16px rgba(0,0,0,.05)' }}>
 
             {/* Messages */}
-            <div style={{ padding: '20px 20px 8px', minHeight: 240, maxHeight: 420, overflowY: 'auto' }}>
+            <div style={{ padding: '20px 20px 8px', minHeight: 240, maxHeight: 400, overflowY: 'auto', background: '#fafafa' }}>
               {messages.map((msg, i) => <ChatBubble key={i} msg={msg} />)}
               {isTyping && <TypingDots />}
               <div ref={endRef} />
@@ -338,18 +348,18 @@ export default function LanzarIdea() {
 
             {/* Option chips */}
             {!isTyping && hasOptions && !awaitingConfirm && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '4px 20px 16px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '4px 20px 16px', background: '#fff', borderTop: '1px solid #ebebeb' }}>
                 {STEP_OPTIONS[currentStepKey].map(opt => (
                   <button
                     key={opt}
                     onClick={() => advance(opt)}
                     style={{
-                      padding: '8px 16px', borderRadius: 99, border: '1px solid #d0d0d0',
-                      background: '#f8f9fa', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                      padding: '9px 18px', borderRadius: 99, border: '1.5px solid #e0e0e0',
+                      background: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer',
                       fontFamily: 'Inter,sans-serif', transition: 'all .15s', color: '#333',
                     }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#E8611A'; e.currentTarget.style.color = '#E8611A' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#333' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e0e0e0'; e.currentTarget.style.color = '#333' }}
                   >
                     {opt}
                   </button>
@@ -359,12 +369,14 @@ export default function LanzarIdea() {
 
             {/* Confirm button */}
             {!isTyping && awaitingConfirm && (
-              <div style={{ padding: '8px 20px 20px' }}>
+              <div style={{ padding: '8px 20px 20px', background: '#fff', borderTop: '1px solid #ebebeb' }}>
                 <button
                   onClick={handleLaunch}
-                  style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 700, background: '#E8611A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'opacity .15s' }}
+                  style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 700, background: '#E8611A', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Inter,sans-serif', letterSpacing: '0.2px' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '.88'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                 >
-                  🤖 Activar IA — Buscar mi equipo →
+                  Buscar mi equipo con IA →
                 </button>
                 {!user && <p style={{ textAlign: 'center', fontSize: 12, color: '#888', marginTop: 8 }}>Te pediremos que te registres antes de ver los resultados.</p>}
               </div>
@@ -372,7 +384,7 @@ export default function LanzarIdea() {
 
             {/* Text input */}
             {!isTyping && !hasOptions && !awaitingConfirm && messages.length > 0 && (
-              <div style={{ borderTop: '1px solid #f0f0f0', padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+              <div style={{ borderTop: '1px solid #ebebeb', padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-end', background: '#fff' }}>
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -380,24 +392,31 @@ export default function LanzarIdea() {
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                   placeholder={currentStepKey === 'description' ? 'Describí tu idea...' : currentStepKey === 'roles' ? 'Ej: dev backend, diseñador UX, marketing...' : 'Escribí tu respuesta...'}
                   rows={currentStepKey === 'description' ? 3 : 1}
-                  style={{ flex: 1, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 8, color: '#0a0a0a', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '10px 12px', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color .15s' }}
-                  onFocus={e => e.target.style.borderColor = 'rgba(232,97,26,.4)'}
+                  style={{ flex: 1, background: '#f8f9fa', border: '1.5px solid #e8e8e8', borderRadius: 8, color: '#111', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '10px 12px', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color .15s' }}
+                  onFocus={e => e.target.style.borderColor = '#E8611A'}
                   onBlur={e => e.target.style.borderColor = '#e8e8e8'}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim()}
-                  style={{ width: 38, height: 38, borderRadius: 8, flexShrink: 0, background: input.trim() ? '#E8611A' : '#f0f0f0', border: 'none', cursor: input.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', color: input.trim() ? '#fff' : '#bbb', fontSize: 16, transition: 'all .15s' }}
-                >→</button>
+                  style={{ width: 40, height: 40, borderRadius: 9, flexShrink: 0, background: input.trim() ? '#E8611A' : '#f0f0f0', border: 'none', cursor: input.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s' }}
+                >
+                  <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke={input.trim() ? '#fff' : '#bbb'} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 2L11 13M22 2L15 22l-4-9-9-4z" />
+                  </svg>
+                </button>
               </div>
             )}
           </div>
 
-          {/* Progress dots */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 20 }}>
-            {CHAT_STEPS.filter(s => s !== 'confirm').map((_, i) => (
-              <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i < chatStepIdx ? '#E8611A' : i === chatStepIdx ? '#E8611A' : '#e0e0e0', opacity: i < chatStepIdx ? 1 : i === chatStepIdx ? 1 : 0.4, transition: 'all .3s' }} />
-            ))}
+          {/* Progress bar */}
+          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ flex: 1, height: 3, background: '#1a1a1a', borderRadius: 99, overflow: 'hidden' }}>
+              <div style={{ height: '100%', background: '#E8611A', borderRadius: 99, transition: 'width .4s ease', width: `${Math.round((Math.min(chatStepIdx, CHAT_STEPS.length - 2) / (CHAT_STEPS.length - 2)) * 100)}%` }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', minWidth: 30, textAlign: 'right' }}>
+              {Math.round((Math.min(chatStepIdx, CHAT_STEPS.length - 2) / (CHAT_STEPS.length - 2)) * 100)}%
+            </span>
           </div>
         </div>
       )}
