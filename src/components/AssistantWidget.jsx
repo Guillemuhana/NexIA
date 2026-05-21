@@ -224,7 +224,6 @@ export default function AssistantWidget() {
   }
 
   if (!user || !profile) return null
-  const isMobile = window.innerWidth < 540
   const quickActions = QUICK_ACTIONS[profile?.type] || QUICK_ACTIONS.default
 
   return (
@@ -235,20 +234,33 @@ export default function AssistantWidget() {
         @keyframes assist-spin { to{transform:rotate(360deg)} }
         .assist-input:focus { outline:none;border-color:rgba(99,102,241,.5) !important; }
         .assist-chip:hover { background:rgba(99,102,241,.1) !important; border-color:#6366f1 !important; color:#6366f1 !important; }
+        .assist-panel {
+          position: fixed !important;
+          bottom: 80px !important;
+          right: 12px !important;
+          width: calc(100vw - 24px) !important;
+          max-width: 420px !important;
+          height: min(600px, 85vh) !important;
+        }
+        @media (min-width: 500px) {
+          .assist-panel {
+            right: 84px !important;
+            width: 420px !important;
+          }
+        }
       `}</style>
 
-      <div style={{ position: 'fixed', bottom: 20, right: 84, zIndex: 9998, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+      <div style={{ position: 'fixed', bottom: 20, right: 'clamp(72px, 84px, 84px)', zIndex: 9998, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
 
         {open && (
-          <div style={{
-            width: isMobile ? 'calc(100vw - 24px)' : 420,
-            height: isMobile ? '80vh' : 600,
+          <div className="assist-panel" style={{
             background: '#fff', borderRadius: 18,
             boxShadow: '0 12px 50px rgba(0,0,0,.18)',
             border: '1px solid #e0e0e0',
             display: 'flex', flexDirection: 'column', overflow: 'hidden',
             marginBottom: 12,
             animation: 'assist-up .22s ease',
+            zIndex: 9998,
           }}>
 
             {/* Header */}
