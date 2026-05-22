@@ -86,8 +86,8 @@ function ParticleCanvas() {
           ctx.beginPath()
           ctx.moveTo(a.x, a.y)
           ctx.lineTo(b.x, b.y)
-          ctx.strokeStyle = `rgba(232,97,26,${prox * 0.16 + act * 0.30})`
-          ctx.lineWidth = 0.4 + prox * 0.4 + act * 1.4
+          ctx.strokeStyle = `rgba(232,97,26,${prox * 0.40 + act * 0.55})`
+          ctx.lineWidth = 0.6 + prox * 0.7 + act * 1.8
           ctx.stroke()
         }
       }
@@ -136,8 +136,8 @@ function ParticleCanvas() {
           // soma grande con dendrita brillante al activarse
           const outerR = 20 + act * 14
           const go = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, outerR)
-          go.addColorStop(0, `rgba(232,97,26,${(0.22 + act * 0.55) * pulse})`)
-          go.addColorStop(0.55, `rgba(200,65,10,${(0.07 + act * 0.18) * pulse})`)
+          go.addColorStop(0, `rgba(232,97,26,${(0.50 + act * 0.50) * pulse})`)
+          go.addColorStop(0.55, `rgba(200,65,10,${(0.18 + act * 0.30) * pulse})`)
           go.addColorStop(1, 'rgba(232,97,26,0)')
           ctx.beginPath(); ctx.arc(p.x, p.y, outerR, 0, Math.PI * 2)
           ctx.fillStyle = go; ctx.fill()
@@ -146,7 +146,7 @@ function ParticleCanvas() {
           if (act > 0.35) {
             const burstR = 38 * act
             const gb = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, burstR)
-            gb.addColorStop(0, `rgba(255,210,70,${act * 0.55})`)
+            gb.addColorStop(0, `rgba(255,210,70,${act * 0.80})`)
             gb.addColorStop(1, 'rgba(255,120,20,0)')
             ctx.beginPath(); ctx.arc(p.x, p.y, burstR, 0, Math.PI * 2)
             ctx.fillStyle = gb; ctx.fill()
@@ -155,20 +155,20 @@ function ParticleCanvas() {
           // cuerpo del soma
           ctx.beginPath()
           ctx.arc(p.x, p.y, p.r * 2.2 + act * 2.5, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(255,${125 + act * 85},${35 + act * 65},${0.72 + act * 0.28})`
+          ctx.fillStyle = `rgba(255,${125 + act * 85},${35 + act * 65},${0.92 + act * 0.08})`
           ctx.fill()
         } else {
           // neurona regular
           if (act > 0.08) {
             const gn = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 9 * act + 3)
-            gn.addColorStop(0, `rgba(255,155,55,${act * 0.48})`)
+            gn.addColorStop(0, `rgba(255,155,55,${act * 0.72})`)
             gn.addColorStop(1, 'rgba(232,97,26,0)')
             ctx.beginPath(); ctx.arc(p.x, p.y, 9 * act + 3, 0, Math.PI * 2)
             ctx.fillStyle = gn; ctx.fill()
           }
           ctx.beginPath()
           ctx.arc(p.x, p.y, p.r + act * 1.8, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(255,255,255,${0.32 + act * 0.58})`
+          ctx.fillStyle = `rgba(255,255,255,${0.65 + act * 0.35})`
           ctx.fill()
         }
 
