@@ -237,8 +237,19 @@ export function AuthProvider({ children }) {
 
     let error
     try {
-      const result = await supabase.from('users').update(userUpdates).eq('id', user.id)
+      const dbUpdatePromise = new Promise(resolve => {
+        supabase.from('users').update(userUpdates).eq('id', user.id).select()
+          .then(r => resolve(r))
+          .catch(e => resolve({ data: null, error: e }))
+      })
+      const timeoutPromise = new Promise(resolve =>
+        setTimeout(() => resolve({ data: null, error: { message: 'Tiempo de espera agotado. Revisá tu conexión.' } }), 10000)
+      )
+      const result = await Promise.race([dbUpdatePromise, timeoutPromise])
       error = result.error
+      if (!error && (!result.data || result.data.length === 0)) {
+        error = { message: 'No se actualizó ningún dato. Verificá tu sesión.' }
+      }
     } catch (e) {
       return { data: null, error: { message: e?.message || 'Error de conexión' } }
     }
