@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
 const ACTION_REGEX = /\[EJECUTAR:([\s\S]*?)\]/
+const MEMORY_TRIGGER_COUNT = 6 // save memory every N new messages
 
 const QUICK_ACTIONS = {
   talento: [
@@ -62,11 +63,18 @@ export default function AssistantWidget() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [userContext, setUserContext] = useState(null)
+  const [userMemory, setUserMemory] = useState(null)
   const [contextLoaded, setContextLoaded] = useState(false)
   const [pendingAction, setPendingAction] = useState(null)
   const [executing, setExecuting] = useState(false)
+  const [savingMemory, setSavingMemory] = useState(false)
   const endRef = useRef(null)
   const inputRef = useRef(null)
+  const newMsgCountRef = useRef(0)
+  const messagesRef = useRef([])
+
+  // Keep ref in sync so saveMemory closure always has latest messages
+  useEffect(() => { messagesRef.current = messages }, [messages])
 
   const scrollToBottom = () => setTimeout(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
 
@@ -75,9 +83,14 @@ export default function AssistantWidget() {
     loadContext()
   }, [open, user, contextLoaded])
 
-  // Reset loading state when widget closes (handles hung requests)
   useEffect(() => {
-    if (!open) setLoading(false)
+    if (!open) {
+      setLoading(false)
+      // Save memory when closing if there are new messages
+      if (newMsgCountRef.current >= 2 && user && userContext) {
+        triggerMemorySave()
+      }
+    }
   }, [open])
 
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 300) }, [open])
@@ -85,16 +98,25 @@ export default function AssistantWidget() {
   const loadContext = async () => {
     try {
       const ctxTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('ctx-timeout')), 8000))
-      const [{ data: skillsData }, { data: ideasData }, { data: histData }] = await Promise.race([
+      const [
+        { data: skillsData },
+        { data: ideasData },
+        { data: histData },
+        { data: memoryData },
+      ] = await Promise.race([
         Promise.all([
           supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
           supabase.from('ideas').select('title, status').eq('founder_id', user.id).order('created_at', { ascending: false }).limit(5),
           supabase.from('assistant_messages').select('role, text').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
+          supabase.from('user_memory').select('summary, goals, style, key_facts, conversation_count').eq('user_id', user.id).maybeSingle(),
         ]),
         ctxTimeout,
       ])
 
       const skills = (skillsData || []).map(s => s.skills?.name).filter(Boolean)
+      const memory = memoryData || { summary: '', goals: [], style: {}, key_facts: [], conversation_count: 0 }
+
+      setUserMemory(memory)
       setUserContext({
         name: profile?.name,
         type: profile?.type,
@@ -104,19 +126,25 @@ export default function AssistantWidget() {
         location: profile?.location,
         available: profile?.available,
         ideas: ideasData || [],
+        memory,
       })
 
       if (histData && histData.length > 0) {
         setMessages(histData.reverse().map(m => ({ role: m.role, text: m.text })))
       } else {
         const fn = profile?.name?.split(' ')[0] || ''
-        const greeting = `Hola${fn ? ` ${fn}` : ''}! Soy tu asistente en Equia.\n\nPuedo ayudarte a lanzar ideas, configurar tu perfil, explorar proyectos o responder cualquier consulta sobre el ecosistema.\n\n¿En qué empezamos?`
+        const hasMemory = memory?.summary?.length > 10
+        const greeting = hasMemory
+          ? `Hola${fn ? ` ${fn}` : ''}! Estoy de vuelta.\n\n${memory.goals?.length ? `Sé que estás trabajando en: ${memory.goals.slice(0, 2).join(' y ')}. ` : ''}¿En qué te ayudo hoy?`
+          : `Hola${fn ? ` ${fn}` : ''}! Soy tu asistente en Equia.\n\nPuedo ayudarte a lanzar ideas, configurar tu perfil, explorar proyectos o responder cualquier consulta sobre el ecosistema.\n\n¿En qué empezamos?`
         setMessages([{ role: 'ai', text: greeting }])
         supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: greeting })
+          .then(() => {}).catch(() => {})
       }
     } catch {
       const fn = profile?.name?.split(' ')[0] || ''
-      setUserContext({ name: profile?.name, type: profile?.type, role: profile?.role, skills: [], ideas: [] })
+      setUserMemory({ summary: '', goals: [], style: {}, key_facts: [] })
+      setUserContext({ name: profile?.name, type: profile?.type, role: profile?.role, skills: [], ideas: [], memory: null })
       setMessages([{ role: 'ai', text: `Hola${fn ? ` ${fn}` : ''}! ¿En qué puedo ayudarte?` }])
     } finally {
       setContextLoaded(true)
@@ -124,6 +152,37 @@ export default function AssistantWidget() {
   }
 
   useEffect(() => { if (messages.length > 0) scrollToBottom() }, [messages])
+
+  const triggerMemorySave = useCallback(async () => {
+    if (!user || !userContext || savingMemory) return
+    const currentMessages = messagesRef.current
+    if (currentMessages.length < 4) return
+    newMsgCountRef.current = 0
+    setSavingMemory(true)
+    try {
+      const { data } = await supabase.functions.invoke('claude-proxy', {
+        body: {
+          action: 'updateMemory',
+          messages: currentMessages.slice(-20),
+          currentMemory: userMemory || {},
+          userContext: { name: userContext.name, type: userContext.type, role: userContext.role },
+        },
+      })
+      const raw = data?.content?.[0]?.text || ''
+      const parsed = JSON.parse(raw.replace(/```json\n?|```/g, '').trim())
+      if (parsed?.summary) {
+        const newMemory = { ...parsed, conversation_count: (userMemory?.conversation_count || 0) + 1 }
+        await supabase.from('user_memory').upsert({
+          user_id: user.id,
+          ...newMemory,
+          last_updated: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+        setUserMemory(newMemory)
+        setUserContext(ctx => ctx ? { ...ctx, memory: newMemory } : ctx)
+      }
+    } catch { /* fire-and-forget */ }
+    finally { setSavingMemory(false) }
+  }, [user, userContext, userMemory, savingMemory])
 
   const sendMessage = useCallback(async (text = input.trim()) => {
     if (!text || loading || !userContext) return
@@ -136,6 +195,7 @@ export default function AssistantWidget() {
     scrollToBottom()
 
     supabase.from('assistant_messages').insert({ user_id: user.id, role: 'user', text })
+      .then(() => {}).catch(() => {})
 
     try {
       const invokePromise = supabase.functions.invoke('claude-proxy', {
@@ -167,14 +227,21 @@ export default function AssistantWidget() {
 
       setMessages(h => [...h, { role: 'ai', text: displayText }])
       supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: displayText })
+        .then(() => {}).catch(() => {})
       if (parsedAction) setPendingAction(parsedAction)
+
+      // Track new messages; trigger memory save every N exchanges
+      newMsgCountRef.current += 2
+      if (newMsgCountRef.current >= MEMORY_TRIGGER_COUNT) {
+        triggerMemorySave()
+      }
     } catch {
       setMessages(h => [...h, { role: 'ai', text: 'No pude conectarme. Usá los accesos directos de abajo o intentá de nuevo.' }])
     } finally {
       setLoading(false)
       scrollToBottom()
     }
-  }, [input, loading, userContext, messages, user])
+  }, [input, loading, userContext, messages, user, triggerMemorySave])
 
   const executeAction = async () => {
     if (!pendingAction || executing) return
@@ -198,14 +265,14 @@ export default function AssistantWidget() {
         if (error) throw error
 
         if (idea && d.roles?.length) {
-          await supabase.from('idea_roles').insert(
-            d.roles.map(r => ({ idea_id: idea.id, role_name: r }))
-          )
+          supabase.from('idea_roles').insert(d.roles.map(r => ({ idea_id: idea.id, role_name: r })))
+            .then(() => {}).catch(() => {})
         }
 
         const msg = `Tu idea "${d.title}" fue creada. Podés ir al dashboard para buscar el equipo.`
         setMessages(h => [...h, { role: 'ai', text: msg }])
         supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: msg })
+          .then(() => {}).catch(() => {})
         setUserContext(ctx => ({ ...ctx, ideas: [{ title: d.title, status: 'open' }, ...(ctx?.ideas || [])] }))
 
       } else if (action.type === 'update_profile') {
@@ -213,6 +280,7 @@ export default function AssistantWidget() {
         const msg = 'Perfil actualizado. Los cambios ya están guardados.'
         setMessages(h => [...h, { role: 'ai', text: msg }])
         supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: msg })
+          .then(() => {}).catch(() => {})
         setUserContext(ctx => ({ ...ctx, ...action.data }))
 
       } else if (action.type === 'navigate') {
@@ -231,6 +299,7 @@ export default function AssistantWidget() {
     setPendingAction(null)
     setMessages(h => [...h, { role: 'user', text: 'Cancelar' }])
     supabase.from('assistant_messages').insert({ user_id: user.id, role: 'user', text: 'Cancelar' })
+      .then(() => {}).catch(() => {})
   }
 
   const handleQuickAction = (to) => {
@@ -240,6 +309,7 @@ export default function AssistantWidget() {
 
   if (!user || !profile) return null
   const quickActions = QUICK_ACTIONS[profile?.type] || QUICK_ACTIONS.default
+  const hasMemory = userMemory?.summary?.length > 10
 
   return (
     <>
@@ -247,6 +317,7 @@ export default function AssistantWidget() {
         @keyframes assist-up { from{opacity:0;transform:translateY(16px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
         @keyframes assist-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
         @keyframes assist-spin { to{transform:rotate(360deg)} }
+        @keyframes assist-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
         .assist-input:focus { outline:none;border-color:rgba(99,102,241,.5) !important; }
         .assist-chip:hover { background:rgba(99,102,241,.1) !important; border-color:#6366f1 !important; color:#6366f1 !important; }
         .assist-panel {
@@ -286,7 +357,14 @@ export default function AssistantWidget() {
                 </div>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>Asistente Equia</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.65)', marginTop: 1 }}>IA · con memoria de contexto</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginTop: 1, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    {savingMemory
+                      ? <><span style={{ animation: 'assist-pulse 1.2s ease-in-out infinite' }}>●</span> Memorizando...</>
+                      : hasMemory
+                        ? <><span style={{ color: '#a5f3a5' }}>●</span> Equia te conoce</>
+                        : 'IA · con memoria persistente'
+                    }
+                  </div>
                 </div>
               </div>
               <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.75)', fontSize: 24, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
@@ -396,11 +474,16 @@ export default function AssistantWidget() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 4px 20px rgba(99,102,241,.4)',
             transition: 'transform .2s, box-shadow .2s, background .2s',
+            position: 'relative',
           }}
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(99,102,241,.6)' }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,.4)' }}
         >
           <BotIcon />
+          {/* Memory indicator dot */}
+          {hasMemory && !open && (
+            <div style={{ position: 'absolute', top: 4, right: 4, width: 10, height: 10, borderRadius: '50%', background: '#22c55e', border: '2px solid #fff' }} />
+          )}
         </button>
       </div>
     </>
