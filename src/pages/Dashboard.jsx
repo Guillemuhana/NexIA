@@ -6,6 +6,103 @@ import ProjectCard from '../components/ProjectCard'
 import PaywallModal from '../components/PaywallModal'
 import { getLevel, CREDIT_LEVELS, CREDIT_ACTIONS } from '../lib/constants'
 
+// ── CreditBlock ───────────────────────────────────────────────────────────────
+function CreditBlock({ profile, hasIdea }) {
+  const credits = profile.credits ?? 50
+  const level = getLevel(credits)
+  const levelIdx = CREDIT_LEVELS.findIndex(l => l.name === level.name)
+  const nextLevel = CREDIT_LEVELS[levelIdx + 1] || null
+  const progressPct = nextLevel
+    ? Math.min(100, Math.round(((credits - level.min) / (nextLevel.min - level.min)) * 100))
+    : 100
+  const pendingActions = CREDIT_ACTIONS.filter(a => !a.check(profile, { hasIdea }))
+
+  return (
+    <div style={{ marginBottom: 36, padding: '22px 24px', border: '1px solid rgba(232,97,26,.18)', borderRadius: 14, background: 'linear-gradient(135deg,rgba(232,97,26,.04) 0%,#fff 100%)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 4 }}>
+            Nivel {level.name}
+            {nextLevel && <span style={{ color: '#bbb', fontWeight: 400, marginLeft: 8 }}>→ {nextLevel.name} en {nextLevel.min - credits} pts</span>}
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-1px', color: '#0a0a0a' }}>
+            ⚡ {credits} <span style={{ fontSize: 14, fontWeight: 500, color: '#888' }}>créditos</span>
+          </div>
+        </div>
+        {pendingActions.length === 0 && (
+          <div style={{ padding: '6px 14px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 12, fontWeight: 700, color: '#22c55e' }}>
+            Perfil completo ✓
+          </div>
+        )}
+      </div>
+      <div style={{ height: 6, background: '#f0f0f0', borderRadius: 99, overflow: 'hidden', marginBottom: pendingActions.length > 0 ? 14 : 0 }}>
+        <div style={{ height: '100%', background: 'linear-gradient(90deg, #E8611A, #f59340)', borderRadius: 99, transition: 'width 1.2s ease', width: `${progressPct}%` }} />
+      </div>
+      {pendingActions.length > 0 && (
+        <div>
+          <div style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>Completá esto para ganar más créditos:</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {pendingActions.map(a => (
+              <div key={a.key} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: '#f5f5f5', border: '1px solid #e8e8e8', borderRadius: 99, fontSize: 12, color: '#555' }}>
+                <span style={{ color: '#E8611A', fontWeight: 700 }}>+{a.credits}</span>
+                {a.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── ReferralBlock ─────────────────────────────────────────────────────────────
+function ReferralBlock({ profile }) {
+  const [copied, setCopied] = useState(false)
+  const refLink = profile.referral_code
+    ? `${window.location.origin}/registro?ref=${profile.referral_code}`
+    : null
+
+  const copy = () => {
+    if (!refLink) return
+    navigator.clipboard.writeText(refLink).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {})
+  }
+
+  if (!refLink) return null
+  return (
+    <div style={{ marginBottom: 36, padding: '22px 24px', border: '1px solid #e8e8e8', borderRadius: 14, background: '#fafafa' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 4 }}>Invitá amigos</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: '#0a0a0a', marginBottom: 2 }}>Compartí tu código — ambos ganan</div>
+          <div style={{ fontSize: 13, color: '#888' }}>
+            Vos: <strong style={{ color: '#E8611A' }}>+100 créditos</strong> · Ellos: <strong style={{ color: '#3b82f6' }}>+50 créditos</strong> al registrarse
+            {(profile.referral_count || 0) > 0 && (
+              <span style={{ marginLeft: 10, padding: '2px 8px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 11, color: '#22c55e', fontWeight: 700 }}>
+                {profile.referral_count} {profile.referral_count === 1 ? 'persona invitada' : 'personas invitadas'}
+              </span>
+            )}
+          </div>
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: '2px', fontFamily: 'monospace' }}>
+          {profile.referral_code}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 9, padding: '10px 14px' }}>
+        <span style={{ flex: 1, fontSize: 12, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
+        <button
+          onClick={copy}
+          style={{ flexShrink: 0, padding: '7px 16px', background: copied ? '#22c55e' : '#E8611A', border: 'none', borderRadius: 7, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'background .2s' }}
+        >
+          {copied ? '✓ Copiado' : 'Copiar link'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function mapProject(idea, founderName = '') {
   return {
     id: idea.id,
@@ -215,106 +312,7 @@ export default function Dashboard() {
   const lbl = { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, display: 'block' }
   const sectionTitle = { fontSize: 18, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 6 }
 
-  // ── Referral block ────────────────────────────────────────────────────────
-  const refLink = profile.referral_code
-    ? `${window.location.origin}/registro?ref=${profile.referral_code}`
-    : null
-
-  function ReferralBlock() {
-    const [copied, setCopied] = useState(false)
-    const copy = () => {
-      if (!refLink) return
-      navigator.clipboard.writeText(refLink).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      }).catch(() => {})
-    }
-    if (!refLink) return null
-    return (
-      <div style={{ marginBottom: 36, padding: '22px 24px', border: '1px solid #e8e8e8', borderRadius: 14, background: '#fafafa' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 4 }}>Invitá amigos</div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#0a0a0a', marginBottom: 2 }}>Compartí tu código — ambos ganan</div>
-            <div style={{ fontSize: 13, color: '#888' }}>
-              Vos: <strong style={{ color: '#E8611A' }}>+100 créditos</strong> · Ellos: <strong style={{ color: '#3b82f6' }}>+50 créditos</strong> al registrarse
-              {(profile.referral_count || 0) > 0 && (
-                <span style={{ marginLeft: 10, padding: '2px 8px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 11, color: '#22c55e', fontWeight: 700 }}>
-                  {profile.referral_count} {profile.referral_count === 1 ? 'persona invitada' : 'personas invitadas'}
-                </span>
-              )}
-            </div>
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: '2px', fontFamily: 'monospace' }}>
-            {profile.referral_code}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 9, padding: '10px 14px' }}>
-          <span style={{ flex: 1, fontSize: 12, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button
-            onClick={copy}
-            style={{ flexShrink: 0, padding: '7px 16px', background: copied ? '#22c55e' : '#E8611A', border: 'none', borderRadius: 7, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'background .2s' }}
-          >
-            {copied ? '✓ Copiado' : 'Copiar link'}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // ── Credit progress block ──────────────────────────────────────────────────
-  const credits = profile.credits ?? 50
-  const level = getLevel(credits)
-  const levelIdx = CREDIT_LEVELS.findIndex(l => l.name === level.name)
-  const nextLevel = CREDIT_LEVELS[levelIdx + 1] || null
-  const progressPct = nextLevel
-    ? Math.min(100, Math.round(((credits - level.min) / (nextLevel.min - level.min)) * 100))
-    : 100
   const hasIdea = data.length > 0
-  const pendingActions = CREDIT_ACTIONS.filter(a => !a.check(profile, { hasIdea }))
-
-  function CreditBlock() {
-    return (
-      <div style={{ marginBottom: 36, padding: '22px 24px', border: '1px solid rgba(232,97,26,.18)', borderRadius: 14, background: 'linear-gradient(135deg,rgba(232,97,26,.04) 0%,#fff 100%)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 4 }}>
-              Nivel {level.name}
-              {nextLevel && <span style={{ color: '#bbb', fontWeight: 400, marginLeft: 8 }}>→ {nextLevel.name} en {nextLevel.min - credits} pts</span>}
-            </div>
-            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-1px', color: '#0a0a0a' }}>
-              ⚡ {credits} <span style={{ fontSize: 14, fontWeight: 500, color: '#888' }}>créditos</span>
-            </div>
-          </div>
-          {pendingActions.length === 0 && (
-            <div style={{ padding: '6px 14px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 12, fontWeight: 700, color: '#22c55e' }}>
-              Perfil completo ✓
-            </div>
-          )}
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ height: 6, background: '#f0f0f0', borderRadius: 99, overflow: 'hidden', marginBottom: pendingActions.length > 0 ? 14 : 0 }}>
-          <div style={{ height: '100%', background: `linear-gradient(90deg, #E8611A, #f59340)`, borderRadius: 99, transition: 'width 1.2s ease', width: `${progressPct}%` }} />
-        </div>
-
-        {/* Pending actions */}
-        {pendingActions.length > 0 && (
-          <div>
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>Completá esto para ganar más créditos:</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-              {pendingActions.map(a => (
-                <div key={a.key} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: '#f5f5f5', border: '1px solid #e8e8e8', borderRadius: 99, fontSize: 12, color: '#555', cursor: 'default' }}>
-                  <span style={{ color: '#E8611A', fontWeight: 700 }}>+{a.credits}</span>
-                  {a.label}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
 
   // ── VISIONARIO ────────────────────────────────────────────────────────────
   if (profile?.type === 'visionario') return (
@@ -331,8 +329,8 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <CreditBlock />
-        <ReferralBlock />
+        <CreditBlock profile={profile} hasIdea={hasIdea} />
+        <ReferralBlock profile={profile} />
 
         {/* ── Mis Ideas (unified: idea info + panel button) ── */}
         <div style={{ marginBottom: 44 }}>
@@ -600,8 +598,8 @@ export default function Dashboard() {
         <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Inversor'} 💼</h1>
         <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tu pipeline de proyectos e inversiones.</p>
 
-        <CreditBlock />
-        <ReferralBlock />
+        <CreditBlock profile={profile} hasIdea={hasIdea} />
+        <ReferralBlock profile={profile} />
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
