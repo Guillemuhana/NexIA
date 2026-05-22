@@ -336,178 +336,190 @@ export default function AssistantWidget() {
   return (
     <>
       <style>{`
-        @keyframes assist-up { from{opacity:0;transform:translateY(16px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
         @keyframes assist-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
         @keyframes assist-spin { to{transform:rotate(360deg)} }
-        @keyframes assist-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-        .assist-input:focus { outline:none;border-color:rgba(99,102,241,.5) !important; }
-        .assist-chip:hover { background:rgba(99,102,241,.1) !important; border-color:#6366f1 !important; color:#6366f1 !important; }
-        .assist-panel {
-          position: fixed !important;
-          bottom: 80px !important;
-          right: 12px !important;
-          width: calc(100vw - 24px) !important;
-          max-width: 420px !important;
-          height: min(600px, 85vh) !important;
-        }
-        @media (min-width: 500px) {
-          .assist-panel {
-            right: 84px !important;
-            width: 420px !important;
-          }
-        }
+        @keyframes assist-pulse-txt { 0%,100%{opacity:1} 50%{opacity:.4} }
+        @keyframes neuron-ring { 0%{box-shadow:0 0 0 0 rgba(232,97,26,.5),0 4px 18px rgba(232,97,26,.35)} 70%{box-shadow:0 0 0 10px rgba(232,97,26,.0),0 4px 18px rgba(232,97,26,.35)} 100%{box-shadow:0 0 0 0 rgba(232,97,26,.0),0 4px 18px rgba(232,97,26,.35)} }
+        @keyframes panel-in { from{transform:translateX(100%)} to{transform:translateX(0)} }
+        .assist-input:focus { outline:none;border-color:rgba(232,97,26,.5) !important; }
+        .assist-chip:hover { background:rgba(232,97,26,.08) !important; border-color:#E8611A !important; color:#E8611A !important; }
+        .assist-send:hover:not(:disabled) { background:#c94e0f !important; }
       `}</style>
 
-      <div style={{ position: 'fixed', bottom: 20, right: 'clamp(72px, 84px, 84px)', zIndex: 9998, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+      {/* ── Panel lateral deslizante ── */}
+      {open && (
+        <div style={{
+          position: 'fixed', top: 0, right: 0, bottom: 0,
+          width: 'min(390px, 100vw)',
+          background: '#fff',
+          boxShadow: '-6px 0 40px rgba(0,0,0,.14)',
+          borderLeft: '1px solid #ececec',
+          display: 'flex', flexDirection: 'column',
+          zIndex: 9998,
+          animation: 'panel-in .28s cubic-bezier(.4,0,.2,1)',
+        }}>
 
-        {open && (
-          <div className="assist-panel" style={{
-            background: '#fff', borderRadius: 18,
-            boxShadow: '0 12px 50px rgba(0,0,0,.18)',
-            border: '1px solid #e0e0e0',
-            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            marginBottom: 12,
-            animation: 'assist-up .22s ease',
-            zIndex: 9998,
-          }}>
-
-            {/* Header */}
-            <div style={{ padding: '13px 16px', background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <BotIcon />
-                </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>Asistente Equia</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginTop: 1, display: 'flex', alignItems: 'center', gap: 5 }}>
-                    {savingMemory
-                      ? <><span style={{ animation: 'assist-pulse 1.2s ease-in-out infinite' }}>●</span> Memorizando...</>
-                      : hasMemory
-                        ? <><span style={{ color: '#a5f3a5' }}>●</span> Equia te conoce</>
-                        : 'IA · con memoria persistente'
-                    }
-                  </div>
+          {/* Header */}
+          <div style={{ padding: '14px 18px', background: 'linear-gradient(135deg,#E8611A 0%,#f97316 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+              {/* Neurona mini en el header */}
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="4" fill="#fff" opacity="0.95"/>
+                  <line x1="12" y1="12" x2="2" y2="3" stroke="#fff" strokeWidth="1.4" opacity="0.6" strokeLinecap="round"/>
+                  <line x1="12" y1="12" x2="22" y2="3" stroke="#fff" strokeWidth="1.4" opacity="0.6" strokeLinecap="round"/>
+                  <line x1="12" y1="12" x2="2" y2="21" stroke="#fff" strokeWidth="1.4" opacity="0.6" strokeLinecap="round"/>
+                  <line x1="12" y1="12" x2="22" y2="21" stroke="#fff" strokeWidth="1.4" opacity="0.6" strokeLinecap="round"/>
+                  <line x1="12" y1="12" x2="12" y2="1" stroke="#fff" strokeWidth="1.4" opacity="0.6" strokeLinecap="round"/>
+                  <circle cx="2" cy="3" r="1.5" fill="#fff" opacity="0.5"/>
+                  <circle cx="22" cy="3" r="1.5" fill="#fff" opacity="0.5"/>
+                  <circle cx="2" cy="21" r="1.5" fill="#fff" opacity="0.5"/>
+                  <circle cx="22" cy="21" r="1.5" fill="#fff" opacity="0.5"/>
+                  <circle cx="12" cy="1" r="1.5" fill="#fff" opacity="0.5"/>
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.2px' }}>Asistente Equia</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.78)', marginTop: 1, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  {savingMemory
+                    ? <><span style={{ animation: 'assist-pulse-txt 1.2s ease-in-out infinite' }}>●</span> Memorizando...</>
+                    : hasMemory
+                      ? <><span style={{ color: '#bbf7d0' }}>●</span> Te recuerda</>
+                      : 'IA · con memoria persistente'
+                  }
                 </div>
               </div>
-              <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.75)', fontSize: 24, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>×</button>
             </div>
+            <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.8)', fontSize: 26, lineHeight: 1, padding: '0 4px', flexShrink: 0 }}>×</button>
+          </div>
 
-            {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#f8f9fa', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {!contextLoaded && (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: '#999', fontSize: 13 }}>
-                  <div style={{ width: 22, height: 22, border: '2px solid #e0e0e0', borderTop: '2px solid #6366f1', borderRadius: '50%', animation: 'assist-spin 1s linear infinite', margin: '0 auto 12px' }} />
-                  Cargando tu contexto...
-                </div>
-              )}
-              {messages.map((msg, i) => {
-                const isUser = msg.role === 'user'
-                return (
-                  <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
-                    <div style={{
-                      maxWidth: '84%', padding: '10px 14px',
-                      borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                      background: isUser ? '#6366f1' : '#fff',
-                      border: isUser ? 'none' : '1px solid #e8e8e8',
-                      fontSize: 13.5, color: isUser ? '#fff' : '#222',
-                      lineHeight: 1.65, whiteSpace: 'pre-wrap',
-                      boxShadow: '0 1px 3px rgba(0,0,0,.05)',
-                    }}>
-                      {msg.text}
-                    </div>
-                  </div>
-                )
-              })}
-              {loading && <TypingDots />}
-              {pendingAction && (
-                <div style={{ background: 'rgba(99,102,241,.06)', border: '1px solid rgba(99,102,241,.2)', borderRadius: 10, padding: '11px 13px' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 9, textTransform: 'uppercase', letterSpacing: '.5px' }}>¿Confirmás la acción?</div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={executeAction} disabled={executing} style={{ flex: 1, padding: '9px', background: '#6366f1', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 13, cursor: executing ? 'not-allowed' : 'pointer', fontFamily: 'Inter,sans-serif', opacity: executing ? 0.7 : 1 }}>
-                      {executing ? 'Ejecutando...' : '✓ Confirmar'}
-                    </button>
-                    <button onClick={cancelAction} disabled={executing} style={{ padding: '9px 16px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, color: '#666', fontSize: 13, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
-                      Cancelar
-                    </button>
+          {/* Mensajes */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#fafafa', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {!contextLoaded && (
+              <div style={{ textAlign: 'center', padding: '50px 0', color: '#aaa', fontSize: 13 }}>
+                <div style={{ width: 22, height: 22, border: '2px solid #eee', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'assist-spin 1s linear infinite', margin: '0 auto 12px' }} />
+                Cargando tu contexto...
+              </div>
+            )}
+            {messages.map((msg, i) => {
+              const isUser = msg.role === 'user'
+              return (
+                <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '86%', padding: '10px 14px',
+                    borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                    background: isUser ? '#E8611A' : '#fff',
+                    border: isUser ? 'none' : '1px solid #eaeaea',
+                    fontSize: 13.5, color: isUser ? '#fff' : '#222',
+                    lineHeight: 1.65, whiteSpace: 'pre-wrap',
+                    boxShadow: '0 1px 4px rgba(0,0,0,.06)',
+                  }}>
+                    {msg.text}
                   </div>
                 </div>
-              )}
-              <div ref={endRef} />
-            </div>
-
-            {/* Quick actions */}
-            {contextLoaded && (
-              <div style={{ padding: '10px 14px', background: '#fff', borderTop: '1px solid #f0f0f0', flexShrink: 0 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#aaa', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 8 }}>Accesos directos</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {quickActions.map(a => (
-                    <button
-                      key={a.to}
-                      className="assist-chip"
-                      onClick={() => handleQuickAction(a.to)}
-                      style={{ padding: '6px 12px', borderRadius: 99, border: '1px solid #e0e0e0', background: '#fafafa', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'Inter,sans-serif', color: '#444', transition: 'all .15s' }}
-                    >
-                      {a.label}
-                    </button>
-                  ))}
+              )
+            })}
+            {loading && <TypingDots />}
+            {pendingAction && (
+              <div style={{ background: 'rgba(232,97,26,.06)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 10, padding: '11px 13px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', marginBottom: 9, textTransform: 'uppercase', letterSpacing: '.5px' }}>¿Confirmás la acción?</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={executeAction} disabled={executing} style={{ flex: 1, padding: '9px', background: '#E8611A', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, fontSize: 13, cursor: executing ? 'not-allowed' : 'pointer', fontFamily: 'Inter,sans-serif', opacity: executing ? 0.7 : 1 }}>
+                    {executing ? 'Ejecutando...' : '✓ Confirmar'}
+                  </button>
+                  <button onClick={cancelAction} disabled={executing} style={{ padding: '9px 16px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, color: '#666', fontSize: 13, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+                    Cancelar
+                  </button>
                 </div>
               </div>
             )}
+            <div ref={endRef} />
+          </div>
 
-            {/* Input */}
-            <div style={{ padding: '10px 13px 13px', borderTop: '1px solid #f0f0f0', background: '#fff', flexShrink: 0 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                <textarea
-                  ref={inputRef}
-                  className="assist-input"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-                  placeholder={contextLoaded ? 'Escribí o "mi linkedin es https://..."' : 'Cargando...'}
-                  disabled={!contextLoaded || loading}
-                  rows={1}
-                  style={{ flex: 1, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, color: '#111', fontSize: 13.5, fontFamily: 'Inter,sans-serif', padding: '10px 13px', resize: 'none', lineHeight: 1.45, transition: 'border-color .15s', opacity: !contextLoaded ? 0.5 : 1 }}
-                />
-                <button
-                  onClick={() => sendMessage()}
-                  disabled={!input.trim() || loading || !contextLoaded}
-                  style={{
-                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                    background: input.trim() && !loading && contextLoaded ? '#6366f1' : '#f0f0f0',
-                    border: 'none', cursor: input.trim() && !loading ? 'pointer' : 'default',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: input.trim() && !loading && contextLoaded ? '#fff' : '#ccc',
-                    fontSize: 16, transition: 'all .15s',
-                  }}
-                >→</button>
+          {/* Accesos directos */}
+          {contextLoaded && (
+            <div style={{ padding: '10px 14px', background: '#fff', borderTop: '1px solid #f0f0f0', flexShrink: 0 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#bbb', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 8 }}>Accesos directos</div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {quickActions.map(a => (
+                  <button key={a.to} className="assist-chip" onClick={() => handleQuickAction(a.to)}
+                    style={{ padding: '6px 12px', borderRadius: 99, border: '1px solid #e8e8e8', background: '#fafafa', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'Inter,sans-serif', color: '#555', transition: 'all .15s' }}>
+                    {a.label}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Floating button */}
-        <button
-          onClick={() => setOpen(o => !o)}
-          title="Asistente IA"
-          style={{
-            width: 52, height: 52, borderRadius: '50%',
-            background: open ? '#5558e8' : 'linear-gradient(135deg,#6366f1,#818cf8)',
-            border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(99,102,241,.4)',
-            transition: 'transform .2s, box-shadow .2s, background .2s',
-            position: 'relative',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(99,102,241,.6)' }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,.4)' }}
-        >
-          <BotIcon />
-          {/* Memory indicator dot */}
-          {hasMemory && !open && (
-            <div style={{ position: 'absolute', top: 4, right: 4, width: 10, height: 10, borderRadius: '50%', background: '#22c55e', border: '2px solid #fff' }} />
           )}
-        </button>
-      </div>
+
+          {/* Input */}
+          <div style={{ padding: '10px 14px 14px', borderTop: '1px solid #f0f0f0', background: '#fff', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+              <textarea
+                ref={inputRef}
+                className="assist-input"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+                placeholder={contextLoaded ? 'Escribí o "mi linkedin es https://..."' : 'Cargando...'}
+                disabled={!contextLoaded || loading}
+                rows={1}
+                style={{ flex: 1, background: '#f8f8f8', border: '1px solid #e8e8e8', borderRadius: 10, color: '#111', fontSize: 13.5, fontFamily: 'Inter,sans-serif', padding: '10px 13px', resize: 'none', lineHeight: 1.45, transition: 'border-color .15s', opacity: !contextLoaded ? 0.5 : 1 }}
+              />
+              <button
+                className="assist-send"
+                onClick={() => sendMessage()}
+                disabled={!input.trim() || loading || !contextLoaded}
+                style={{
+                  width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                  background: input.trim() && !loading && contextLoaded ? '#E8611A' : '#f0f0f0',
+                  border: 'none', cursor: input.trim() && !loading ? 'pointer' : 'default',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: input.trim() && !loading && contextLoaded ? '#fff' : '#ccc',
+                  fontSize: 17, transition: 'background .15s',
+                }}
+              >→</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Botón neurona flotante ── */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        title="Asistente IA"
+        style={{
+          position: 'fixed', bottom: 24, right: 24,
+          width: 54, height: 54, borderRadius: '50%',
+          background: open ? '#c94e0f' : 'linear-gradient(135deg,#E8611A 0%,#f97316 100%)',
+          border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          animation: open ? 'none' : 'neuron-ring 2.4s ease-in-out infinite',
+          zIndex: 9999,
+          transition: 'background .2s, transform .15s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)' }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+      >
+        {/* SVG neurona */}
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <line x1="13" y1="13" x2="3" y2="4"  stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="13" y1="13" x2="23" y2="4"  stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="13" y1="13" x2="3" y2="22"  stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="13" y1="13" x2="23" y2="22"  stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="13" y1="13" x2="13" y2="1"  stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="13" y1="13" x2="1"  y2="13" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <circle cx="3"  cy="4"  r="2" fill="#fff" opacity="0.55"/>
+          <circle cx="23" cy="4"  r="2" fill="#fff" opacity="0.55"/>
+          <circle cx="3"  cy="22" r="2" fill="#fff" opacity="0.55"/>
+          <circle cx="23" cy="22" r="2" fill="#fff" opacity="0.55"/>
+          <circle cx="13" cy="1"  r="2" fill="#fff" opacity="0.55"/>
+          <circle cx="1"  cy="13" r="2" fill="#fff" opacity="0.55"/>
+          <circle cx="13" cy="13" r="5" fill="#fff" opacity="0.95"/>
+        </svg>
+        {hasMemory && !open && (
+          <div style={{ position: 'absolute', top: 3, right: 3, width: 11, height: 11, borderRadius: '50%', background: '#22c55e', border: '2px solid #fff' }} />
+        )}
+      </button>
     </>
   )
 }
