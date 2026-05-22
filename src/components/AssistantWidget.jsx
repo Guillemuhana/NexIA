@@ -202,7 +202,7 @@ export default function AssistantWidget() {
         body: { action: 'assistantChat', message: text, history: historySnapshot.slice(-14), userContext },
       })
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 25000)
+        setTimeout(() => reject(new Error('timeout')), 14000)
       )
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise])
