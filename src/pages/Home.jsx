@@ -99,8 +99,8 @@ function ParticleCanvas() {
           ctx.moveTo(a.x, a.y)
           ctx.lineTo(b.x, b.y)
           // conexión siempre visible tenue + se ilumina cuando viaja un pulso
-          ctx.strokeStyle = `rgba(200,85,20,${prox * 0.07 + act * 0.14})`
-          ctx.lineWidth = 0.35 + act * 0.55
+          ctx.strokeStyle = `rgba(200,85,20,${prox * 0.18 + act * 0.32})`
+          ctx.lineWidth = 0.5 + prox * 0.3 + act * 0.8
           ctx.stroke()
         }
       }
@@ -117,8 +117,8 @@ function ParticleCanvas() {
         const sy = a.y + (b.y - a.y) * s.progress
         // pequeño punto de luz viajando por el axón
         ctx.beginPath()
-        ctx.arc(sx, sy, 1.5, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(255,200,100,${0.55 * (1 - s.progress * 0.3)})`
+        ctx.arc(sx, sy, 2.5, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(255,200,100,${0.85 * (1 - s.progress * 0.3)})`
         ctx.fill()
       })
       pendingFires.forEach(idx => fireNeuron(idx))
@@ -142,28 +142,28 @@ function ParticleCanvas() {
           if (act > 0.05) {
             const gr = p.r * 2.5 + act * 8
             const go = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr)
-            go.addColorStop(0, `rgba(232,97,26,${(0.10 + act * 0.18) * pulse})`)
+            go.addColorStop(0, `rgba(232,97,26,${(0.22 + act * 0.35) * pulse})`)
             go.addColorStop(1, 'rgba(232,97,26,0)')
             ctx.beginPath(); ctx.arc(p.x, p.y, gr, 0, Math.PI * 2)
             ctx.fillStyle = go; ctx.fill()
           }
           ctx.beginPath()
           ctx.arc(p.x, p.y, p.r * 2 + act * 1.5, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(232,97,26,${0.22 + act * 0.20})`
+          ctx.fillStyle = `rgba(232,97,26,${0.50 + act * 0.30})`
           ctx.fill()
         } else {
           // neurona regular: punto pequeño, se ilumina al recibir señal
           if (act > 0.1) {
             const gr2 = p.r + act * 5
             const gn = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr2)
-            gn.addColorStop(0, `rgba(255,160,60,${act * 0.20})`)
+            gn.addColorStop(0, `rgba(255,160,60,${act * 0.45})`)
             gn.addColorStop(1, 'rgba(232,97,26,0)')
             ctx.beginPath(); ctx.arc(p.x, p.y, gr2, 0, Math.PI * 2)
             ctx.fillStyle = gn; ctx.fill()
           }
           ctx.beginPath()
           ctx.arc(p.x, p.y, p.r + act * 1.0, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(220,220,220,${0.12 + act * 0.16})`
+          ctx.fillStyle = `rgba(220,220,220,${0.30 + act * 0.35})`
           ctx.fill()
         }
 
