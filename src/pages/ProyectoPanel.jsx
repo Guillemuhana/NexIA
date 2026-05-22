@@ -211,6 +211,7 @@ export default function ProyectoPanel() {
   const generateAI = useCallback(async () => {
     if (!idea) return
     setAiLoading(true); setAiError(null)
+    const safetyTimer = setTimeout(() => setAiLoading(false), 26000)
     try {
       const result = await analyzeProject({
         projectTitle: idea.title, projectDescription: idea.description,
@@ -219,7 +220,7 @@ export default function ProyectoPanel() {
       })
       setAi(result)
     } catch { setAiError('Error al conectar con la IA.') }
-    finally { setAiLoading(false) }
+    finally { clearTimeout(safetyTimer); setAiLoading(false) }
   }, [idea, team])
 
   useEffect(() => { if (idea && team.length > 0 && !ai && !aiLoading) generateAI() }, [idea, team])
@@ -233,27 +234,31 @@ export default function ProyectoPanel() {
     setChatLoading(true)
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
 
-    const userRole = team.find(m => m.id === user?.id)?.role || 'Miembro del equipo'
-    const [, { answer, _isDemo }] = await Promise.all([
-      supabase.from('ai_chat_history').insert({ idea_id: id, user_id: user?.id, role: 'user', text: question }),
-      chatWithProject({
-        projectTitle: idea.title,
-        projectDescription: idea.description,
-        projectCategory: idea.category,
-        projectStage: idea.stage,
-        question,
-        history: historySnapshot,
-        team: team.map(m => ({ name: m.name, role: m.role })),
-        buildLogs: buildLogs.slice(0, 15).map(l => ({ type: l.type, content: l.content })),
-        aiSummary: ai?.resumen || '',
-        userInfo: { name: profile?.name || '', role: userRole },
-      }),
-    ])
-
-    setChatHistory(h => [...h, { role: 'ai', text: answer, _isDemo }])
-    if (!_isDemo) supabase.from('ai_chat_history').insert({ idea_id: id, user_id: user?.id, role: 'ai', text: answer })
-    setChatLoading(false)
-    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+    try {
+      const userRole = team.find(m => m.id === user?.id)?.role || 'Miembro del equipo'
+      const [, { answer, _isDemo }] = await Promise.all([
+        supabase.from('ai_chat_history').insert({ idea_id: id, user_id: user?.id, role: 'user', text: question }),
+        chatWithProject({
+          projectTitle: idea.title,
+          projectDescription: idea.description,
+          projectCategory: idea.category,
+          projectStage: idea.stage,
+          question,
+          history: historySnapshot,
+          team: team.map(m => ({ name: m.name, role: m.role })),
+          buildLogs: buildLogs.slice(0, 15).map(l => ({ type: l.type, content: l.content })),
+          aiSummary: ai?.resumen || '',
+          userInfo: { name: profile?.name || '', role: userRole },
+        }),
+      ])
+      setChatHistory(h => [...h, { role: 'ai', text: answer, _isDemo }])
+      if (!_isDemo) supabase.from('ai_chat_history').insert({ idea_id: id, user_id: user?.id, role: 'ai', text: answer })
+    } catch {
+      setChatHistory(h => [...h, { role: 'ai', text: 'No se pudo procesar la pregunta. Intentá de nuevo.', _isDemo: true }])
+    } finally {
+      setChatLoading(false)
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+    }
   }
 
   const addLog = async () => {

@@ -42,9 +42,11 @@ function buildDemoData({ projectTitle = 'Tu Proyecto', projectCategory = 'Tech' 
 
 export async function analyzeProject({ projectTitle, projectDescription, projectCategory, projectStage, team }) {
   try {
-    const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 22000))
+    const invokePromise = supabase.functions.invoke('gemini-proxy', {
       body: { mode: 'analyze', projectTitle, projectDescription, projectCategory, projectStage, team },
     })
+    const { data, error } = await Promise.race([invokePromise, timeout])
     if (error || !data || data.error) throw new Error(error?.message || data?.error || 'API error')
     return data
   } catch {
@@ -54,9 +56,11 @@ export async function analyzeProject({ projectTitle, projectDescription, project
 
 export async function chatWithProject({ projectTitle, projectDescription, projectCategory, projectStage, question, history = [], team = [], buildLogs = [], aiSummary = '', userInfo = null }) {
   try {
-    const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 22000))
+    const invokePromise = supabase.functions.invoke('gemini-proxy', {
       body: { mode: 'chat', projectTitle, projectDescription, projectCategory, projectStage, question, history, team, buildLogs, aiSummary, userInfo },
     })
+    const { data, error } = await Promise.race([invokePromise, timeout])
     if (error || !data || data.error) throw new Error('API error')
     return { answer: data.answer, _isDemo: false }
   } catch {
