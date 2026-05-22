@@ -202,13 +202,13 @@ export default function Dashboard() {
     return () => { cancelled = true; clearTimeout(safetyTimer) }
   }, [user?.id, profile?.type])
 
-  if (loading) return (
+  if (loading || !profileFetched) return (
     <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <Spinner />
     </div>
   )
 
-  if (!profile || !profile.type) return null
+  if (!user || !profile?.type) return null
 
   const s = { padding: '100px 24px 60px', maxWidth: 1000, margin: '0 auto' }
   const lbl = { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, display: 'block' }
