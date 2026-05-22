@@ -223,7 +223,7 @@ export default function LanzarIdea() {
         if (tpRows?.length) {
           const uids = tpRows.map(r => r.user_id)
           const [{ data: usersRows }, { data: skillRows }] = await Promise.all([
-            supabase.from('users').select('id, name, avatar_url, location, bio').in('id', uids),
+            supabase.from('users').select('id, name, avatar_url, location, bio, credits').in('id', uids),
             supabase.from('user_skills').select('user_id, skills(name)').in('user_id', uids),
           ])
           const usersById = Object.fromEntries((usersRows || []).map(u => [u.id, u]))
@@ -232,10 +232,13 @@ export default function LanzarIdea() {
             if (!skillsByUser[r.user_id]) skillsByUser[r.user_id] = []
             if (r.skills?.name) skillsByUser[r.user_id].push(r.skills.name)
           })
-          setMatched(tpRows.filter(r => usersById[r.user_id]).map(r => {
+          const candidates = tpRows.filter(r => usersById[r.user_id]).map(r => {
             const u = usersById[r.user_id]
-            return { id: u.id, name: u.name || 'Usuario', avatar: (u.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), avatar_url: u.avatar_url || null, location: u.location || '', bio: u.bio || '', role: r.main_role || '', available: r.available, score: Math.round(r.match_score_avg || 75), projects: r.projects_count || 0, skills: skillsByUser[r.user_id] || [] }
-          }))
+            return { id: u.id, name: u.name || 'Usuario', avatar: (u.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), avatar_url: u.avatar_url || null, location: u.location || '', bio: u.bio || '', role: r.main_role || '', available: r.available, score: Math.round(r.match_score_avg || 75), projects: r.projects_count || 0, skills: skillsByUser[r.user_id] || [], credits: u.credits ?? 50 }
+          })
+          // Higher credits = more active/complete profile → ranked first
+          candidates.sort((a, b) => b.credits - a.credits)
+          setMatched(candidates)
         }
       } catch {}
     })().catch(() => {})
