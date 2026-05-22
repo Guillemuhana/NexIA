@@ -20,23 +20,44 @@ function ParticleCanvas() {
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     let animId
-    let particles = []
-    let sparks = []
+    let neurons = []
+    let signals = []   // impulsos viajando entre neuronas
+    let t = 0
+
+    const CONNECT_DIST = 155
+
+    const fireNeuron = (idx) => {
+      const n = neurons[idx]
+      if (!n || n.activation > 0.45) return   // período refractario
+      n.activation = 1
+      if (signals.length > 90) return          // cap de señales en vuelo
+      neurons.forEach((other, j) => {
+        if (j === idx) return
+        const dx = other.x - n.x, dy = other.y - n.y
+        const d = Math.sqrt(dx * dx + dy * dy)
+        if (d < CONNECT_DIST) {
+          signals.push({ from: idx, to: j, progress: 0,
+            speed: 0.011 + Math.random() * 0.007, fired: false })
+        }
+      })
+    }
 
     const init = () => {
       canvas.width = canvas.offsetWidth
       canvas.height = canvas.offsetHeight
-      const n = window.innerWidth < 640 ? 38 : 80
-      particles = Array.from({ length: n }, (_, i) => ({
+      const n = window.innerWidth < 640 ? 36 : 72
+      neurons = Array.from({ length: n }, (_, i) => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        r: Math.random() * 1.6 + 0.5,
-        // ~15% are "glowing" anchor nodes
-        glow: i % 7 === 0,
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: (Math.random() - 0.5) * 0.28,
+        r: Math.random() * 1.8 + 1.2,
+        hub: i % 9 === 0,           // ~11% son neuronas "hub" (somas grandes)
         phase: Math.random() * Math.PI * 2,
+        activation: 0,              // 0–1, decae con el tiempo
+        fireTimer: Math.floor(Math.random() * 280),
       }))
+      signals = []
     }
     init()
     window.addEventListener('resize', init)
@@ -49,83 +70,120 @@ function ParticleCanvas() {
     canvas.addEventListener('mousemove', onMove)
     canvas.addEventListener('mouseleave', onLeave)
 
-    let t = 0
     const draw = () => {
       t++
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      /* ── connections & sparks ── */
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
+      /* ── axones / conexiones ── */
+      for (let i = 0; i < neurons.length; i++) {
+        for (let j = i + 1; j < neurons.length; j++) {
+          const a = neurons[i], b = neurons[j]
+          const dx = a.x - b.x, dy = a.y - b.y
           const d = Math.sqrt(dx * dx + dy * dy)
-          const maxD = 140
-
-          if (d < maxD) {
-            const alpha = (1 - d / maxD) * 0.28
-            ctx.beginPath()
-            ctx.moveTo(particles[i].x, particles[i].y)
-            ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.strokeStyle = `rgba(232,97,26,${alpha})`
-            ctx.lineWidth = 0.7
-            ctx.stroke()
-
-            // random spark along this edge
-            if (t % 90 === 0 && Math.random() < 0.08) {
-              sparks.push({ ix: i, jx: j, progress: 0 })
-            }
-          }
+          if (d > CONNECT_DIST) continue
+          const prox = 1 - d / CONNECT_DIST
+          const act = Math.max(a.activation, b.activation)
+          ctx.beginPath()
+          ctx.moveTo(a.x, a.y)
+          ctx.lineTo(b.x, b.y)
+          ctx.strokeStyle = `rgba(232,97,26,${prox * 0.16 + act * 0.30})`
+          ctx.lineWidth = 0.4 + prox * 0.4 + act * 1.4
+          ctx.stroke()
         }
       }
 
-      /* ── draw sparks ── */
-      sparks = sparks.filter(s => s.progress <= 1)
-      sparks.forEach(s => {
-        s.progress += 0.018
-        const a = particles[s.ix], b = particles[s.jx]
+      /* ── señales / potenciales de acción ── */
+      const pendingFires = []
+      signals = signals.filter(s => s.progress <= 1)
+      signals.forEach(s => {
+        s.progress += s.speed
+        if (s.progress > 1) return
+        if (s.progress > 0.92 && !s.fired) {
+          s.fired = true
+          pendingFires.push(s.to)
+        }
+        const a = neurons[s.from], b = neurons[s.to]
         const sx = a.x + (b.x - a.x) * s.progress
         const sy = a.y + (b.y - a.y) * s.progress
-        ctx.beginPath()
-        ctx.arc(sx, sy, 2.2, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(255,180,60,${1 - s.progress})`
-        ctx.fill()
+        const fade = 1 - s.progress * 0.4
+        // halo del impulso
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 6)
+        g.addColorStop(0, `rgba(255,215,80,${0.85 * fade})`)
+        g.addColorStop(1, 'rgba(232,97,26,0)')
+        ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2)
+        ctx.fillStyle = g; ctx.fill()
+        // núcleo brillante
+        ctx.beginPath(); ctx.arc(sx, sy, 1.6, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(255,255,200,${fade})`; ctx.fill()
       })
+      pendingFires.forEach(idx => fireNeuron(idx))
 
-      /* ── draw particles ── */
-      particles.forEach(p => {
-        const pulse = p.glow ? 0.5 + 0.5 * Math.sin(t * 0.04 + p.phase) : 1
+      /* ── dibujar neuronas ── */
+      neurons.forEach((p, idx) => {
+        p.activation = Math.max(0, p.activation - 0.014)
 
-        if (p.glow) {
-          // outer glow ring
-          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 14)
-          grad.addColorStop(0, `rgba(232,97,26,${0.35 * pulse})`)
-          grad.addColorStop(1, 'rgba(232,97,26,0)')
+        // disparo espontáneo periódico
+        p.fireTimer--
+        if (p.fireTimer <= 0) {
+          p.fireTimer = (p.hub ? 160 : 280) + Math.floor(Math.random() * 180)
+          if (Math.random() < 0.65) fireNeuron(idx)
+        }
+
+        const act = p.activation
+        const pulse = 0.55 + 0.45 * Math.sin(t * 0.032 + p.phase)
+
+        if (p.hub) {
+          // soma grande con dendrita brillante al activarse
+          const outerR = 20 + act * 14
+          const go = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, outerR)
+          go.addColorStop(0, `rgba(232,97,26,${(0.22 + act * 0.55) * pulse})`)
+          go.addColorStop(0.55, `rgba(200,65,10,${(0.07 + act * 0.18) * pulse})`)
+          go.addColorStop(1, 'rgba(232,97,26,0)')
+          ctx.beginPath(); ctx.arc(p.x, p.y, outerR, 0, Math.PI * 2)
+          ctx.fillStyle = go; ctx.fill()
+
+          // burst de idea al activarse
+          if (act > 0.35) {
+            const burstR = 38 * act
+            const gb = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, burstR)
+            gb.addColorStop(0, `rgba(255,210,70,${act * 0.55})`)
+            gb.addColorStop(1, 'rgba(255,120,20,0)')
+            ctx.beginPath(); ctx.arc(p.x, p.y, burstR, 0, Math.PI * 2)
+            ctx.fillStyle = gb; ctx.fill()
+          }
+
+          // cuerpo del soma
           ctx.beginPath()
-          ctx.arc(p.x, p.y, 14, 0, Math.PI * 2)
-          ctx.fillStyle = grad
+          ctx.arc(p.x, p.y, p.r * 2.2 + act * 2.5, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(255,${125 + act * 85},${35 + act * 65},${0.72 + act * 0.28})`
+          ctx.fill()
+        } else {
+          // neurona regular
+          if (act > 0.08) {
+            const gn = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 9 * act + 3)
+            gn.addColorStop(0, `rgba(255,155,55,${act * 0.48})`)
+            gn.addColorStop(1, 'rgba(232,97,26,0)')
+            ctx.beginPath(); ctx.arc(p.x, p.y, 9 * act + 3, 0, Math.PI * 2)
+            ctx.fillStyle = gn; ctx.fill()
+          }
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.r + act * 1.8, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(255,255,255,${0.32 + act * 0.58})`
           ctx.fill()
         }
 
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.glow ? p.r * 1.8 * pulse : p.r, 0, Math.PI * 2)
-        ctx.fillStyle = p.glow
-          ? `rgba(255,140,60,${0.85 * pulse})`
-          : 'rgba(255,255,255,0.5)'
-        ctx.fill()
-
-        /* mouse attraction */
+        /* atracción al mouse — dispara neuronas cercanas */
         const mx = mouse.current.x, my = mouse.current.y
         const mdx = mx - p.x, mdy = my - p.y
         const md = Math.sqrt(mdx * mdx + mdy * mdy)
-        if (md < 100) {
-          p.vx += (mdx / md) * 0.04
-          p.vy += (mdy / md) * 0.04
+        if (md < 110) {
+          p.vx += (mdx / md) * 0.025
+          p.vy += (mdy / md) * 0.025
+          if (md < 55 && t % 18 === 0) fireNeuron(idx)
         }
 
-        /* speed cap */
         const spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
-        if (spd > 1.2) { p.vx = (p.vx / spd) * 1.2; p.vy = (p.vy / spd) * 1.2 }
+        if (spd > 0.85) { p.vx = (p.vx / spd) * 0.85; p.vy = (p.vy / spd) * 0.85 }
 
         p.x += p.vx; p.y += p.vy
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1
