@@ -84,10 +84,14 @@ export default function AssistantWidget() {
 
   const loadContext = async () => {
     try {
-      const [{ data: skillsData }, { data: ideasData }, { data: histData }] = await Promise.all([
-        supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
-        supabase.from('ideas').select('title, status').eq('founder_id', user.id).order('created_at', { ascending: false }).limit(5),
-        supabase.from('assistant_messages').select('role, text').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
+      const ctxTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('ctx-timeout')), 8000))
+      const [{ data: skillsData }, { data: ideasData }, { data: histData }] = await Promise.race([
+        Promise.all([
+          supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
+          supabase.from('ideas').select('title, status').eq('founder_id', user.id).order('created_at', { ascending: false }).limit(5),
+          supabase.from('assistant_messages').select('role, text').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
+        ]),
+        ctxTimeout,
       ])
 
       const skills = (skillsData || []).map(s => s.skills?.name).filter(Boolean)

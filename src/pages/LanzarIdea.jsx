@@ -288,7 +288,7 @@ export default function LanzarIdea() {
       if (rolesNeeded.length) {
         supabase.from('idea_roles')
           .insert(rolesNeeded.map(r => ({ idea_id: idea.id, role_name: r, filled: false })))
-          .catch(() => {})
+          .then(() => {}).catch(() => {})
       }
 
       if (matched.length) {
@@ -306,7 +306,7 @@ export default function LanzarIdea() {
                   body: `La IA te seleccionó como ${t.role} para este proyecto.`,
                   link: '/dashboard', data: { idea_id: idea.id },
                 }))
-              ).catch(() => {})
+              ).then(() => {}).catch(() => {})
             }
           })
           .catch(() => {})
