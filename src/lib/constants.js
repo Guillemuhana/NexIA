@@ -24,6 +24,7 @@ export const ROLES = {
     label: 'Visionario',
     icon: '💡',
     desc: 'Tengo una idea y quiero construir el equipo para ejecutarla',
+    shortDesc: 'Tengo una idea',
     badge: 'role-visionario',
   },
   talento: {
@@ -31,6 +32,7 @@ export const ROLES = {
     label: 'Talento',
     icon: '⚡',
     desc: 'Quiero sumarme a proyectos que me apasionen',
+    shortDesc: 'Busco proyectos',
     badge: 'role-talento',
   },
   inversor: {
@@ -38,6 +40,7 @@ export const ROLES = {
     label: 'Inversor',
     icon: '💼',
     desc: 'Busco proyectos con equipos sólidos para invertir',
+    shortDesc: 'Quiero invertir',
     badge: 'role-inversor',
   },
 }
