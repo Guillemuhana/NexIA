@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import ProjectCard from '../components/ProjectCard'
 import PaywallModal from '../components/PaywallModal'
+import { getLevel, CREDIT_LEVELS, CREDIT_ACTIONS } from '../lib/constants'
 
 function mapProject(idea, founderName = '') {
   return {
@@ -214,6 +215,60 @@ export default function Dashboard() {
   const lbl = { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, display: 'block' }
   const sectionTitle = { fontSize: 18, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 6 }
 
+  // ── Credit progress block ──────────────────────────────────────────────────
+  const credits = profile.credits ?? 50
+  const level = getLevel(credits)
+  const levelIdx = CREDIT_LEVELS.findIndex(l => l.name === level.name)
+  const nextLevel = CREDIT_LEVELS[levelIdx + 1] || null
+  const progressPct = nextLevel
+    ? Math.min(100, Math.round(((credits - level.min) / (nextLevel.min - level.min)) * 100))
+    : 100
+  const hasIdea = data.length > 0
+  const pendingActions = CREDIT_ACTIONS.filter(a => !a.check(profile, { hasIdea }))
+
+  function CreditBlock() {
+    return (
+      <div style={{ marginBottom: 36, padding: '22px 24px', border: '1px solid rgba(232,97,26,.18)', borderRadius: 14, background: 'linear-gradient(135deg,rgba(232,97,26,.04) 0%,#fff 100%)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 4 }}>
+              Nivel {level.name}
+              {nextLevel && <span style={{ color: '#bbb', fontWeight: 400, marginLeft: 8 }}>→ {nextLevel.name} en {nextLevel.min - credits} pts</span>}
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-1px', color: '#0a0a0a' }}>
+              ⚡ {credits} <span style={{ fontSize: 14, fontWeight: 500, color: '#888' }}>créditos</span>
+            </div>
+          </div>
+          {pendingActions.length === 0 && (
+            <div style={{ padding: '6px 14px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 12, fontWeight: 700, color: '#22c55e' }}>
+              Perfil completo ✓
+            </div>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ height: 6, background: '#f0f0f0', borderRadius: 99, overflow: 'hidden', marginBottom: pendingActions.length > 0 ? 14 : 0 }}>
+          <div style={{ height: '100%', background: `linear-gradient(90deg, #E8611A, #f59340)`, borderRadius: 99, transition: 'width 1.2s ease', width: `${progressPct}%` }} />
+        </div>
+
+        {/* Pending actions */}
+        {pendingActions.length > 0 && (
+          <div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>Completá esto para ganar más créditos:</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+              {pendingActions.map(a => (
+                <div key={a.key} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', background: '#f5f5f5', border: '1px solid #e8e8e8', borderRadius: 99, fontSize: 12, color: '#555', cursor: 'default' }}>
+                  <span style={{ color: '#E8611A', fontWeight: 700 }}>+{a.credits}</span>
+                  {a.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // ── VISIONARIO ────────────────────────────────────────────────────────────
   if (profile?.type === 'visionario') return (
     <div className="page-wrap">
@@ -228,6 +283,8 @@ export default function Dashboard() {
             + Nueva idea
           </button>
         </div>
+
+        <CreditBlock />
 
         {/* ── Mis Ideas (unified: idea info + panel button) ── */}
         <div style={{ marginBottom: 44 }}>
@@ -382,7 +439,9 @@ export default function Dashboard() {
         <div style={s}>
           <span style={lbl}>Dashboard</span>
           <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Talento'} ⚡</h1>
-          <p style={{ color: '#666', fontSize: 15, marginBottom: 40 }}>Tus invitaciones a proyectos y el espacio privado de tu equipo.</p>
+          <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tus invitaciones a proyectos y el espacio privado de tu equipo.</p>
+
+          <CreditBlock />
 
           {/* ── Paneles activos ── */}
           {teamPanels.length > 0 && (
@@ -490,7 +549,10 @@ export default function Dashboard() {
       <div style={s}>
         <span style={lbl}>Dashboard</span>
         <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Inversor'} 💼</h1>
-        <p style={{ color: '#666', fontSize: 15, marginBottom: 40 }}>Tu pipeline de proyectos e inversiones.</p>
+        <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tu pipeline de proyectos e inversiones.</p>
+
+        <CreditBlock />
+
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h2 style={sectionTitle}>Proyectos con equipo formado</h2>

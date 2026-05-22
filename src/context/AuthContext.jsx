@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
       // Query 1: base user record (no nested joins)
       let { data: userData, error: userErr } = await supabase
         .from('users')
-        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data')
+        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits')
         .eq('id', userId)
         .maybeSingle()
 
@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
         await new Promise(r => setTimeout(r, 800))
         const retry = await supabase
           .from('users')
-          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data')
+          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits')
           .eq('id', userId)
           .maybeSingle()
         userData = retry.data
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
           if (!insertErr) {
             const refetch = await supabase
               .from('users')
-              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data')
+              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits')
               .eq('id', userId)
               .maybeSingle()
             userData = refetch.data
@@ -90,6 +90,7 @@ export function AuthProvider({ children }) {
           portfolio_url: userData.portfolio_url,
           linkedin_url: userData.linkedin_url,
           cv_data: userData.cv_data || null,
+          credits: userData.credits ?? 50,
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
@@ -203,6 +204,16 @@ export function AuthProvider({ children }) {
     return { error }
   }
 
+  const recalculateCredits = async () => {
+    if (!user?.id) return
+    try {
+      const { data: newCredits } = await supabase.rpc('recalculate_user_credits', { p_user_id: user.id })
+      if (typeof newCredits === 'number') {
+        setProfile(prev => prev ? { ...prev, credits: newCredits } : prev)
+      }
+    } catch {}
+  }
+
   const updateProfile = async (updates) => {
     if (!user?.id) return { data: null, error: { message: 'No autenticado' } }
     const { type, role, available, portfolio, ...rest } = updates
@@ -231,11 +242,12 @@ export function AuthProvider({ children }) {
 
     fetchingRef.current = false
     try { await fetchProfile(user.id) } catch {}
+    recalculateCredits().catch(() => {})
     return { data, error }
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, profileFetched, signUp, signIn, signInWithGoogle, signOut, updateProfile, fetchProfile, setUserRole }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileFetched, signUp, signIn, signInWithGoogle, signOut, updateProfile, fetchProfile, setUserRole, recalculateCredits }}>
       {children}
     </AuthContext.Provider>
   )

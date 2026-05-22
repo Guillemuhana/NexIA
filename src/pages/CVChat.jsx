@@ -62,7 +62,7 @@ function TypingDots() {
 }
 
 export default function CVChat() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, recalculateCredits } = useAuth()
   const navigate = useNavigate()
 
   const [messages, setMessages] = useState([])
@@ -188,6 +188,7 @@ export default function CVChat() {
     }
 
     setSaved(true)
+    recalculateCredits().catch(() => {})
     setMessages(m => [...m, {
       role: 'bot',
       text: `Tu CV digital fue guardado. La IA estructuró tu información automáticamente.\n\nPodés verlo, editarlo o compartirlo desde la sección de CV.`,

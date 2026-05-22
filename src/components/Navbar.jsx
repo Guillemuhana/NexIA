@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { ROLES } from '../lib/constants'
+import { ROLES, getLevel } from '../lib/constants'
 import LogoEquia from './LogoEquia'
 
 function Icon({ name, size = 16, stroke = 'currentColor', strokeWidth = 1.75 }) {
@@ -112,6 +112,19 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {user && profile ? (
             <>
+              {/* Credits badge */}
+              {profile.credits !== undefined && (
+                <div
+                  onClick={() => go('/dashboard')}
+                  title={`Nivel ${getLevel(profile.credits).name}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 99, background: 'rgba(232,97,26,.08)', border: '1px solid rgba(232,97,26,.18)', cursor: 'pointer', transition: 'all .15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(232,97,26,.15)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(232,97,26,.08)' }}
+                >
+                  <span style={{ fontSize: 11 }}>⚡</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#E8611A' }}>{profile.credits}</span>
+                </div>
+              )}
               {roleInfo && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 20, background: 'rgba(0,0,0,.04)', border: '1px solid #e0e0e0' }}>
                   <Icon name={ROLE_ICON[profile.type] || 'user'} size={13} stroke={profile.type === 'visionario' ? '#E8611A' : profile.type === 'inversor' ? '#b45309' : '#666'} />

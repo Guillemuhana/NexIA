@@ -1,3 +1,23 @@
+export const CREDIT_LEVELS = [
+  { min: 0,   max: 149,      name: 'Starter',  color: '#888',    next: 150 },
+  { min: 150, max: 399,      name: 'Builder',  color: '#3b82f6', next: 400 },
+  { min: 400, max: 749,      name: 'Pro',      color: '#8b5cf6', next: 750 },
+  { min: 750, max: Infinity, name: 'Expert',   color: '#E8611A', next: null },
+]
+
+export function getLevel(credits = 0) {
+  return CREDIT_LEVELS.find(l => credits >= l.min && credits <= l.max) || CREDIT_LEVELS[0]
+}
+
+export const CREDIT_ACTIONS = [
+  { key: 'bio',          label: 'Completar bio',       credits: 20,  check: p => p.bio && p.bio.length > 20 },
+  { key: 'location',     label: 'Agregar ubicación',   credits: 10,  check: p => !!p.location },
+  { key: 'portfolio',    label: 'Portfolio URL',        credits: 20,  check: p => !!p.portfolio_url },
+  { key: 'linkedin',     label: 'LinkedIn',             credits: 20,  check: p => !!p.linkedin_url },
+  { key: 'cv',           label: 'CV completo con IA',  credits: 100, check: p => !!p.cv_data && Object.keys(p.cv_data || {}).length > 2 },
+  { key: 'idea',         label: 'Lanzar una idea',      credits: 150, check: (p, extra) => extra?.hasIdea },
+]
+
 export const ROLES = {
   visionario: {
     id: 'visionario',

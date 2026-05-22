@@ -97,7 +97,7 @@ function parseRoles(text) {
 }
 
 export default function LanzarIdea() {
-  const { user, profile } = useAuth()
+  const { user, profile, recalculateCredits } = useAuth()
   const navigate = useNavigate()
 
   // Stage: 'chat' | 'matching' | 'results'
@@ -314,6 +314,7 @@ export default function LanzarIdea() {
 
       setSavedIdeaId(idea.id)
       setSent(true)
+      recalculateCredits().catch(() => {})
     } catch (err) {
       setSaveError(err.message || 'No se pudo guardar. Verificá tu conexión e intentá de nuevo.')
     } finally {
