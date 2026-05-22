@@ -230,21 +230,20 @@ export function AuthProvider({ children }) {
     if (!user?.id) return { data: null, error: { message: 'No autenticado' } }
     const { type, role, available, portfolio, ...rest } = updates
 
-    // Filtrar valores undefined para no mandar campos vacíos a Postgres
+    // Build DB payload — skip undefined, map portfolio → portfolio_url
     const userUpdates = {}
     Object.entries(rest).forEach(([k, v]) => { if (v !== undefined) userUpdates[k] = v })
     if (portfolio !== undefined) userUpdates.portfolio_url = portfolio
 
-    const { data, error } = await supabase
+    // Only update users table — no .select() needed (avoids RLS false-negative on read)
+    const { error } = await supabase
       .from('users')
       .update(userUpdates)
       .eq('id', user.id)
-      .select()
 
-    if (error) return { data, error }
-    const row = Array.isArray(data) ? data[0] : data
-    if (!row) return { data: null, error: { message: 'No se pudo guardar. Verificá tu sesión.' } }
+    if (error) return { data: null, error }
 
+    // Update talent_profiles for role/available if provided
     if (role !== undefined || available !== undefined) {
       const tpUpdates = { user_id: user.id }
       if (role !== undefined) tpUpdates.main_role = role
@@ -252,10 +251,28 @@ export function AuthProvider({ children }) {
       await supabase.from('talent_profiles').upsert(tpUpdates, { onConflict: 'user_id' }).catch(() => {})
     }
 
-    fetchingRef.current = false
-    try { await fetchProfile(user.id) } catch {}
+    // Optimistic local update — user sees changes immediately without waiting for re-fetch
+    setProfile(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        ...userUpdates,
+        // keep both aliases in sync
+        portfolio: userUpdates.portfolio_url ?? prev.portfolio,
+        portfolio_url: userUpdates.portfolio_url ?? prev.portfolio_url,
+        role: role !== undefined ? role : prev.role,
+        available: available !== undefined ? available : prev.available,
+      }
+    })
+
+    // Background refresh for eventual consistency (fire-and-forget)
+    setTimeout(() => {
+      fetchingRef.current = false
+      fetchProfile(user.id).catch(() => {})
+    }, 300)
+
     recalculateCredits().catch(() => {})
-    return { data, error }
+    return { data: userUpdates, error: null }
   }
 
   return (
