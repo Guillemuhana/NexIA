@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
-import ChatWidget from './components/ChatWidget'
 import AssistantWidget from './components/AssistantWidget'
 import Home from './pages/Home'
 import Explorar from './pages/Explorar'
@@ -63,8 +62,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Navbar />
-      <ChatWidget />
-      <AssistantWidget />
+<AssistantWidget />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explorar" element={<Explorar />} />
