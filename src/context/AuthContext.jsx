@@ -236,18 +236,21 @@ export function AuthProvider({ children }) {
     if (portfolio !== undefined) userUpdates.portfolio_url = portfolio
 
     let error
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
     try {
-      const dbUpdatePromise = new Promise(resolve => {
-        supabase.from('users').update(userUpdates).eq('id', user.id)
-          .then(r => resolve(r))
-          .catch(e => resolve({ data: null, error: e }))
-      })
-      const timeoutPromise = new Promise(resolve =>
-        setTimeout(() => resolve({ data: null, error: { message: 'Tiempo de espera agotado. Revisá tu conexión.' } }), 10000)
-      )
-      const result = await Promise.race([dbUpdatePromise, timeoutPromise])
-      error = result.error
+      const { error: dbError } = await supabase
+        .from('users')
+        .update(userUpdates)
+        .eq('id', user.id)
+        .abortSignal(controller.signal)
+      clearTimeout(timeoutId)
+      error = dbError
     } catch (e) {
+      clearTimeout(timeoutId)
+      if (controller.signal.aborted) {
+        return { data: null, error: { message: 'Tiempo de espera agotado. Revisá tu conexión.' } }
+      }
       return { data: null, error: { message: e?.message || 'Error de conexión' } }
     }
 

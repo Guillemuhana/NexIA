@@ -81,7 +81,7 @@ export default function Perfil() {
 
   const handleSave = async () => {
     setSaving(true); setSaveError('')
-    const safetyTimer = setTimeout(() => setSaving(false), 8000)
+    const safetyTimer = setTimeout(() => setSaving(false), 18000)
     try {
       let avatarUrl = profile?.avatar_url
       if (avatarFile) {
