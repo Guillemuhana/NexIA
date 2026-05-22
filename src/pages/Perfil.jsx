@@ -62,6 +62,7 @@ export default function Perfil() {
 
   const handleSave = async () => {
     setSaving(true); setSaveError('')
+    const safetyTimer = setTimeout(() => setSaving(false), 15000)
     try {
       let avatarUrl = profile?.avatar_url
 
@@ -103,6 +104,7 @@ export default function Perfil() {
     } catch (err) {
       setSaveError(`Error inesperado: ${err?.message || String(err)}`)
     } finally {
+      clearTimeout(safetyTimer)
       setSaving(false)
     }
   }
