@@ -228,7 +228,29 @@ export default function AssistantWidget() {
       setMessages(h => [...h, { role: 'ai', text: displayText }])
       supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: displayText })
         .then(() => {}).catch(() => {})
-      if (parsedAction) setPendingAction(parsedAction)
+
+      if (parsedAction?.type === 'navigate') {
+        // Navegar sin confirmación — fluido e instantáneo
+        setTimeout(() => { setOpen(false); navigate(parsedAction.data.to) }, 350)
+      } else if (parsedAction?.type === 'update_profile') {
+        // Actualizar perfil sin confirmación — el usuario lo pidió explícitamente
+        ;(async () => {
+          try {
+            await updateProfile(parsedAction.data)
+            const labels = { linkedin_url: 'LinkedIn', portfolio_url: 'Portfolio', bio: 'Bio', location: 'Ubicación', name: 'Nombre', available: 'Disponibilidad' }
+            const updated = Object.keys(parsedAction.data).map(k => labels[k] || k).join(', ')
+            const confirmMsg = `✓ ${updated} actualizado en tu perfil.`
+            setMessages(h => [...h, { role: 'ai', text: confirmMsg }])
+            supabase.from('assistant_messages').insert({ user_id: user.id, role: 'ai', text: confirmMsg }).catch(() => {})
+            setUserContext(ctx => ctx ? { ...ctx, ...parsedAction.data } : ctx)
+          } catch {
+            setMessages(h => [...h, { role: 'ai', text: 'No pude actualizar el perfil. Podés hacerlo desde /perfil.' }])
+          }
+          scrollToBottom()
+        })()
+      } else if (parsedAction) {
+        setPendingAction(parsedAction)
+      }
 
       // Track new messages; trigger memory save every N exchanges
       newMsgCountRef.current += 2
@@ -441,7 +463,7 @@ export default function AssistantWidget() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-                  placeholder={contextLoaded ? 'Escribí tu mensaje...' : 'Cargando...'}
+                  placeholder={contextLoaded ? 'Escribí o "mi linkedin es https://..."' : 'Cargando...'}
                   disabled={!contextLoaded || loading}
                   rows={1}
                   style={{ flex: 1, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, color: '#111', fontSize: 13.5, fontFamily: 'Inter,sans-serif', padding: '10px 13px', resize: 'none', lineHeight: 1.45, transition: 'border-color .15s', opacity: !contextLoaded ? 0.5 : 1 }}

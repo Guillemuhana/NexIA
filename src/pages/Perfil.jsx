@@ -30,24 +30,31 @@ export default function Perfil() {
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const formInitialized = useRef(false)
   const upd = k => e => setForm(f => ({ ...f, [k]: e.type === 'change' ? (e.target.type === 'checkbox' ? e.target.checked : e.target.value) : e }))
   const updv = k => v => setForm(f => ({ ...f, [k]: v }))
 
+  // Auth redirect only — separate from profile init
   useEffect(() => {
     if (!loading && !user) navigate('/login')
-    if (profile) {
-      setForm({
-        name: profile.name || '',
-        role: profile.role || '',
-        bio: profile.bio || '',
-        location: profile.location || '',
-        portfolio: profile.portfolio_url || '',
-        linkedin: profile.linkedin_url || '',
-        available: profile.available ?? true,
-      })
-      if (profile.avatar_url) setAvatarPreview(profile.avatar_url)
-    }
-  }, [user, profile, loading])
+  }, [user, loading])
+
+  // Initialize form once when profile first loads — background updates (credits, refetch)
+  // no deben resetear los campos que el usuario está editando
+  useEffect(() => {
+    if (!profile || formInitialized.current) return
+    formInitialized.current = true
+    setForm({
+      name: profile.name || '',
+      role: profile.role || '',
+      bio: profile.bio || '',
+      location: profile.location || '',
+      portfolio: profile.portfolio_url || '',
+      linkedin: profile.linkedin_url || '',
+      available: profile.available ?? true,
+    })
+    if (profile.avatar_url) setAvatarPreview(profile.avatar_url)
+  }, [profile])
 
   useEffect(() => {
     supabase.from('skills').select('id, name').order('name').then(({ data }) => { if (data) setAllSkills(data) })
