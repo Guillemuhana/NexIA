@@ -163,9 +163,11 @@ export default function CVChat() {
 
     let cvData = null
     try {
-      const { data } = await supabase.functions.invoke('claude-proxy', {
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 22000))
+      const invokePromise = supabase.functions.invoke('claude-proxy', {
         body: { action: 'extractCV', conversation: conversationText, userName: profile?.name || 'usuario' },
       })
+      const { data } = await Promise.race([invokePromise, timeout])
       const raw = data?.content?.[0]?.text || ''
       cvData = JSON.parse(raw.replace(/```json\n?|```/g, '').trim())
     } catch {

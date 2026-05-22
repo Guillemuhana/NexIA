@@ -69,18 +69,23 @@ function getStatus(type, prof) {
 const TALENTO_QS = [
   {
     key: 'name', multiline: false,
-    filled: p => !!p?.name,
+    filled: p => !!(p?.name && p.name.trim().length > 2),
     ask: () => '¿Cuál es tu nombre completo?',
   },
   {
     key: 'location', multiline: false,
-    filled: p => !!p?.location,
-    ask: () => '¿En qué ciudad y país te encontrás actualmente?',
+    filled: p => !!(p?.location && p.location.trim().length > 2),
+    ask: () => '¿En qué ciudad y país te encontrás actualmente?\n\n📍 Completar ubicación suma +10 créditos.',
   },
   {
     key: 'role', multiline: false,
-    filled: p => !!p?.role,
+    filled: p => !!(p?.role && p.role.trim().length > 2),
     ask: () => '¿Cuál es tu rol o especialización principal?\n\nEjemplos: Frontend Developer, UX Designer, Data Scientist, Product Manager, Growth Marketing.',
+  },
+  {
+    key: 'bio', multiline: true,
+    filled: p => !!(p?.bio && p.bio.trim().length > 20),
+    ask: () => 'Redactá una presentación profesional breve (mínimo 20 caracteres).\n\nDescribí tu perfil, qué tipo de proyectos te apasionan y qué valor aportás a un equipo. Será tu carta de presentación ante los founders.\n\n✍️ Una bio completa suma +20 créditos.',
   },
   {
     key: 'experience', multiline: true,
@@ -109,14 +114,14 @@ const TALENTO_QS = [
     onlyIf: a => a.certs_yn?.startsWith('Sí'),
   },
   {
-    key: 'bio', multiline: true,
-    filled: p => !!p?.bio,
-    ask: () => 'Redactá una presentación profesional breve.\n\nDescribí tu perfil, qué tipo de proyectos te apasionan y qué valor aportás a un equipo. Será tu carta de presentación ante los founders.',
+    key: 'linkedin', multiline: false,
+    filled: p => !!(p?.linkedin_url && p.linkedin_url.trim().length > 5),
+    ask: () => '¿Tenés perfil de LinkedIn?\n\nPegá la URL completa. LinkedIn es el campo con más peso en el algoritmo de matching.\n\n🔗 Agregar LinkedIn suma +20 créditos y mejora tu posicionamiento.',
   },
   {
-    key: 'links', multiline: false,
-    filled: p => !!(p?.linkedin_url || p?.portfolio),
-    ask: () => '¿Contás con portfolio, GitHub o LinkedIn?\n\nPegá los links disponibles. Si no tenés, escribí "ninguno".',
+    key: 'portfolio', multiline: false,
+    filled: p => !!(p?.portfolio_url && p.portfolio_url.trim().length > 5) || !!(p?.portfolio && p.portfolio.trim().length > 5),
+    ask: () => '¿Tenés portfolio, GitHub u otro sitio web profesional?\n\nPegá el link. Si no tenés, escribí "ninguno".\n\n💼 Agregar portfolio suma +20 créditos.',
   },
   {
     key: 'available',
@@ -127,19 +132,21 @@ const TALENTO_QS = [
 ]
 
 const VISIONARIO_QS = [
-  { key: 'name', multiline: false, filled: p => !!p?.name, ask: () => '¿Cuál es tu nombre completo?' },
-  { key: 'location', multiline: false, filled: p => !!p?.location, ask: () => '¿Desde qué ciudad y país estás desarrollando tu proyecto?' },
-  { key: 'role', multiline: false, filled: p => !!p?.role, ask: () => '¿Cómo definís tu rol o experiencia principal?\n\nEjemplos: CEO, CTO, Product Manager, Serial Entrepreneur, Founder.' },
-  { key: 'bio', multiline: true, filled: p => !!p?.bio, ask: () => 'Contá tu trayectoria como fundador o emprendedor.\n\nExperiencia previa, industrias en las que trabajaste y qué te llevó a Equia.' },
-  { key: 'links', multiline: false, filled: p => !!(p?.linkedin_url || p?.portfolio), ask: () => '¿Tenés LinkedIn u otra presencia online?\n\nPegá los links disponibles. Si no tenés, escribí "ninguno".' },
+  { key: 'name', multiline: false, filled: p => !!(p?.name && p.name.trim().length > 2), ask: () => '¿Cuál es tu nombre completo?' },
+  { key: 'location', multiline: false, filled: p => !!(p?.location && p.location.trim().length > 2), ask: () => '¿Desde qué ciudad y país estás desarrollando tu proyecto?\n\n📍 +10 créditos.' },
+  { key: 'role', multiline: false, filled: p => !!(p?.role && p.role.trim().length > 2), ask: () => '¿Cómo definís tu rol o experiencia principal?\n\nEjemplos: CEO, CTO, Product Manager, Serial Entrepreneur, Founder.' },
+  { key: 'bio', multiline: true, filled: p => !!(p?.bio && p.bio.trim().length > 20), ask: () => 'Contá tu trayectoria como fundador o emprendedor (mínimo 20 caracteres).\n\nExperiencia previa, industrias en las que trabajaste y qué te llevó a Equia.\n\n✍️ +20 créditos.' },
+  { key: 'linkedin', multiline: false, filled: p => !!(p?.linkedin_url && p.linkedin_url.trim().length > 5), ask: () => '¿Tenés perfil de LinkedIn?\n\nPegá la URL completa. Si no tenés, escribí "ninguno".\n\n🔗 +20 créditos y mejor posicionamiento.' },
+  { key: 'portfolio', multiline: false, filled: p => !!(p?.portfolio_url && p.portfolio_url.trim().length > 5) || !!(p?.portfolio && p.portfolio.trim().length > 5), ask: () => '¿Tenés portfolio u otro sitio web profesional?\n\nPegá el link. Si no tenés, escribí "ninguno".\n\n💼 +20 créditos.' },
 ]
 
 const INVERSOR_QS = [
-  { key: 'name', multiline: false, filled: p => !!p?.name, ask: () => '¿Cuál es tu nombre completo?' },
-  { key: 'location', multiline: false, filled: p => !!p?.location, ask: () => '¿Desde qué ciudad y país operás?' },
-  { key: 'role', multiline: false, filled: p => !!p?.role, ask: () => '¿Cómo describís tu perfil de inversión?\n\nEjemplos: Ángel investor, VC, Aceleradora, Mentor estratégico, Family office.' },
-  { key: 'bio', multiline: true, filled: p => !!p?.bio, ask: () => '¿En qué industrias o etapas preferís invertir?\n\n¿Tenés una tesis de inversión particular o criterios de selección específicos?' },
-  { key: 'links', multiline: false, filled: p => !!(p?.linkedin_url || p?.portfolio), ask: () => '¿Tenés LinkedIn u otra presencia online?\n\nPegá los links disponibles. Si no tenés, escribí "ninguno".' },
+  { key: 'name', multiline: false, filled: p => !!(p?.name && p.name.trim().length > 2), ask: () => '¿Cuál es tu nombre completo?' },
+  { key: 'location', multiline: false, filled: p => !!(p?.location && p.location.trim().length > 2), ask: () => '¿Desde qué ciudad y país operás?\n\n📍 +10 créditos.' },
+  { key: 'role', multiline: false, filled: p => !!(p?.role && p.role.trim().length > 2), ask: () => '¿Cómo describís tu perfil de inversión?\n\nEjemplos: Ángel investor, VC, Aceleradora, Mentor estratégico, Family office.' },
+  { key: 'bio', multiline: true, filled: p => !!(p?.bio && p.bio.trim().length > 20), ask: () => '¿En qué industrias o etapas preferís invertir? (mínimo 20 caracteres)\n\n¿Tenés una tesis de inversión particular?\n\n✍️ +20 créditos.' },
+  { key: 'linkedin', multiline: false, filled: p => !!(p?.linkedin_url && p.linkedin_url.trim().length > 5), ask: () => '¿Tenés perfil de LinkedIn?\n\nPegá la URL completa. Si no tenés, escribí "ninguno".\n\n🔗 +20 créditos.' },
+  { key: 'portfolio', multiline: false, filled: p => !!(p?.portfolio_url && p.portfolio_url.trim().length > 5) || !!(p?.portfolio && p.portfolio.trim().length > 5), ask: () => '¿Tenés sitio web o presencia online?\n\nPegá el link. Si no tenés, escribí "ninguno".\n\n💼 +20 créditos.' },
 ]
 
 const QS_BY_TYPE = { talento: TALENTO_QS, visionario: VISIONARIO_QS, inversor: INVERSOR_QS }
@@ -318,13 +325,21 @@ export default function ProfileChat() {
         } catch {}
       }
 
-      const links = parseLinks(a.links || '')
+      const links = parseLinks((a.links || '') + ' ' + (a.linkedin || '') + ' ' + (a.portfolio || ''))
       const name = ai?.name || a.name || profile.name
       const location = ai?.location || a.location || profile.location || ''
       const bio = ai?.bio || a.bio || profile.bio || ''
       const role = ai?.role || a.role || profile.role || ''
-      const liUrl = ai?.linkedin_url || links.linkedin_url
-      const ptUrl = ai?.portfolio_url || links.portfolio_url
+      // linkedin: from dedicated question or parsed from links
+      const rawLi = a.linkedin || ''
+      const liUrl = (rawLi && rawLi.toLowerCase() !== 'ninguno' && rawLi.trim().length > 5)
+        ? (rawLi.startsWith('http') ? rawLi : `https://${rawLi}`)
+        : (ai?.linkedin_url || links.linkedin_url || null)
+      // portfolio: from dedicated question or parsed
+      const rawPt = a.portfolio || ''
+      const ptUrl = (rawPt && rawPt.toLowerCase() !== 'ninguno' && rawPt.trim().length > 5)
+        ? (rawPt.startsWith('http') ? rawPt : `https://${rawPt}`)
+        : (ai?.portfolio_url || links.portfolio_url || null)
 
       const availStr = a.available || ''
       const isAvail = availStr.includes('buscando activamente') ? true

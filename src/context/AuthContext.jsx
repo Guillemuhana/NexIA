@@ -235,16 +235,12 @@ export function AuthProvider({ children }) {
     Object.entries(rest).forEach(([k, v]) => { if (v !== undefined) userUpdates[k] = v })
     if (portfolio !== undefined) userUpdates.portfolio_url = portfolio
 
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 12000))
     let error
     try {
-      const result = await Promise.race([
-        supabase.from('users').update(userUpdates).eq('id', user.id),
-        timeout,
-      ])
+      const result = await supabase.from('users').update(userUpdates).eq('id', user.id)
       error = result.error
     } catch (e) {
-      return { data: null, error: { message: e.message === 'timeout' ? 'Tiempo de espera agotado. Verificá tu conexión.' : e.message } }
+      return { data: null, error: { message: e?.message || 'Error de conexión' } }
     }
 
     if (error) return { data: null, error }
