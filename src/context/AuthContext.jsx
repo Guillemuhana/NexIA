@@ -238,7 +238,7 @@ export function AuthProvider({ children }) {
     let error
     try {
       const dbUpdatePromise = new Promise(resolve => {
-        supabase.from('users').update(userUpdates).eq('id', user.id).select()
+        supabase.from('users').update(userUpdates).eq('id', user.id)
           .then(r => resolve(r))
           .catch(e => resolve({ data: null, error: e }))
       })
@@ -247,9 +247,6 @@ export function AuthProvider({ children }) {
       )
       const result = await Promise.race([dbUpdatePromise, timeoutPromise])
       error = result.error
-      if (!error && (!result.data || result.data.length === 0)) {
-        error = { message: 'No se actualizó ningún dato. Verificá tu sesión.' }
-      }
     } catch (e) {
       return { data: null, error: { message: e?.message || 'Error de conexión' } }
     }
