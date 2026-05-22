@@ -19,6 +19,7 @@ export default function Registro() {
   const [searchParams] = useSearchParams()
   const [step, setStep] = useState(1)
   const [selectedRole, setSelectedRole] = useState(searchParams.get('rol') || '')
+  const [refCode, setRefCode] = useState(searchParams.get('ref') || '')
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -32,18 +33,20 @@ export default function Registro() {
     if (!form.name || !form.email || !form.password) { setError('Completá todos los campos'); return }
     if (form.password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
     setLoading(true); setError('')
-    // Guardar rol antes del signup para que onAuthStateChange lo aplique con sesión activa
     if (selectedRole) localStorage.setItem('nexia_pending_role', selectedRole)
+    if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
     try {
       const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name })
       if (err) {
         localStorage.removeItem('nexia_pending_role')
+        localStorage.removeItem('nexia_pending_ref')
         setError(err.message)
         return
       }
       navigate('/onboarding')
     } catch {
       localStorage.removeItem('nexia_pending_role')
+      localStorage.removeItem('nexia_pending_ref')
       setError('Error al crear la cuenta. Intentá de nuevo.')
     } finally {
       setLoading(false)
@@ -52,8 +55,8 @@ export default function Registro() {
 
   const handleGoogle = async () => {
     if (!selectedRole) return
+    if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
     await signInWithGoogle(selectedRole)
-    // Redirects to Google → comes back to /auth/callback
   }
 
   return (
@@ -178,6 +181,20 @@ export default function Registro() {
                   <input type={type} value={form[key]} onChange={upd(key)} placeholder={ph} className="input" />
                 </div>
               ))}
+              <div>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  Código de invitación
+                  <span style={{ fontSize: 11, color: '#555', fontWeight: 400 }}>(opcional · +50 créditos)</span>
+                </label>
+                <input
+                  type="text"
+                  value={refCode}
+                  onChange={e => setRefCode(e.target.value.toUpperCase())}
+                  placeholder="Ej: GUILLE8X"
+                  className="input"
+                  style={{ textTransform: 'uppercase', letterSpacing: '2px' }}
+                />
+              </div>
 
               {error && (
                 <div style={{ padding: '11px 14px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 8, color: '#ef4444', fontSize: 14 }}>

@@ -215,6 +215,53 @@ export default function Dashboard() {
   const lbl = { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, display: 'block' }
   const sectionTitle = { fontSize: 18, fontWeight: 800, letterSpacing: '-.5px', marginBottom: 6 }
 
+  // ── Referral block ────────────────────────────────────────────────────────
+  const refLink = profile.referral_code
+    ? `${window.location.origin}/registro?ref=${profile.referral_code}`
+    : null
+
+  function ReferralBlock() {
+    const [copied, setCopied] = useState(false)
+    const copy = () => {
+      if (!refLink) return
+      navigator.clipboard.writeText(refLink).then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }).catch(() => {})
+    }
+    if (!refLink) return null
+    return (
+      <div style={{ marginBottom: 36, padding: '22px 24px', border: '1px solid #e8e8e8', borderRadius: 14, background: '#fafafa' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 4 }}>Invitá amigos</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0a0a0a', marginBottom: 2 }}>Compartí tu código — ambos ganan</div>
+            <div style={{ fontSize: 13, color: '#888' }}>
+              Vos: <strong style={{ color: '#E8611A' }}>+100 créditos</strong> · Ellos: <strong style={{ color: '#3b82f6' }}>+50 créditos</strong> al registrarse
+              {(profile.referral_count || 0) > 0 && (
+                <span style={{ marginLeft: 10, padding: '2px 8px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 11, color: '#22c55e', fontWeight: 700 }}>
+                  {profile.referral_count} {profile.referral_count === 1 ? 'persona invitada' : 'personas invitadas'}
+                </span>
+              )}
+            </div>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: '2px', fontFamily: 'monospace' }}>
+            {profile.referral_code}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#fff', border: '1px solid #e0e0e0', borderRadius: 9, padding: '10px 14px' }}>
+          <span style={{ flex: 1, fontSize: 12, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
+          <button
+            onClick={copy}
+            style={{ flexShrink: 0, padding: '7px 16px', background: copied ? '#22c55e' : '#E8611A', border: 'none', borderRadius: 7, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'background .2s' }}
+          >
+            {copied ? '✓ Copiado' : 'Copiar link'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // ── Credit progress block ──────────────────────────────────────────────────
   const credits = profile.credits ?? 50
   const level = getLevel(credits)
@@ -285,6 +332,7 @@ export default function Dashboard() {
         </div>
 
         <CreditBlock />
+        <ReferralBlock />
 
         {/* ── Mis Ideas (unified: idea info + panel button) ── */}
         <div style={{ marginBottom: 44 }}>
@@ -442,6 +490,7 @@ export default function Dashboard() {
           <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tus invitaciones a proyectos y el espacio privado de tu equipo.</p>
 
           <CreditBlock />
+          <ReferralBlock />
 
           {/* ── Paneles activos ── */}
           {teamPanels.length > 0 && (
@@ -552,6 +601,7 @@ export default function Dashboard() {
         <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tu pipeline de proyectos e inversiones.</p>
 
         <CreditBlock />
+        <ReferralBlock />
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>

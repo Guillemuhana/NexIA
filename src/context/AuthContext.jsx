@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
       // Query 1: base user record (no nested joins)
       let { data: userData, error: userErr } = await supabase
         .from('users')
-        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits')
+        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count')
         .eq('id', userId)
         .maybeSingle()
 
@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
         await new Promise(r => setTimeout(r, 800))
         const retry = await supabase
           .from('users')
-          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits')
+          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count')
           .eq('id', userId)
           .maybeSingle()
         userData = retry.data
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
           if (!insertErr) {
             const refetch = await supabase
               .from('users')
-              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits')
+              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count')
               .eq('id', userId)
               .maybeSingle()
             userData = refetch.data
@@ -91,6 +91,8 @@ export function AuthProvider({ children }) {
           linkedin_url: userData.linkedin_url,
           cv_data: userData.cv_data || null,
           credits: userData.credits ?? 50,
+          referral_code: userData.referral_code || null,
+          referral_count: userData.referral_count ?? 0,
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
@@ -128,11 +130,11 @@ export function AuthProvider({ children }) {
       if (session?.user) {
         await fetchProfile(session.user.id)
 
-        // Aplicar rol pendiente (Google OAuth o email signup)
+        // Aplicar rol y código de referido pendientes (Google OAuth o email signup)
         if (event === 'SIGNED_IN') {
           const pendingRole = localStorage.getItem('nexia_pending_role')
           if (pendingRole) {
-            setLoading(true) // Mantener spinner hasta que el rol esté asignado y el perfil refrescado
+            setLoading(true)
             localStorage.removeItem('nexia_pending_role')
             try {
               const { error: rpcErr } = await supabase.rpc('assign_user_role', { p_role_type: pendingRole })
@@ -146,6 +148,16 @@ export function AuthProvider({ children }) {
             } catch {
               setLoading(false)
             }
+          }
+
+          const pendingRef = localStorage.getItem('nexia_pending_ref')
+          if (pendingRef) {
+            localStorage.removeItem('nexia_pending_ref')
+            supabase.rpc('apply_referral_code', { p_new_user_id: session.user.id, p_ref_code: pendingRef })
+              .then(() => {
+                fetchingRef.current = false
+                fetchProfile(session.user.id).catch(() => {})
+              }).catch(() => {})
           }
         }
       } else {
