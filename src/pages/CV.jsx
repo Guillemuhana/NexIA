@@ -21,12 +21,27 @@ function AIBanner({ onNavigate }) {
 }
 
 const LANGUAGE_LEVELS = ['Básico', 'Intermedio', 'Avanzado', 'Bilingüe', 'Nativo']
+const AVAILABILITY_OPTIONS = ['Full-time', 'Part-time', 'Freelance', 'Abierto a oportunidades']
 const uid = () => Math.random().toString(36).slice(2)
 
 const emptyExp = () => ({ id: uid(), company: '', role: '', from: '', to: '', current: false, description: '' })
 const emptyEdu = () => ({ id: uid(), institution: '', degree: '', field: '', from: '', to: '', current: false })
 const emptyLang = () => ({ id: uid(), name: '', level: 'Intermedio' })
 const emptyCert = () => ({ id: uid(), name: '', issuer: '', year: '' })
+const emptyProj = () => ({ id: uid(), name: '', description: '', url: '', year: '' })
+
+function cvCompleteness(cv, skills) {
+  const checks = [
+    { label: 'Título profesional', done: cv.job_title?.length > 2 },
+    { label: 'Resumen profesional', done: cv.summary?.length > 20 },
+    { label: 'Experiencia laboral', done: Array.isArray(cv.experience) && cv.experience.some(e => e.company?.length > 0) },
+    { label: 'Educación', done: Array.isArray(cv.education) && cv.education.length > 0 },
+    { label: 'Habilidades técnicas', done: skills.length > 0 },
+    { label: 'Idiomas', done: Array.isArray(cv.languages) && cv.languages.length > 0 },
+  ]
+  const done = checks.filter(c => c.done).length
+  return { pct: Math.round((done / checks.length) * 100), checks }
+}
 
 const inputStyle = {
   padding: '10px 12px', background: '#f8f9fa', border: '1px solid #d0d0d0',
@@ -72,11 +87,15 @@ export default function CV() {
   const { user, profile, loading } = useAuth()
   const navigate = useNavigate()
 
+  const [jobTitle, setJobTitle] = useState('')
   const [summary, setSummary] = useState('')
   const [experience, setExperience] = useState([])
   const [education, setEducation] = useState([])
   const [languages, setLanguages] = useState([])
   const [certifications, setCertifications] = useState([])
+  const [projects, setProjects] = useState([])
+  const [availability, setAvailability] = useState('')
+  const [desiredRole, setDesiredRole] = useState('')
   const [skills, setSkills] = useState([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -95,11 +114,15 @@ export default function CV() {
         supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
       ])
       const cv = userData?.cv_data || {}
+      setJobTitle(cv.job_title || '')
       setSummary(cv.summary || '')
       setExperience(cv.experience || [])
       setEducation(cv.education || [])
       setLanguages(cv.languages || [])
       setCertifications(cv.certifications || [])
+      setProjects(cv.projects || [])
+      setAvailability(cv.availability || '')
+      setDesiredRole(cv.desired_role || '')
       setSkills((skillRows || []).map(r => r.skills?.name).filter(Boolean))
       setDataLoading(false)
     }
@@ -109,7 +132,7 @@ export default function CV() {
   const handleSave = async () => {
     if (!user?.id) return
     setSaving(true); setSaveError('')
-    const cv_data = { summary, experience, education, languages, certifications }
+    const cv_data = { job_title: jobTitle, summary, experience, education, languages, certifications, projects, availability, desired_role: desiredRole }
     const { error } = await supabase.from('users').update({ cv_data }).eq('id', user.id)
     if (error) { setSaveError('Error al guardar. Intentá de nuevo.'); setSaving(false); return }
     setSaved(true)
@@ -121,6 +144,10 @@ export default function CV() {
   const updEdu = (id, key, val) => setEducation(prev => prev.map(e => e.id === id ? { ...e, [key]: val } : e))
   const updLang = (id, key, val) => setLanguages(prev => prev.map(l => l.id === id ? { ...l, [key]: val } : l))
   const updCert = (id, key, val) => setCertifications(prev => prev.map(c => c.id === id ? { ...c, [key]: val } : c))
+  const updProj = (id, key, val) => setProjects(prev => prev.map(p => p.id === id ? { ...p, [key]: val } : p))
+
+  const cvSnapshot = { job_title: jobTitle, summary, experience, education, languages, certifications, projects, availability, desired_role: desiredRole }
+  const { pct: completePct, checks: completeChecks } = cvCompleteness(cvSnapshot, skills)
 
   if (loading || dataLoading) return (
     <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -148,22 +175,30 @@ export default function CV() {
 
         <div style={{ height: 1, background: '#e8e8e8', marginBottom: 36 }} />
 
-        {/* Banner motivacional */}
-        <div style={{
-          padding: '20px 24px', marginBottom: 36,
-          background: 'linear-gradient(135deg, rgba(232,97,26,.06) 0%, rgba(232,97,26,.02) 100%)',
-          border: '1px solid rgba(232,97,26,.18)', borderRadius: 14,
-          display: 'flex', alignItems: 'flex-start', gap: 16,
-        }}>
-          <span style={{ fontSize: 28, flexShrink: 0 }}>📄</span>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#0a0a0a', marginBottom: 5, letterSpacing: '-.3px' }}>
-              Completá tu CV y posicionáte mejor en la app
+        {/* Completitud del CV */}
+        <div style={{ padding: '20px 24px', marginBottom: 36, border: '1px solid #e8e8e8', borderRadius: 14, background: '#fff' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0a0a0a', marginBottom: 2 }}>
+                Completitud del perfil profesional
+              </div>
+              <div style={{ fontSize: 12, color: '#888' }}>
+                Más completo = mayor prioridad en el algoritmo de matching IA
+              </div>
             </div>
-            <div style={{ fontSize: 13, color: '#666', lineHeight: 1.65 }}>
-              Los perfiles con CV completo tienen <strong style={{ color: '#E8611A' }}>3x más chances</strong> de ser elegidos por la IA de matching.
-              Tu experiencia, educación e idiomas le dan contexto al algoritmo para conectarte con los proyectos y equipos que mejor se adaptan a vos.
+            <div style={{ fontSize: 28, fontWeight: 900, color: completePct === 100 ? '#22c55e' : '#E8611A', letterSpacing: '-1px' }}>
+              {completePct}%
             </div>
+          </div>
+          <div style={{ height: 6, background: '#f0f0f0', borderRadius: 99, overflow: 'hidden', marginBottom: 14 }}>
+            <div style={{ height: '100%', width: `${completePct}%`, background: completePct === 100 ? '#22c55e' : 'linear-gradient(90deg,#E8611A,#f97316)', borderRadius: 99, transition: 'width .8s ease' }} />
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {completeChecks.map(c => (
+              <span key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, fontSize: 12, background: c.done ? 'rgba(34,197,94,.08)' : '#f5f5f5', border: `1px solid ${c.done ? 'rgba(34,197,94,.25)' : '#e8e8e8'}`, color: c.done ? '#22c55e' : '#999', fontWeight: 600 }}>
+                {c.done ? '✓' : '○'} {c.label}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -187,6 +222,21 @@ export default function CV() {
             <p style={{ fontSize: 12, color: '#888', marginTop: 12 }}>
               Para editar nombre, foto o ubicación andá a{' '}
               <span onClick={() => navigate('/perfil')} style={{ color: '#E8611A', cursor: 'pointer', textDecoration: 'underline' }}>Mi perfil</span>.
+            </p>
+          </div>
+
+          {/* Título profesional */}
+          <div>
+            <SectionHeader title="Título profesional" />
+            <input
+              value={jobTitle}
+              onChange={e => setJobTitle(e.target.value)}
+              placeholder="Ej: Full-Stack Developer con 5 años en startups · Node.js, React, AWS"
+              style={inputStyle}
+              onFocus={focus} onBlur={blur}
+            />
+            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>
+              Tu titular profesional. Lo primero que ve la IA y los visionarios.
             </p>
           </div>
 
@@ -355,6 +405,56 @@ export default function CV() {
                 </Grid2>
               </Card>
             ))}
+          </div>
+
+          {/* Proyectos */}
+          <div>
+            <SectionHeader title="Proyectos personales / freelance" onAdd={() => setProjects(p => [...p, emptyProj()])} />
+            {projects.length === 0 && (
+              <div style={{ padding: '24px', border: '1px dashed #e0e0e0', borderRadius: 10, textAlign: 'center', color: '#999', fontSize: 14 }}>
+                Apps, proyectos open source, trabajos freelance. Suman mucho al matching.
+              </div>
+            )}
+            {projects.map(proj => (
+              <Card key={proj.id} onRemove={() => setProjects(p => p.filter(x => x.id !== proj.id))}>
+                <Grid2>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Nombre del proyecto *</label>
+                    <input value={proj.name} onChange={e => updProj(proj.id, 'name', e.target.value)} placeholder="Ej: TaskFlow App" style={inputStyle} onFocus={focus} onBlur={blur} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Año</label>
+                    <input type="number" min="2010" max="2030" value={proj.year} onChange={e => updProj(proj.id, 'year', e.target.value)} placeholder="2024" style={inputStyle} onFocus={focus} onBlur={blur} />
+                  </div>
+                </Grid2>
+                <div style={{ marginBottom: 10 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Descripción y tecnologías</label>
+                  <textarea value={proj.description} onChange={e => updProj(proj.id, 'description', e.target.value)} placeholder="Qué hace el proyecto, tecnologías usadas, impacto o usuarios." rows={2} style={{ ...inputStyle, resize: 'vertical' }} onFocus={focus} onBlur={blur} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Link (GitHub, web, demo)</label>
+                  <input value={proj.url} onChange={e => updProj(proj.id, 'url', e.target.value)} placeholder="https://github.com/..." style={inputStyle} onFocus={focus} onBlur={blur} />
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Disponibilidad y búsqueda */}
+          <div>
+            <SectionHeader title="Disponibilidad y qué buscás" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Disponibilidad</label>
+                <select value={availability} onChange={e => setAvailability(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur}>
+                  <option value="">Seleccioná...</option>
+                  {AVAILABILITY_OPTIONS.map(o => <option key={o}>{o}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Tipo de rol deseado</label>
+                <input value={desiredRole} onChange={e => setDesiredRole(e.target.value)} placeholder="Ej: Senior Backend, remoto" style={inputStyle} onFocus={focus} onBlur={blur} />
+              </div>
+            </div>
           </div>
 
           {saveError && (

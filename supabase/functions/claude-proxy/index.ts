@@ -30,7 +30,7 @@ El texto de la acción NO se muestra al usuario. Siempre acompañá la acción c
 
 ### navigate — ir a una página
 Ejemplo: "Perfecto, te llevo a tu perfil." [EJECUTAR:{"type":"navigate","data":{"to":"/perfil"}}]
-Páginas: /perfil, /dashboard, /explorar, /lanzar, /cv, /proyectos, /perfil-chat
+Páginas: /perfil, /dashboard, /explorar, /lanzar, /cv, /proyectos, /perfil-chat, /cv-chat
 
 ### update_profile — actualizar campos del perfil directamente
 REGLA: Si el usuario menciona su LinkedIn, portfolio, bio, ubicación, nombre o disponibilidad → SIEMPRE usá update_profile.
@@ -91,6 +91,68 @@ Deno.serve(async (req) => {
       contents.push({ role: 'user', parts: [{ text: message }] })
 
       const text = await callGemini(buildSystemPrompt(userContext), contents, 800)
+      return new Response(
+        JSON.stringify({ content: [{ text }] }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
+    // ── extractCV ─────────────────────────────────────────────────
+    if (action === 'extractCV') {
+      const { conversation = '', userName = 'usuario' } = body
+
+      const prompt = `Sos un extractor profesional de CVs. Analizá esta conversación entre un asistente y ${userName}, y generá un JSON estructurado con su información profesional.
+
+Devolvé SOLO JSON válido sin markdown ni comentarios con esta estructura exacta:
+{
+  "job_title": "título profesional en máx 60 chars (ej: Full-Stack Developer · 5 años en startups)",
+  "summary": "resumen profesional de 2-4 oraciones en primera persona, destacando experiencia y valor aportado",
+  "experience": [
+    {
+      "id": "exp1",
+      "company": "nombre empresa",
+      "role": "puesto/cargo",
+      "from": "YYYY-MM",
+      "to": "YYYY-MM",
+      "current": false,
+      "description": "responsabilidades y logros, incluyendo métricas si las mencionó"
+    }
+  ],
+  "education": [
+    {
+      "id": "edu1",
+      "institution": "nombre institución",
+      "degree": "título o carrera",
+      "field": "campo de estudio",
+      "from": "YYYY-MM",
+      "to": "YYYY-MM",
+      "current": false
+    }
+  ],
+  "languages": [
+    { "id": "lang1", "name": "nombre idioma", "level": "Básico|Intermedio|Avanzado|Bilingüe|Nativo" }
+  ],
+  "certifications": [
+    { "id": "cert1", "name": "nombre certificado", "issuer": "institución o plataforma", "year": "YYYY" }
+  ],
+  "projects": [
+    { "id": "proj1", "name": "nombre proyecto", "description": "qué es, tecnologías usadas e impacto", "url": "", "year": "YYYY" }
+  ],
+  "availability": "Full-time|Part-time|Freelance|Abierto a oportunidades",
+  "desired_role": "tipo de rol y contexto que busca"
+}
+
+REGLAS:
+- Si el usuario dijo "no aplica" → array vacío o string vacío
+- No inventes datos. Usá solo lo que el usuario mencionó explícitamente
+- Si hay años aproximados (ej: "trabajé 3 años"), calculá desde hoy
+- Para experience.from/to usá formato YYYY-MM, aproximá si es necesario
+- El job_title debe ser conciso y profesional
+
+Conversación:
+${conversation}`
+
+      const text = await callGemini('', [{ role: 'user', parts: [{ text: prompt }] }], 2000)
       return new Response(
         JSON.stringify({ content: [{ text }] }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

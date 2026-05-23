@@ -14,7 +14,11 @@ export const CREDIT_ACTIONS = [
   { key: 'location',     label: 'Agregar ubicación',   credits: 10,  check: p => !!p.location },
   { key: 'portfolio',    label: 'Portfolio URL',        credits: 20,  check: p => !!p.portfolio_url },
   { key: 'linkedin',     label: 'LinkedIn',             credits: 20,  check: p => !!p.linkedin_url },
-  { key: 'cv',           label: 'CV completo con IA',  credits: 100, check: p => !!p.cv_data && Object.keys(p.cv_data || {}).length > 2 },
+  { key: 'cv',           label: 'CV completo con IA',  credits: 100, check: p => !!p.cv_data && (
+    (Array.isArray(p.cv_data.experience) && p.cv_data.experience.some(e => e.company?.length > 0)) ||
+    (typeof p.cv_data.summary === 'string' && p.cv_data.summary.length > 20) ||
+    (typeof p.cv_data.job_title === 'string' && p.cv_data.job_title.length > 2)
+  ) },
   { key: 'idea',         label: 'Lanzar una idea',      credits: 150, check: (p, extra) => extra?.hasIdea },
 ]
 
