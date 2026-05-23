@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno runtime, los tipos de Node.js no aplican aquí
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
