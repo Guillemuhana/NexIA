@@ -82,9 +82,13 @@ function ReferralBlock({ profile }) {
           <div style={{ fontSize: 16, fontWeight: 800, color: '#0a0a0a', marginBottom: 2 }}>Compartí tu código — ambos ganan</div>
           <div style={{ fontSize: 13, color: '#888' }}>
             Vos: <strong style={{ color: '#E8611A' }}>+100 créditos</strong> · Ellos: <strong style={{ color: '#3b82f6' }}>+50 créditos</strong> al registrarse
-            {(profile.referral_count || 0) > 0 && (
-              <span style={{ marginLeft: 10, padding: '2px 8px', background: 'rgba(34,197,94,.1)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 99, fontSize: 11, color: '#22c55e', fontWeight: 700 }}>
-                {profile.referral_count} {profile.referral_count === 1 ? 'persona invitada' : 'personas invitadas'}
+            {' · '}
+            <strong style={{ color: (profile.referral_count || 0) >= 3 ? '#ef4444' : '#22c55e' }}>
+              {profile.referral_count || 0}/3 usos
+            </strong>
+            {(profile.referral_count || 0) >= 3 && (
+              <span style={{ marginLeft: 8, padding: '2px 8px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 99, fontSize: 11, color: '#ef4444', fontWeight: 700 }}>
+                Límite alcanzado
               </span>
             )}
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROLES } from '../lib/constants'
@@ -29,13 +29,22 @@ export default function Registro() {
   const navigate = useNavigate()
   const hasRef = !!searchParams.get('ref')
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
+  const submittingRef = useRef(false)
+  // Honeypot: campo oculto que solo los bots llenan
+  const [honeypot, setHoneypot] = useState('')
 
   useEffect(() => { if (!authLoading && user && !emailSent) navigate('/dashboard', { replace: true }) }, [user, authLoading, emailSent])
 
   const handleRegister = async () => {
+    // Anti-bot: honeypot y doble submit
+    if (honeypot) return
+    if (submittingRef.current) return
     if (!hasRef && !selectedRole) { setError('Elegí tu rol para continuar'); return }
     if (!form.name || !form.email || !form.password) { setError('Completá nombre, email y contraseña'); return }
     if (form.password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
+    // Validación básica de email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('El email no parece válido'); return }
+    submittingRef.current = true
     setLoading(true); setError('')
     if (selectedRole) localStorage.setItem('nexia_pending_role', selectedRole)
     if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
@@ -60,6 +69,7 @@ export default function Registro() {
       setError('Error al crear la cuenta. Intentá de nuevo.')
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 
@@ -172,6 +182,16 @@ export default function Registro() {
 
         {/* Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Honeypot anti-bot: invisible para humanos, los bots lo llenan */}
+          <input
+            type="text"
+            value={honeypot}
+            onChange={e => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            aria-hidden="true"
+            autoComplete="off"
+            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+          />
           {[
             ['Nombre', 'name', 'text', 'Ej: Martina García'],
             ['Email', 'email', 'email', 'tu@email.com'],
