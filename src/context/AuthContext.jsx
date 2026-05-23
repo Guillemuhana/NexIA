@@ -11,7 +11,12 @@ export function AuthProvider({ children }) {
   const fetchingRef = useRef(false)
 
   const fetchProfile = async (userId) => {
-    if (fetchingRef.current) return
+    if (fetchingRef.current) {
+      // Otra llamada ya está en curso — garantizamos que loading resuelve igual
+      setLoading(false)
+      setProfileFetched(true)
+      return
+    }
     fetchingRef.current = true
     try {
       // Query 1: base user record (no nested joins)
@@ -145,7 +150,9 @@ export function AuthProvider({ children }) {
               fetchingRef.current = false
               await fetchProfile(session.user.id)
             } catch {
-              setLoading(false)
+              // ignore
+            } finally {
+              setLoading(false)  // siempre desbloquear loading
             }
           }
 

@@ -18,11 +18,11 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, signInWithGoogle, user, loading: authLoading } = useAuth()
+  const { signIn, signInWithGoogle, user } = useAuth()
   const navigate = useNavigate()
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
-  useEffect(() => { if (!authLoading && user) navigate('/dashboard', { replace: true }) }, [user, authLoading])
+  useEffect(() => { if (user) navigate('/dashboard', { replace: true }) }, [user])
 
   const handleLogin = async () => {
     if (!form.email || !form.password) { setError('Completá todos los campos'); return }
