@@ -103,31 +103,35 @@ export default function CV() {
   const [dataLoading, setDataLoading] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) navigate('/login')
+    if (!loading && !user) navigate('/login', { replace: true })
   }, [user, loading])
 
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id) {
+      // Si no hay usuario y auth ya resolvió, no hay datos que cargar
+      if (!loading) setDataLoading(false)
+      return
+    }
     const load = async () => {
-      const [{ data: userData }, { data: skillRows }] = await Promise.all([
-        supabase.from('users').select('cv_data').eq('id', user.id).single(),
+      const [cvRes, skillRes] = await Promise.all([
+        supabase.from('users').select('cv_data').eq('id', user.id).maybeSingle(),
         supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
       ])
-      const cv = userData?.cv_data || {}
+      const cv = cvRes.data?.cv_data || {}
       setJobTitle(cv.job_title || '')
       setSummary(cv.summary || '')
-      setExperience(cv.experience || [])
-      setEducation(cv.education || [])
-      setLanguages(cv.languages || [])
-      setCertifications(cv.certifications || [])
-      setProjects(cv.projects || [])
+      setExperience(Array.isArray(cv.experience) ? cv.experience : [])
+      setEducation(Array.isArray(cv.education) ? cv.education : [])
+      setLanguages(Array.isArray(cv.languages) ? cv.languages : [])
+      setCertifications(Array.isArray(cv.certifications) ? cv.certifications : [])
+      setProjects(Array.isArray(cv.projects) ? cv.projects : [])
       setAvailability(cv.availability || '')
       setDesiredRole(cv.desired_role || '')
-      setSkills((skillRows || []).map(r => r.skills?.name).filter(Boolean))
+      setSkills((skillRes.data || []).map(r => r.skills?.name).filter(Boolean))
       setDataLoading(false)
     }
     load().catch(() => setDataLoading(false))
-  }, [user?.id])
+  }, [user?.id, loading])
 
   const handleSave = async () => {
     if (!user?.id) return
@@ -150,10 +154,13 @@ export default function CV() {
   const { pct: completePct, checks: completeChecks } = cvCompleteness(cvSnapshot, skills)
 
   if (loading || dataLoading) return (
-    <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div className="page-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 16 }}>
       <div style={{ width: 36, height: 36, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <span style={{ fontSize: 13, color: '#888', fontFamily: 'Inter, sans-serif' }}>Cargando tu curriculum...</span>
     </div>
   )
+
+  if (!user) return null
 
   return (
     <div className="page-wrap">
