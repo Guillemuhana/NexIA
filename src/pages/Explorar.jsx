@@ -4,6 +4,81 @@ import TalentCard from '../components/TalentCard'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
+function InviteModal({ talent, ideaId, onClose, onSuccess }) {
+  const [sending, setSending] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleInvite = async () => {
+    if (!ideaId) { setError('No tenés una idea activa para invitar talentos.'); return }
+    setSending(true); setError('')
+    try {
+      // Evitar duplicados
+      const { data: existing } = await supabase
+        .from('matches')
+        .select('id, status')
+        .eq('idea_id', ideaId)
+        .eq('talent_id', talent.id)
+        .maybeSingle()
+
+      if (existing) {
+        setError(`Ya invitaste a ${talent.name} (estado: ${existing.status}).`)
+        return
+      }
+
+      const { error: matchErr } = await supabase.from('matches').insert({
+        idea_id: ideaId,
+        talent_id: talent.id,
+        status: 'invited',
+        role_suggested: talent.role || '',
+        score: talent.score || 0,
+      })
+
+      if (matchErr) { setError('Error al enviar la invitación. Intentá de nuevo.'); return }
+      setDone(true)
+      setTimeout(() => { onSuccess?.(); onClose() }, 1800)
+    } catch {
+      setError('Error de conexión. Intentá de nuevo.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }} onClick={onClose}>
+      <div style={{ background: '#fff', borderRadius: 16, padding: 28, maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.15)' }} onClick={e => e.stopPropagation()}>
+        {done ? (
+          <div style={{ textAlign: 'center', padding: '12px 0' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+            <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>¡Invitación enviada!</div>
+            <div style={{ fontSize: 13, color: '#666' }}>{talent.name} puede aceptar o rechazar desde su dashboard.</div>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 8 }}>Invitar talento</div>
+            <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>{talent.name}</div>
+            <div style={{ fontSize: 13, color: '#666', marginBottom: 20 }}>{talent.role}{talent.location ? ` · ${talent.location}` : ''}</div>
+
+            <div style={{ padding: '12px 16px', background: '#f8f9fa', borderRadius: 10, fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>
+              Se le enviará una invitación a su panel. Podrá aceptar o rechazar la propuesta de unirse a tu proyecto.
+            </div>
+
+            {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,.07)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 8, color: '#ef4444', fontSize: 13, marginBottom: 14 }}>{error}</div>}
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={onClose} style={{ flex: 1, padding: '11px', fontSize: 14, background: 'none', border: '1px solid #d0d0d0', borderRadius: 9, cursor: 'pointer', fontFamily: 'Inter, sans-serif', color: '#444' }}>
+                Cancelar
+              </button>
+              <button onClick={handleInvite} disabled={sending} className="btn-primary" style={{ flex: 1, padding: '11px', fontSize: 14, opacity: sending ? 0.7 : 1 }}>
+                {sending ? 'Enviando...' : 'Confirmar invitación'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function Explorar() {
   const [search, setSearch] = useState('')
@@ -11,6 +86,7 @@ export default function Explorar() {
   const [filterAvail, setFilterAvail] = useState(false)
   const [talents, setTalents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [inviteTarget, setInviteTarget] = useState(null)
   const { profile } = useAuth()
 
   useEffect(() => {
@@ -120,9 +196,25 @@ export default function Explorar() {
             {talents.length === 0 ? 'Todavía no hay talentos registrados.' : 'No se encontraron perfiles con esos filtros.'}
           </div>
         ) : (
-          filtered.map(t => <TalentCard key={t.id} talent={t} showInvite={isVisionario} />)
+          filtered.map(t => (
+            <TalentCard
+              key={t.id}
+              talent={t}
+              showInvite={isVisionario}
+              onInvite={t => setInviteTarget(t)}
+            />
+          ))
         )}
       </div>
+
+      {inviteTarget && (
+        <InviteModal
+          talent={inviteTarget}
+          ideaId={profile?.idea_id}
+          onClose={() => setInviteTarget(null)}
+          onSuccess={() => setInviteTarget(null)}
+        />
+      )}
     </div>
   )
 }
