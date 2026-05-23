@@ -28,11 +28,29 @@ export default function Login() {
     if (!form.email || !form.password) { setError('Completá todos los campos'); return }
     setLoading(true); setError('')
     try {
-      const { error: err } = await signIn({ email: form.email, password: form.password })
-      if (err) { setError('Email o contraseña incorrectos'); return }
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000))
+      const { error: err } = await Promise.race([
+        signIn({ email: form.email, password: form.password }),
+        timeout,
+      ])
+      if (err) {
+        const msg = err.message?.toLowerCase() || ''
+        if (msg.includes('not confirmed') || msg.includes('email not confirmed')) {
+          setError('Confirmá tu email antes de ingresar. Revisá tu casilla de correo.')
+        } else if (msg.includes('invalid') || msg.includes('wrong') || msg.includes('credentials')) {
+          setError('Email o contraseña incorrectos.')
+        } else {
+          setError(err.message || 'Error al ingresar. Intentá de nuevo.')
+        }
+        return
+      }
       navigate('/dashboard')
-    } catch {
-      setError('Error de conexión. Intentá de nuevo.')
+    } catch (e) {
+      if (e?.message === 'timeout') {
+        setError('La conexión tardó demasiado. Revisá tu internet e intentá de nuevo.')
+      } else {
+        setError('Error de conexión. Intentá de nuevo.')
+      }
     } finally {
       setLoading(false)
     }
@@ -104,6 +122,9 @@ export default function Login() {
           <p style={{ textAlign: 'center', fontSize: 14, color: '#666' }}>
             ¿No tenés cuenta?{' '}
             <span onClick={() => navigate('/registro')} style={{ color: '#E8611A', cursor: 'pointer', fontWeight: 600 }}>Registrate gratis</span>
+          </p>
+          <p style={{ textAlign: 'center', fontSize: 12, color: '#888' }}>
+            <span onClick={() => navigate('/reset-password')} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Olvidé mi contraseña</span>
           </p>
         </div>
 
