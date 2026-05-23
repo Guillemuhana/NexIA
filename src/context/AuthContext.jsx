@@ -79,6 +79,17 @@ export function AuthProvider({ children }) {
             .catch(() => {})
         }
 
+        // For visionario: fetch idea_id before setProfile so Navbar link is ready immediately
+        let ideaId = null
+        if (primaryRole === 'visionario') {
+          try {
+            const { data: idea } = await supabase
+              .from('ideas').select('id').eq('founder_id', userId)
+              .order('created_at', { ascending: false }).limit(1).maybeSingle()
+            ideaId = idea?.id || null
+          } catch {}
+        }
+
         setProfile({
           id: userData.id,
           name: userData.name,
@@ -96,20 +107,8 @@ export function AuthProvider({ children }) {
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
-          idea_id: null,
+          idea_id: ideaId,
         })
-
-        // For visionario: fetch idea_id in background
-        if (primaryRole === 'visionario') {
-          supabase
-            .from('ideas').select('id').eq('founder_id', userId)
-            .order('created_at', { ascending: false }).limit(1).maybeSingle()
-            .then(({ data: idea }) => {
-              if (idea?.id) {
-                setProfile(prev => prev ? { ...prev, idea_id: idea.id } : prev)
-              }
-            }).catch(() => {})
-        }
       }
     } catch {}
     finally {

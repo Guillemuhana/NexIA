@@ -62,6 +62,8 @@ export default function AssistantWidget() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [slowMode, setSlowMode] = useState(false)
+  const slowTimerRef = useRef(null)
   const [userContext, setUserContext] = useState(null)
   const [userMemory, setUserMemory] = useState(null)
   const [contextLoaded, setContextLoaded] = useState(false)
@@ -97,7 +99,7 @@ export default function AssistantWidget() {
 
   const loadContext = async () => {
     try {
-      const ctxTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('ctx-timeout')), 8000))
+      const ctxTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('ctx-timeout')), 15000))
       const [
         { data: skillsData },
         { data: ideasData },
@@ -192,7 +194,11 @@ export default function AssistantWidget() {
     const historySnapshot = messages
     setMessages(h => [...h, { role: 'user', text }])
     setLoading(true)
+    setSlowMode(false)
     scrollToBottom()
+
+    // Show "procesando..." hint after 6 seconds
+    slowTimerRef.current = setTimeout(() => setSlowMode(true), 6000)
 
     supabase.from('assistant_messages').insert({ user_id: user.id, role: 'user', text })
       .then(() => {}).catch(() => {})
@@ -202,7 +208,7 @@ export default function AssistantWidget() {
         body: { action: 'assistantChat', message: text, history: historySnapshot.slice(-14), userContext },
       })
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 14000)
+        setTimeout(() => reject(new Error('timeout')), 40000)
       )
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise])
@@ -258,8 +264,10 @@ export default function AssistantWidget() {
         triggerMemorySave()
       }
     } catch {
-      setMessages(h => [...h, { role: 'ai', text: 'No pude conectarme. Usá los accesos directos de abajo o intentá de nuevo.' }])
+      setMessages(h => [...h, { role: 'ai', text: 'No pude responder esta vez. Intentá de nuevo.' }])
     } finally {
+      clearTimeout(slowTimerRef.current)
+      setSlowMode(false)
       setLoading(false)
       scrollToBottom()
     }
@@ -420,6 +428,11 @@ export default function AssistantWidget() {
               )
             })}
             {loading && <TypingDots />}
+            {loading && slowMode && (
+              <div style={{ fontSize: 11, color: '#bbb', textAlign: 'left', paddingLeft: 4, marginTop: -6, animation: 'assist-pulse-txt 1.5s ease-in-out infinite' }}>
+                Procesando, puede tardar unos segundos...
+              </div>
+            )}
             {pendingAction && (
               <div style={{ background: 'rgba(232,97,26,.06)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 10, padding: '11px 13px' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#E8611A', marginBottom: 9, textTransform: 'uppercase', letterSpacing: '.5px' }}>¿Confirmás la acción?</div>
