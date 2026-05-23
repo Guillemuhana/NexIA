@@ -37,7 +37,7 @@ export default function Registro() {
     localStorage.setItem('nexia_pending_role', selectedRole)
     if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
     try {
-      const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name })
+      const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name, pendingRef: refCode.trim().toUpperCase() || undefined })
       if (err) {
         localStorage.removeItem('nexia_pending_role')
         localStorage.removeItem('nexia_pending_ref')

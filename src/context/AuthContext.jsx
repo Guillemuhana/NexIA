@@ -151,6 +151,7 @@ export function AuthProvider({ children }) {
           }
 
           const pendingRef = localStorage.getItem('nexia_pending_ref')
+            || session.user.user_metadata?.pending_ref
           if (pendingRef) {
             localStorage.removeItem('nexia_pending_ref')
             supabase.rpc('apply_referral_code', { p_new_user_id: session.user.id, p_ref_code: pendingRef })
@@ -173,10 +174,10 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const signUp = async ({ email, password, name }) => {
+  const signUp = async ({ email, password, name, pendingRef }) => {
     const { data, error } = await supabase.auth.signUp({
       email, password,
-      options: { data: { name } }
+      options: { data: { name, ...(pendingRef ? { pending_ref: pendingRef } : {}) } }
     })
     return { data, error }
   }
@@ -235,6 +236,19 @@ export function AuthProvider({ children }) {
     Object.entries(rest).forEach(([k, v]) => { if (v !== undefined) userUpdates[k] = v })
     if (portfolio !== undefined) userUpdates.portfolio_url = portfolio
 
+    // Optimistic update — user sees changes immediately before DB round-trip
+    setProfile(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        ...userUpdates,
+        portfolio: userUpdates.portfolio_url ?? prev.portfolio,
+        portfolio_url: userUpdates.portfolio_url ?? prev.portfolio_url,
+        role: role !== undefined ? role : prev.role,
+        available: available !== undefined ? available : prev.available,
+      }
+    })
+
     let error
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
@@ -248,13 +262,16 @@ export function AuthProvider({ children }) {
       error = dbError
     } catch (e) {
       clearTimeout(timeoutId)
-      if (controller.signal.aborted) {
-        return { data: null, error: { message: 'Tiempo de espera agotado. Revisá tu conexión.' } }
-      }
-      return { data: null, error: { message: e?.message || 'Error de conexión' } }
+      // Timeout or network error: optimistic update already applied, schedule background confirm
+      setTimeout(() => { fetchingRef.current = false; fetchProfile(user.id).catch(() => {}) }, 4000)
+      error = null
     }
 
-    if (error) return { data: null, error }
+    if (error) {
+      // DB returned an actual error (not timeout): schedule background sync to revert if needed
+      setTimeout(() => { fetchingRef.current = false; fetchProfile(user.id).catch(() => {}) }, 1000)
+      return { data: null, error }
+    }
 
     // Update talent_profiles for role/available if provided
     if (role !== undefined || available !== undefined) {
@@ -264,25 +281,11 @@ export function AuthProvider({ children }) {
       await supabase.from('talent_profiles').upsert(tpUpdates, { onConflict: 'user_id' }).catch(() => {})
     }
 
-    // Optimistic local update — user sees changes immediately without waiting for re-fetch
-    setProfile(prev => {
-      if (!prev) return prev
-      return {
-        ...prev,
-        ...userUpdates,
-        // keep both aliases in sync
-        portfolio: userUpdates.portfolio_url ?? prev.portfolio,
-        portfolio_url: userUpdates.portfolio_url ?? prev.portfolio_url,
-        role: role !== undefined ? role : prev.role,
-        available: available !== undefined ? available : prev.available,
-      }
-    })
-
     // Background refresh for eventual consistency (fire-and-forget)
     setTimeout(() => {
       fetchingRef.current = false
       fetchProfile(user.id).catch(() => {})
-    }, 300)
+    }, 500)
 
     recalculateCredits().catch(() => {})
     return { data: userUpdates, error: null }
