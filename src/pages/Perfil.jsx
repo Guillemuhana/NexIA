@@ -421,7 +421,7 @@ export default function Perfil() {
           <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Acciones rápidas</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             <button onClick={() => navigate('/perfil-chat')} style={quickBtn('#0a0a0a', '#fff')}>🤖 Completar con IA</button>
-            <button onClick={() => navigate('/cv')} style={quickBtn('#fff', '#0a0a0a', '#e0e0e0')}>📄 Mi CV digital</button>
+            <button onClick={() => navigate('/cv')} style={quickBtn('#fff', '#0a0a0a', '#e0e0e0')}>📄 Curriculum</button>
             {profile?.type === 'visionario' && <button onClick={() => navigate('/lanzar')} style={quickBtn('#fff', '#0a0a0a', '#e0e0e0')}>💡 Lanzar idea</button>}
             {profile?.type === 'talento' && <button onClick={() => navigate('/explorar')} style={quickBtn('#fff', '#0a0a0a', '#e0e0e0')}>⚡ Invitaciones</button>}
             {profile?.type === 'inversor' && <button onClick={() => navigate('/proyectos')} style={quickBtn('#fff', '#0a0a0a', '#e0e0e0')}>💼 Proyectos</button>}

@@ -165,7 +165,7 @@ export default function CV() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, flexWrap: 'wrap', gap: 16 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 10 }}>Curriculum Vitae</div>
-            <h1 style={{ fontSize: 'clamp(26px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Mi CV digital</h1>
+            <h1 style={{ fontSize: 'clamp(26px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Curriculum</h1>
             <p style={{ fontSize: 14, color: '#666' }}>Tu perfil profesional completo, disponible para cualquier proyecto o búsqueda.</p>
           </div>
           <button onClick={() => navigate('/perfil')} style={{ padding: '8px 16px', fontSize: 13, background: 'none', border: '1px solid #d0d0d0', color: '#666', borderRadius: 7, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>

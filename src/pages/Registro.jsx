@@ -23,12 +23,14 @@ export default function Registro() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showRefField, setShowRefField] = useState(!!searchParams.get('ref'))
+  const [emailSent, setEmailSent] = useState(false)
+  const [sentToEmail, setSentToEmail] = useState('')
   const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const hasRef = !!searchParams.get('ref')
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
-  useEffect(() => { if (!authLoading && user) navigate('/dashboard', { replace: true }) }, [user, authLoading])
+  useEffect(() => { if (!authLoading && user && !emailSent) navigate('/dashboard', { replace: true }) }, [user, authLoading, emailSent])
 
   const handleRegister = async () => {
     if (!hasRef && !selectedRole) { setError('Elegí tu rol para continuar'); return }
@@ -50,7 +52,8 @@ export default function Registro() {
         }
         return
       }
-      navigate('/onboarding')
+      setSentToEmail(form.email)
+      setEmailSent(true)
     } catch {
       localStorage.removeItem('nexia_pending_role')
       localStorage.removeItem('nexia_pending_ref')
@@ -65,6 +68,34 @@ export default function Registro() {
     setError('')
     if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
     await signInWithGoogle(selectedRole || null)
+  }
+
+  if (emailSent) {
+    return (
+      <div className="page-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', padding: '80px 20px' }}>
+        <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
+          <LogoEquia size={26} onClick={() => navigate('/')} style={{ marginBottom: 40 }} />
+          <div style={{ fontSize: 56, marginBottom: 20 }}>📬</div>
+          <h2 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-1px', marginBottom: 12 }}>Revisá tu email</h2>
+          <p style={{ color: '#555', fontSize: 15, lineHeight: 1.7, marginBottom: 8 }}>
+            Te enviamos un link de verificación a
+          </p>
+          <div style={{ display: 'inline-block', padding: '8px 18px', background: 'rgba(232,97,26,.07)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 8, marginBottom: 28, fontWeight: 700, color: '#E8611A', fontSize: 15 }}>
+            {sentToEmail}
+          </div>
+          <p style={{ color: '#666', fontSize: 13, lineHeight: 1.7, marginBottom: 28 }}>
+            Hacé clic en el link del email para confirmar tu cuenta y acceder a Equia.<br />
+            Revisá también la carpeta de spam.
+          </p>
+          <button
+            onClick={() => navigate('/login')}
+            style={{ background: 'none', border: '1px solid #ddd', borderRadius: 9, padding: '10px 22px', fontSize: 14, color: '#444', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}
+          >
+            Ya confirmé, ir a iniciar sesión →
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
