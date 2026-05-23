@@ -35,8 +35,11 @@ function CreditBlock({ profile, hasIdea }) {
           </div>
         )}
       </div>
-      <div style={{ height: 6, background: '#f0f0f0', borderRadius: 99, overflow: 'hidden', marginBottom: pendingActions.length > 0 ? 14 : 0 }}>
+      <div style={{ height: 6, background: '#f0f0f0', borderRadius: 99, overflow: 'hidden', marginBottom: 10 }}>
         <div style={{ height: '100%', background: 'linear-gradient(90deg, #E8611A, #f59340)', borderRadius: 99, transition: 'width 1.2s ease', width: `${progressPct}%` }} />
+      </div>
+      <div style={{ fontSize: 12, color: '#999', marginBottom: pendingActions.length > 0 ? 12 : 0 }}>
+        Más créditos = mayor prioridad en el algoritmo de matching IA — aparecés primero para los visionarios.
       </div>
       {pendingActions.length > 0 && (
         <div>
@@ -180,6 +183,7 @@ export default function Dashboard() {
   const [data, setData] = useState([])
   const [teamPanels, setTeamPanels] = useState([])
   const [founderEquity, setFounderEquity] = useState([]) // [{ideaTitle, name, role, equity_pct}]
+  const [invitedByIdea, setInvitedByIdea] = useState({})
   const [publicIdeas, setPublicIdeas] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [paywallMatch, setPaywallMatch] = useState(null)
@@ -223,26 +227,28 @@ export default function Dashboard() {
         if (projects.length > 0) {
           setTeamPanels(projects.map(p => ({ ideaId: p.id, title: p.title, category: p.category, members: [{ name: founderName || 'Vos', avatar_url: null }] })))
 
-          // Enriquecer con miembros y equity en background (no bloquea el render)
+          // Enriquecer con miembros, equity e invitados en background (no bloquea el render)
           Promise.all(projects.map(async p => {
-            const { data: matches } = await supabase
-              .from('matches')
-              .select('talent_id, users(name, avatar_url), equity_pct, role_suggested')
-              .eq('idea_id', p.id)
-              .eq('status', 'accepted')
+            const [{ data: matches }, { data: invitedMatches }] = await Promise.all([
+              supabase.from('matches').select('talent_id, users(id, name, avatar_url), equity_pct, role_suggested').eq('idea_id', p.id).eq('status', 'accepted'),
+              supabase.from('matches').select('talent_id, users(id, name, avatar_url), role_suggested, score').eq('idea_id', p.id).in('status', ['invited', 'pending']),
+            ])
             const members = [
               { name: founderName || 'Vos', avatar_url: null },
               ...(matches || []).map(m => ({ name: m.users?.name, avatar_url: m.users?.avatar_url })),
             ]
-            return { ideaId: p.id, title: p.title, category: p.category, members, matches: matches || [] }
+            return { ideaId: p.id, title: p.title, category: p.category, members, matches: matches || [], invited: invitedMatches || [] }
           })).then(enriched => {
             if (cancelled) return
-            setTeamPanels(enriched.map(({ matches: _, ...p }) => p))
+            setTeamPanels(enriched.map(({ matches: _, invited: __, ...p }) => p))
             const allEquity = []
             enriched.forEach(e => e.matches.forEach(m => {
               if (m.equity_pct) allEquity.push({ ideaTitle: e.title, name: m.users?.name, role: m.role_suggested, equity_pct: parseFloat(m.equity_pct) })
             }))
             setFounderEquity(allEquity)
+            const invMap = {}
+            enriched.forEach(e => { invMap[e.ideaId] = e.invited })
+            setInvitedByIdea(invMap)
           }).catch(() => {})
         }
       }
@@ -402,6 +408,27 @@ export default function Dashboard() {
                         </div>
                       )}
                     </div>
+                    {/* Candidatos IA */}
+                    {(invitedByIdea[p.id] || []).length > 0 && (
+                      <div style={{ borderTop: '1px solid #f5f5f5', padding: '14px 24px' }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 10 }}>
+                          🤖 Candidatos encontrados por la IA
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                          {(invitedByIdea[p.id] || []).map((m, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 12px', background: '#fff', border: '1px solid #e8e8e8', borderRadius: 99, fontSize: 12 }}>
+                              <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#E8611A', overflow: 'hidden', flexShrink: 0 }}>
+                                {m.users?.avatar_url ? <img src={m.users.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : m.users?.name?.charAt(0)?.toUpperCase()}
+                              </div>
+                              <span style={{ fontWeight: 600, color: '#333' }}>{m.users?.name}</span>
+                              <span style={{ color: '#bbb' }}>·</span>
+                              <span style={{ color: '#777', fontSize: 11 }}>{m.role_suggested}</span>
+                              <span style={{ fontSize: 10, padding: '1px 7px', background: 'rgba(251,191,36,.1)', color: '#d97706', border: '1px solid rgba(251,191,36,.25)', borderRadius: 99, fontWeight: 700 }}>Pendiente</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {/* Footer with panel button */}
                     <div style={{ borderTop: '1px solid #f0f0f0', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa', flexWrap: 'wrap', gap: 8 }}>
                       <div style={{ display: 'flex', gap: 16 }}>
@@ -487,8 +514,8 @@ export default function Dashboard() {
           <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Talento'} ⚡</h1>
           <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tus invitaciones a proyectos y el espacio privado de tu equipo.</p>
 
-          <CreditBlock />
-          <ReferralBlock />
+          <CreditBlock profile={profile} hasIdea={data.some(m => m.status === 'accepted')} />
+          <ReferralBlock profile={profile} />
 
           {/* ── Paneles activos ── */}
           {teamPanels.length > 0 && (

@@ -25,16 +25,17 @@ export default function Registro() {
   const [showRefField, setShowRefField] = useState(!!searchParams.get('ref'))
   const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+  const hasRef = !!searchParams.get('ref')
   const upd = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
   useEffect(() => { if (!authLoading && user) navigate('/dashboard', { replace: true }) }, [user, authLoading])
 
   const handleRegister = async () => {
-    if (!selectedRole) { setError('Elegí tu rol para continuar'); return }
+    if (!hasRef && !selectedRole) { setError('Elegí tu rol para continuar'); return }
     if (!form.name || !form.email || !form.password) { setError('Completá nombre, email y contraseña'); return }
     if (form.password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
     setLoading(true); setError('')
-    localStorage.setItem('nexia_pending_role', selectedRole)
+    if (selectedRole) localStorage.setItem('nexia_pending_role', selectedRole)
     if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
     try {
       const { data, error: err } = await signUp({ email: form.email, password: form.password, name: form.name, pendingRef: refCode.trim().toUpperCase() || undefined })
@@ -60,10 +61,10 @@ export default function Registro() {
   }
 
   const handleGoogle = async () => {
-    if (!selectedRole) { setError('Elegí tu rol primero'); return }
+    if (!hasRef && !selectedRole) { setError('Elegí tu rol primero'); return }
     setError('')
     if (refCode.trim()) localStorage.setItem('nexia_pending_ref', refCode.trim().toUpperCase())
-    await signInWithGoogle(selectedRole)
+    await signInWithGoogle(selectedRole || null)
   }
 
   return (
@@ -72,35 +73,47 @@ export default function Registro() {
 
         <LogoEquia size={26} onClick={() => navigate('/')} style={{ marginBottom: 36 }} />
 
+        {hasRef && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: 'rgba(232,97,26,.07)', border: '1px solid rgba(232,97,26,.2)', borderRadius: 10, marginBottom: 20 }}>
+            <span style={{ fontSize: 20 }}>👋</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#E8611A' }}>Te invitaron a Equia</div>
+              <div style={{ fontSize: 12, color: '#888' }}>Creá tu cuenta y sumás <strong style={{ color: '#E8611A' }}>+50 créditos</strong> gratis al entrar.</div>
+            </div>
+          </div>
+        )}
+
         <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1.2px', marginBottom: 4 }}>Creá tu cuenta</h1>
         <p style={{ color: '#555', fontSize: 14, marginBottom: 28, lineHeight: 1.6 }}>
           Gratis. Solo lleva 30 segundos.{' '}
           <span onClick={() => navigate('/login')} style={{ color: '#E8611A', cursor: 'pointer', fontWeight: 600 }}>¿Ya tenés cuenta?</span>
         </p>
 
-        {/* Rol */}
-        <div style={{ marginBottom: 20 }}>
-          <label className="form-label" style={{ marginBottom: 10, display: 'block' }}>¿Quién sos?</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {Object.values(ROLES).map(role => (
-              <button
-                key={role.id}
-                onClick={() => { setSelectedRole(role.id); setError('') }}
-                style={{
-                  padding: '12px 8px', borderRadius: 10, cursor: 'pointer',
-                  background: selectedRole === role.id ? 'rgba(232,97,26,.08)' : '#0a0a0a',
-                  border: `1.5px solid ${selectedRole === role.id ? '#E8611A' : '#222'}`,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-                  transition: 'all .15s', fontFamily: 'Inter, sans-serif',
-                }}
-              >
-                <span style={{ fontSize: 20 }}>{role.icon}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: selectedRole === role.id ? '#E8611A' : '#fff' }}>{role.label}</span>
-                <span style={{ fontSize: 10, color: '#555', textAlign: 'center', lineHeight: 1.3 }}>{role.shortDesc || role.desc?.split('.')[0]}</span>
-              </button>
-            ))}
+        {/* Rol — solo cuando no viene por link de referido */}
+        {!hasRef && (
+          <div style={{ marginBottom: 20 }}>
+            <label className="form-label" style={{ marginBottom: 10, display: 'block' }}>¿Quién sos?</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              {Object.values(ROLES).map(role => (
+                <button
+                  key={role.id}
+                  onClick={() => { setSelectedRole(role.id); setError('') }}
+                  style={{
+                    padding: '12px 8px', borderRadius: 10, cursor: 'pointer',
+                    background: selectedRole === role.id ? 'rgba(232,97,26,.08)' : '#0a0a0a',
+                    border: `1.5px solid ${selectedRole === role.id ? '#E8611A' : '#222'}`,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+                    transition: 'all .15s', fontFamily: 'Inter, sans-serif',
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>{role.icon}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: selectedRole === role.id ? '#E8611A' : '#fff' }}>{role.label}</span>
+                  <span style={{ fontSize: 10, color: '#555', textAlign: 'center', lineHeight: 1.3 }}>{role.shortDesc || role.desc?.split('.')[0]}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Google */}
         <button
