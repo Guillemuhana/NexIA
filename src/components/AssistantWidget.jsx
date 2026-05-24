@@ -249,10 +249,14 @@ export default function AssistantWidget() {
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise])
 
-      const rawText = data?.content?.[0]?.text || (error ? null : 'Sin respuesta.')
+      const rawText = data?.content?.[0]?.text || null
 
       if (!rawText) {
-        setMessages(h => [...h, { role: 'ai', text: 'El servicio de IA no está disponible. Podés usar los accesos directos de abajo para navegar.' }])
+        // Intentar extraer el error real para debugging
+        let errDetail = ''
+        if (data?.error) errDetail = ` (${data.error})`
+        else if (error?.message && error.message !== 'FunctionsHttpError') errDetail = ` (${error.message})`
+        setMessages(h => [...h, { role: 'ai', text: `No pude responder esta vez${errDetail}. Intentá de nuevo en unos segundos.` }])
         return
       }
 
