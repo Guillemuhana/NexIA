@@ -182,7 +182,7 @@ function TeamPanelCard({ title, ideaId, members = [], category }) {
 }
 
 export default function Dashboard() {
-  const { user, profile, loading, profileFetched } = useAuth()
+  const { user, profile, loading, profileFetched, recalculateCredits } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState([])
   const [teamPanels, setTeamPanels] = useState([])
@@ -196,6 +196,11 @@ export default function Dashboard() {
   useEffect(() => { if (!loading && !user) navigate('/login') }, [user, loading])
   // Only redirect to onboarding once profileFetched=true (profile actually loaded from DB, not just auth timeout)
   useEffect(() => { if (profileFetched && user && !profile?.type) navigate('/onboarding') }, [profileFetched, user, profile])
+
+  // Refresh credits from DB on mount — muestra referral rewards y bonuses sin necesitar reload
+  useEffect(() => {
+    if (user?.id) recalculateCredits().catch(() => {})
+  }, [user?.id])
 
   useEffect(() => {
     if (!user?.id || !profile?.type) return

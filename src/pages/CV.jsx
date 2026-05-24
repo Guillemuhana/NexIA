@@ -108,15 +108,18 @@ export default function CV() {
 
   useEffect(() => {
     if (!user?.id) {
-      // Si no hay usuario y auth ya resolvió, no hay datos que cargar
       if (!loading) setDataLoading(false)
       return
     }
+    let cancelled = false
+    // Safety: nunca quedar infinitamente en loading
+    const timer = setTimeout(() => { if (!cancelled) setDataLoading(false) }, 10000)
     const load = async () => {
       const [cvRes, skillRes] = await Promise.all([
         supabase.from('users').select('cv_data').eq('id', user.id).maybeSingle(),
         supabase.from('user_skills').select('skills(name)').eq('user_id', user.id),
       ])
+      if (cancelled) return
       const cv = cvRes.data?.cv_data || {}
       setJobTitle(cv.job_title || '')
       setSummary(cv.summary || '')
@@ -130,7 +133,10 @@ export default function CV() {
       setSkills((skillRes.data || []).map(r => r.skills?.name).filter(Boolean))
       setDataLoading(false)
     }
-    load().catch(() => setDataLoading(false))
+    load()
+      .catch(() => { if (!cancelled) setDataLoading(false) })
+      .finally(() => clearTimeout(timer))
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [user?.id, loading])
 
   const handleSave = async () => {
