@@ -31,6 +31,40 @@ const QUICK_ACTIONS = {
   ],
 }
 
+const SUGGESTED_REPLIES = {
+  talento: [
+    '¿Cómo mejoro mi perfil?',
+    '¿Cómo consigo más créditos?',
+    '¿Qué proyectos hay disponibles?',
+  ],
+  visionario: [
+    '¿Cómo busco talento?',
+    '¿Cómo lanzo mi idea?',
+    '¿Cómo funciona el matching?',
+  ],
+  inversor: [
+    '¿Qué proyectos hay activos?',
+    '¿Cómo contacto a un founder?',
+  ],
+  default: [
+    '¿Cómo funciona Equia?',
+    '¿Qué puedo hacer acá?',
+  ],
+}
+
+function computeProfilePct(profile) {
+  if (!profile) return 0
+  const checks = [
+    !!profile.name,
+    !!profile.bio,
+    !!profile.location,
+    !!(profile.portfolio_url || profile.linkedin_url),
+    !!profile.avatar_url,
+    profile.type !== 'talento' || !!profile.role,
+  ]
+  return Math.round(checks.filter(Boolean).length / checks.length * 100)
+}
+
 function BotIcon({ size = 22 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -128,6 +162,8 @@ export default function AssistantWidget() {
         location: profile?.location,
         available: profile?.available,
         ideas: ideasData || [],
+        credits: profile?.credits ?? 0,
+        profilePct: computeProfilePct(profile),
         memory,
       })
 
@@ -146,7 +182,7 @@ export default function AssistantWidget() {
     } catch {
       const fn = profile?.name?.split(' ')[0] || ''
       setUserMemory({ summary: '', goals: [], style: {}, key_facts: [] })
-      setUserContext({ name: profile?.name, type: profile?.type, role: profile?.role, skills: [], ideas: [], memory: null })
+      setUserContext({ name: profile?.name, type: profile?.type, role: profile?.role, skills: [], ideas: [], credits: profile?.credits ?? 0, profilePct: computeProfilePct(profile), memory: null })
       setMessages([{ role: 'ai', text: `Hola${fn ? ` ${fn}` : ''}! ¿En qué puedo ayudarte?` }])
     } finally {
       setContextLoaded(true)
@@ -339,7 +375,10 @@ export default function AssistantWidget() {
 
   if (!user || !profile) return null
   const quickActions = QUICK_ACTIONS[profile?.type] || QUICK_ACTIONS.default
+  const suggestedReplies = SUGGESTED_REPLIES[profile?.type] || SUGGESTED_REPLIES.default
   const hasMemory = userMemory?.summary?.length > 10
+  const lastMsgIsAI = messages.length > 0 && messages[messages.length - 1]?.role === 'ai'
+  const showSuggestions = contextLoaded && !loading && !input.trim() && lastMsgIsAI && !pendingAction
 
   return (
     <>
@@ -461,6 +500,18 @@ export default function AssistantWidget() {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Sugerencias rápidas */}
+          {showSuggestions && (
+            <div style={{ padding: '8px 14px 0', background: '#fff', flexShrink: 0, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {suggestedReplies.map(s => (
+                <button key={s} className="assist-chip" onClick={() => sendMessage(s)}
+                  style={{ padding: '5px 11px', borderRadius: 99, border: '1px solid #e8e8e8', background: '#fafafa', fontSize: 11.5, fontWeight: 500, cursor: 'pointer', fontFamily: 'Inter,sans-serif', color: '#555', transition: 'all .15s' }}>
+                  {s}
+                </button>
+              ))}
             </div>
           )}
 
