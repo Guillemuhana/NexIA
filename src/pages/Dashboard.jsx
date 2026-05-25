@@ -127,6 +127,83 @@ function Spinner() {
   return <div style={{ width: 36, height: 36, border: '2px solid #e0e0e0', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
 }
 
+// ── DirectInbox ───────────────────────────────────────────────────────────────
+function DirectInbox({ userId }) {
+  const navigate = useNavigate()
+  const [msgs, setMsgs] = useState([])
+  const [open, setOpen] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!userId) return
+    supabase
+      .from('direct_messages')
+      .select('id, content, read, created_at, sender_id, users!direct_messages_sender_id_fkey(id, name, avatar_url)')
+      .eq('receiver_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .then(({ data }) => { setMsgs(data || []); setLoaded(true) })
+  }, [userId])
+
+  const markRead = async (id) => {
+    await supabase.from('direct_messages').update({ read: true }).eq('id', id)
+    setMsgs(prev => prev.map(m => m.id === id ? { ...m, read: true } : m))
+  }
+
+  const unread = msgs.filter(m => !m.read).length
+
+  if (loaded && msgs.length === 0) return null
+
+  return (
+    <div style={{ marginBottom: 28, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', background: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>✉ Mensajes</span>
+          {unread > 0 && (
+            <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: '#E8611A', color: '#fff' }}>{unread}</span>
+          )}
+        </div>
+        <span style={{ fontSize: 13, color: '#bbb', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid #f0f0f0' }}>
+          {!loaded ? (
+            <div style={{ padding: 20, textAlign: 'center' }}><Spinner /></div>
+          ) : msgs.map(m => {
+            const sender = m.users
+            const initials = sender?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
+            return (
+              <div
+                key={m.id}
+                onClick={() => { markRead(m.id); navigate(`/talento/${sender?.id}`) }}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '13px 18px', borderBottom: '1px solid #f5f5f5', cursor: 'pointer', background: m.read ? '#fff' : 'rgba(232,97,26,.03)', transition: 'background .15s' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
+                onMouseLeave={e => e.currentTarget.style.background = m.read ? '#fff' : 'rgba(232,97,26,.03)'}
+              >
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: '#E8611A', flexShrink: 0, overflow: 'hidden', border: '1px solid #e8e8e8' }}>
+                  {sender?.avatar_url ? <img src={sender.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                    <span style={{ fontSize: 13, fontWeight: m.read ? 500 : 700, color: '#0a0a0a' }}>{sender?.name}</span>
+                    <span style={{ fontSize: 11, color: '#bbb', flexShrink: 0 }}>{new Date(m.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.content}</div>
+                </div>
+                {!m.read && <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#E8611A', flexShrink: 0, marginTop: 6 }} />}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Panel del Equipo card ──────────────────────────────────────────────────
 function TeamPanelCard({ title, ideaId, members = [], category }) {
   const navigate = useNavigate()
@@ -340,6 +417,7 @@ export default function Dashboard() {
           </button>
         </div>
 
+        <DirectInbox userId={user.id} />
         <CreditBlock profile={profile} hasIdea={hasIdea} />
         <ReferralBlock profile={profile} />
 
@@ -519,6 +597,7 @@ export default function Dashboard() {
           <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Talento'} ⚡</h1>
           <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tus invitaciones a proyectos y el espacio privado de tu equipo.</p>
 
+          <DirectInbox userId={user.id} />
           <CreditBlock profile={profile} hasIdea={data.some(m => m.status === 'accepted')} />
           <ReferralBlock profile={profile} />
 
@@ -630,6 +709,7 @@ export default function Dashboard() {
         <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Inversor'} 💼</h1>
         <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tu pipeline de proyectos e inversiones.</p>
 
+        <DirectInbox userId={user.id} />
         <CreditBlock profile={profile} hasIdea={hasIdea} />
         <ReferralBlock profile={profile} />
 

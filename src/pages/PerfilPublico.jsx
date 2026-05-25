@@ -6,9 +6,13 @@ import { useAuth } from '../context/AuthContext'
 export default function PerfilPublico() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { profile: myProfile } = useAuth()
+  const { user, profile: myProfile } = useAuth()
   const [person, setPerson] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [msgOpen, setMsgOpen] = useState(false)
+  const [msgText, setMsgText] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -44,8 +48,22 @@ export default function PerfilPublico() {
   )
 
   const score = Math.round(person.match_score_avg || 0)
+  const isOwnProfile = user?.id === id
+
+  const sendMessage = async () => {
+    if (!msgText.trim() || sending) return
+    setSending(true)
+    const { error } = await supabase.from('direct_messages').insert({
+      sender_id: user.id,
+      receiver_id: id,
+      content: msgText.trim(),
+    })
+    setSending(false)
+    if (!error) { setSent(true); setMsgText('') }
+  }
 
   return (
+    <>
     <div className="page-wrap">
       <div style={{ padding: '80px 20px 60px', maxWidth: 680, margin: '0 auto' }}>
 
@@ -73,10 +91,22 @@ export default function PerfilPublico() {
             {person.main_role && <div style={{ fontSize: 15, color: '#555', marginBottom: 3 }}>{person.main_role}</div>}
             {person.location && <div style={{ fontSize: 13, color: '#777' }}>📍 {person.location}</div>}
           </div>
-          {myProfile?.type === 'visionario' && (
-            <button className="btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={() => navigate('/lanzar')}>
-              Invitar →
-            </button>
+          {user && !isOwnProfile && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {myProfile?.type === 'visionario' && (
+                <button className="btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={() => navigate('/lanzar')}>
+                  Invitar →
+                </button>
+              )}
+              <button
+                onClick={() => { setMsgOpen(true); setSent(false) }}
+                style={{ padding: '10px 18px', fontSize: 13, fontWeight: 600, borderRadius: 9, border: '1px solid #d0d0d0', background: '#fff', color: '#444', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#111' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#d0d0d0'; e.currentTarget.style.color = '#444' }}
+              >
+                ✉ Mensaje
+              </button>
+            </div>
           )}
         </div>
 
@@ -131,5 +161,58 @@ export default function PerfilPublico() {
 
       </div>
     </div>
+
+    {/* Modal mensaje */}
+    {msgOpen && (
+      <div
+        onClick={e => { if (e.target === e.currentTarget) setMsgOpen(false) }}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+      >
+        <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 440, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 800 }}>Mensaje a {person.name?.split(' ')[0]}</div>
+              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{person.main_role}</div>
+            </div>
+            <button onClick={() => setMsgOpen(false)} style={{ background: 'none', border: 'none', fontSize: 20, color: '#999', cursor: 'pointer', lineHeight: 1 }}>×</button>
+          </div>
+
+          {sent ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>✓</div>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Mensaje enviado</div>
+              <div style={{ fontSize: 13, color: '#666', marginBottom: 20 }}>{person.name?.split(' ')[0]} va a poder verlo en su bandeja de entrada.</div>
+              <button onClick={() => setMsgOpen(false)} className="btn-primary" style={{ padding: '10px 24px', fontSize: 14 }}>Cerrar</button>
+            </div>
+          ) : (
+            <>
+              <textarea
+                value={msgText}
+                onChange={e => setMsgText(e.target.value)}
+                placeholder={`Hola ${person.name?.split(' ')[0]}, te contacto porque...`}
+                rows={5}
+                maxLength={1000}
+                style={{ width: '100%', padding: '12px 14px', border: '1px solid #d0d0d0', borderRadius: 10, fontSize: 14, fontFamily: 'Inter, sans-serif', resize: 'vertical', outline: 'none', boxSizing: 'border-box', lineHeight: 1.6 }}
+                onFocus={e => e.target.style.borderColor = '#E8611A'}
+                onBlur={e => e.target.style.borderColor = '#d0d0d0'}
+                autoFocus
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                <span style={{ fontSize: 11, color: '#bbb' }}>{msgText.length}/1000</span>
+                <button
+                  onClick={sendMessage}
+                  disabled={!msgText.trim() || sending}
+                  className="btn-primary"
+                  style={{ padding: '10px 22px', fontSize: 14, opacity: !msgText.trim() || sending ? 0.5 : 1 }}
+                >
+                  {sending ? 'Enviando...' : 'Enviar →'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   )
 }
