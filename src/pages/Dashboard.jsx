@@ -136,13 +136,31 @@ function DirectInbox({ userId }) {
 
   useEffect(() => {
     if (!userId) return
-    supabase
-      .from('direct_messages')
-      .select('id, content, read, created_at, sender_id, users!direct_messages_sender_id_fkey(id, name, avatar_url)')
-      .eq('receiver_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(20)
-      .then(({ data }) => { setMsgs(data || []); setLoaded(true) })
+    const load = async () => {
+      try {
+        const { data: dmData } = await supabase
+          .from('direct_messages')
+          .select('id, content, read, created_at, sender_id')
+          .eq('receiver_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        const items = dmData || []
+        if (items.length === 0) { setMsgs([]); setLoaded(true); return }
+
+        const senderIds = [...new Set(items.map(m => m.sender_id))]
+        const { data: usersData } = await supabase
+          .from('users')
+          .select('id, name, avatar_url')
+          .in('id', senderIds)
+
+        const userMap = {}
+        ;(usersData || []).forEach(u => { userMap[u.id] = u })
+        setMsgs(items.map(m => ({ ...m, sender: userMap[m.sender_id] || null })))
+      } catch (_) {}
+      finally { setLoaded(true) }
+    }
+    load()
   }, [userId])
 
   const markRead = async (id) => {
@@ -174,7 +192,7 @@ function DirectInbox({ userId }) {
           {!loaded ? (
             <div style={{ padding: 20, textAlign: 'center' }}><Spinner /></div>
           ) : msgs.map(m => {
-            const sender = m.users
+            const sender = m.sender
             const initials = sender?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
             return (
               <div
