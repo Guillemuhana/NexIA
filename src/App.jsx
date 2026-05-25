@@ -18,6 +18,7 @@ import PerfilPublico from './pages/PerfilPublico'
 import AuthCallback from './pages/AuthCallback'
 import ProyectoPanel from './pages/ProyectoPanel'
 import CV from './pages/CV'
+import Admin from './pages/Admin'
 import FAQ from './pages/FAQ'
 import ProfileChat from './pages/ProfileChat'
 import CVChat from './pages/CVChat'
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/panel/:id" element={<ProyectoPanel />} />
         <Route path="/cv" element={<CV />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/perfil-chat" element={<ProfileChat />} />
         <Route path="/cv-chat" element={<CVChat />} />
