@@ -22,7 +22,7 @@ function StatCard({ label, value, sub, accent }) {
 const TABS = ['Resumen', 'Usuarios', 'Ideas', 'Mensajes', 'Actividad']
 
 export default function Admin() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState('Resumen')
   const [stats, setStats] = useState(null)
@@ -36,10 +36,11 @@ export default function Admin() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
+    if (authLoading) return
     if (!user) { navigate('/login'); return }
     if (user.email !== ADMIN_EMAIL) { navigate('/'); return }
     loadAll()
-  }, [user])
+  }, [user, authLoading])
 
   const loadAll = async () => {
     setLoading(true)
@@ -116,6 +117,7 @@ export default function Admin() {
     setSavingCredit(false)
   }
 
+  if (authLoading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><Spinner /></div>
   if (!user || user.email !== ADMIN_EMAIL) return null
 
   const fmt = (d) => new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' })
