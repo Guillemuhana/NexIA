@@ -228,7 +228,6 @@ export default function CV() {
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 2 }}>{profile?.name}</div>
-                <div style={{ fontSize: 13, color: '#666' }}>{profile?.role || profile?.bio?.slice(0, 60) || 'Sin rol definido'}</div>
                 {profile?.location && <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>📍 {profile.location}</div>}
               </div>
             </div>
