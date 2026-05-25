@@ -84,56 +84,63 @@ export default function Admin() {
 
   const loadAll = async () => {
     setLoading(true)
-    const [
-      { data: usersData },
-      { data: ideasData },
-      { data: matchesData },
-      { data: msgsData },
-      { data: rolesData },
-      { data: tpData },
-    ] = await Promise.all([
-      supabase.from('users').select('id, name, email, credits, is_admin, created_at, avatar_url, location, bio').order('created_at', { ascending: false }),
-      supabase.from('ideas').select('id, title, category, stage, status, is_public, created_at, founder_id').order('created_at', { ascending: false }),
-      supabase.from('matches').select('id, status, created_at, idea_id, talent_id'),
-      supabase.from('direct_messages').select('id, content, read, created_at, sender_id, receiver_id').order('created_at', { ascending: false }).limit(100),
-      supabase.from('user_roles').select('user_id, role_type, is_primary'),
-      supabase.from('talent_profiles').select('user_id, main_role, available'),
-    ])
+    try {
+      const [
+        { data: usersData },
+        { data: ideasData },
+        { data: msgsData },
+        { data: rolesData },
+        { data: tpData },
+      ] = await Promise.all([
+        supabase.from('users').select('id, name, email, credits, is_admin, created_at, avatar_url, location, bio').order('created_at', { ascending: false }),
+        supabase.from('ideas').select('id, title, category, stage, status, is_public, created_at, founder_id').order('created_at', { ascending: false }),
+        supabase.from('direct_messages').select('id, content, read, created_at, sender_id, receiver_id').order('created_at', { ascending: false }).limit(100),
+        supabase.from('user_roles').select('user_id, role_type, is_primary'),
+        supabase.from('talent_profiles').select('user_id, main_role, available'),
+      ])
 
-    const u = usersData || []
-    const i = ideasData || []
-    const m = matchesData || []
-    const dm = msgsData || []
-    const r = rolesData || []
-    const tp = tpData || []
+      const u = usersData || []
+      const i = ideasData || []
+      const dm = msgsData || []
+      const r = rolesData || []
+      const tp = tpData || []
 
-    const roleMap = {}; r.forEach(x => { if (x.is_primary) roleMap[x.user_id] = x.role_type })
-    const tpMap = {}; tp.forEach(x => { tpMap[x.user_id] = x })
+      const roleMap = {}; r.forEach(x => { if (x.is_primary) roleMap[x.user_id] = x.role_type })
+      const tpMap = {}; tp.forEach(x => { tpMap[x.user_id] = x })
 
-    const enriched = u.map(x => ({ ...x, role: roleMap[x.id] || '—', tp: tpMap[x.id] || null }))
-    setUsers(enriched)
-    setIdeas(i)
-    setMessages(dm)
+      const enriched = u.map(x => ({ ...x, role: roleMap[x.id] || '—', tp: tpMap[x.id] || null }))
+      setUsers(enriched)
+      setIdeas(i)
+      setMessages(dm)
 
-    const byRole = { visionario: 0, talento: 0, inversor: 0, sin_rol: 0 }
-    enriched.forEach(x => { byRole[x.role] !== undefined ? byRole[x.role]++ : byRole.sin_rol++ })
-    const totalCredits = enriched.reduce((a, x) => a + (x.credits || 0), 0)
+      const byRole = { visionario: 0, talento: 0, inversor: 0, sin_rol: 0 }
+      enriched.forEach(x => { byRole[x.role] !== undefined ? byRole[x.role]++ : byRole.sin_rol++ })
+      const totalCredits = enriched.reduce((a, x) => a + (x.credits || 0), 0)
 
-    setStats({
-      totalUsers: u.length, totalIdeas: i.length,
-      activeIdeas: i.filter(x => x.status === 'active').length,
-      totalMatches: m.length, acceptedMatches: m.filter(x => x.status === 'accepted').length,
-      totalMessages: dm.length, unreadMessages: dm.filter(x => !x.read).length,
-      totalCredits, avgCredits: u.length ? Math.round(totalCredits / u.length) : 0, byRole,
-    })
+      // fetch matches separately to avoid circular RLS (ideas↔matches)
+      const { data: matchesData } = await supabase.from('matches').select('id, status, created_at').limit(500)
+      const m = matchesData || []
 
-    const acts = [
-      ...u.slice(0, 15).map(x => ({ type: 'signup', label: `${x.name || x.email}`, role: roleMap[x.id], ts: x.created_at })),
-      ...i.slice(0, 15).map(x => ({ type: 'idea', label: x.title, ts: x.created_at })),
-      ...m.slice(0, 15).map(x => ({ type: 'match', label: `Match ${x.status}`, ts: x.created_at })),
-    ].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 40)
-    setActivity(acts)
-    setLoading(false)
+      setStats({
+        totalUsers: u.length, totalIdeas: i.length,
+        activeIdeas: i.filter(x => x.status === 'active').length,
+        totalMatches: m.length, acceptedMatches: m.filter(x => x.status === 'accepted').length,
+        totalMessages: dm.length, unreadMessages: dm.filter(x => !x.read).length,
+        totalCredits, avgCredits: u.length ? Math.round(totalCredits / u.length) : 0, byRole,
+      })
+
+      const acts = [
+        ...u.slice(0, 15).map(x => ({ type: 'signup', label: `${x.name || x.email}`, role: roleMap[x.id], ts: x.created_at })),
+        ...i.slice(0, 15).map(x => ({ type: 'idea', label: x.title, ts: x.created_at })),
+        ...m.slice(0, 15).map(x => ({ type: 'match', label: `Match ${x.status}`, ts: x.created_at })),
+      ].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 40)
+      setActivity(acts)
+    } catch (err) {
+      console.error('Admin loadAll error:', err)
+      showToast('Error cargando datos', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // ── Acciones ──
