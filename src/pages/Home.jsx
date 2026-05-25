@@ -6,7 +6,6 @@ import {
   ArrowRight, CheckCircle2, Zap,
 } from 'lucide-react'
 import LogoEquia from '../components/LogoEquia'
-import { supabase } from '../lib/supabase'
 
 /* ─────────────────────────────────────────────
    Particle canvas — mouse-reactive, nodos glow
@@ -250,40 +249,13 @@ const ROLES_DATA = [
   { label: 'Inversor',   tag: 'Buscás proyectos',  desc: 'Explorá proyectos con equipos ya formados por IA. Contactá directo con el founder.', cta: 'Invertí en una idea', path: '/registro?rol=inversor', accent: false },
 ]
 
-const ROLE_COLORS = {
-  'Desarrollador Full Stack': { bg: 'rgba(232,97,26,.08)',  color: '#E8611A' },
-  'Desarrollador Frontend':   { bg: 'rgba(59,130,246,.08)', color: '#2563eb' },
-  'Desarrollador Backend':    { bg: 'rgba(139,92,246,.08)', color: '#7c3aed' },
-  'UX/UI Designer':           { bg: 'rgba(236,72,153,.08)', color: '#be185d' },
-  'Marketing Digital':        { bg: 'rgba(16,185,129,.08)', color: '#059669' },
-  'Product Manager':          { bg: 'rgba(245,158,11,.08)', color: '#b45309' },
-  'Data Scientist / IA':      { bg: 'rgba(99,102,241,.08)', color: '#4338ca' },
-}
-
 /* ═══════════════════════════════════════════ */
 export default function Home() {
   const navigate = useNavigate()
   const typed = useTypewriter(['el equipo ideal.', 'hace realidad tu idea.', 'tu próximo proyecto.'])
-  const [talents, setTalents] = useState([])
-  const [ideas,   setIdeas]   = useState([])
   const [stepsRef,  stepsVis]  = useInView(0.08)
   const [rolesRef,  rolesVis]  = useInView(0.08)
   const [panelRef,  panelVis]  = useInView(0.08)
-
-  useEffect(() => {
-    supabase.from('talent_profiles')
-      .select('available, main_role, users(id, name, location, user_skills(skills(name)))')
-      .eq('available', true).limit(18)
-      .then(({ data }) => setTalents([...(data || [])].sort(() => Math.random() - 0.5).slice(0, 6)))
-      .catch(() => {})
-
-    supabase.from('ideas')
-      .select('id, title, description, category, stage, idea_roles(role_name)')
-      .eq('is_public', true).eq('status', 'active')
-      .order('created_at', { ascending: false }).limit(6)
-      .then(({ data }) => setIdeas(data || []))
-      .catch(() => {})
-  }, [])
 
   return (
     <div className="page-wrap">
@@ -328,7 +300,10 @@ export default function Home() {
                 Tengo una idea <ArrowRight size={18} />
               </button>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {[{ label: 'Postúlate', path: '/registro?rol=talento' }, { label: `${ideas.length || '–'} ideas activas`, path: '/proyectos' }].map(b => (
+                {[
+                  { label: 'Soy talento', path: '/registro?rol=talento' },
+                  { label: 'Soy inversor', path: '/registro?rol=inversor' },
+                ].map(b => (
                   <button key={b.path} onClick={() => navigate(b.path)}
                     style={{ padding: '14px 10px', fontSize: 13, fontWeight: 600, border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, cursor: 'pointer', background: 'rgba(255,255,255,.05)', color: '#888', fontFamily: 'Inter,sans-serif', transition: 'all .2s', backdropFilter: 'blur(6px)' }}
                     onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,.09)'; e.currentTarget.style.color='#ccc'; e.currentTarget.style.borderColor='rgba(255,255,255,.22)' }}
@@ -337,12 +312,6 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <button onClick={() => navigate('/registro?rol=inversor')}
-                style={{ padding: '14px 10px', fontSize: 13, fontWeight: 600, border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, cursor: 'pointer', background: 'rgba(255,255,255,.05)', color: '#888', fontFamily: 'Inter,sans-serif', transition: 'all .2s', backdropFilter: 'blur(6px)', width: '100%' }}
-                onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,.09)'; e.currentTarget.style.color='#ccc'; e.currentTarget.style.borderColor='rgba(255,255,255,.22)' }}
-                onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,.05)'; e.currentTarget.style.color='#888'; e.currentTarget.style.borderColor='rgba(255,255,255,.1)' }}>
-                Invertí en una idea
-              </button>
             </div>
           </div>
         </div>
@@ -493,121 +462,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* ══ IDEAS ACTIVAS — lista compacta ══ */}
-      {ideas.length > 0 && (
-        <div style={{ padding: 'clamp(40px,8vw,72px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8', background: '#f8f9fa' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto' }}>
-
-            {/* header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Zap size={16} color="#E8611A" />
-                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-.3px' }}>Ideas activas</span>
-                <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: 'rgba(232,97,26,.1)', color: '#E8611A' }}>{ideas.length}</span>
-              </div>
-              <button onClick={() => navigate('/proyectos')}
-                style={{ fontSize: 13, fontWeight: 600, color: '#E8611A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
-                Ver todas <ArrowRight size={13} />
-              </button>
-            </div>
-
-            {/* filas */}
-            <div style={{ border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
-              {ideas.map((idea, i) => {
-                const roles = (idea.idea_roles || []).map(r => r.role_name).filter(Boolean)
-                return (
-                  <div key={idea.id} onClick={() => navigate(`/proyectos/${idea.id}`)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: i < ideas.length - 1 ? '1px solid #f0f0f0' : 'none', cursor: 'pointer', transition: 'background .15s', minWidth: 0 }}
-                    onMouseEnter={e => e.currentTarget.style.background='#fafafa'}
-                    onMouseLeave={e => e.currentTarget.style.background='transparent'}>
-
-                    {/* categoría dot */}
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#E8611A', flexShrink: 0, opacity: .7 }} />
-
-                    {/* título + roles */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{idea.title}</div>
-                      {roles.length > 0 && (
-                        <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'nowrap', overflow: 'hidden' }}>
-                          {roles.slice(0, 2).map(r => (
-                            <span key={r} style={{ fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 4, background: '#f0f0f0', color: '#666', whiteSpace: 'nowrap', flexShrink: 0 }}>{r}</span>
-                          ))}
-                          {roles.length > 2 && <span style={{ fontSize: 10, color: '#999', flexShrink: 0 }}>+{roles.length - 2}</span>}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* etiquetas derecha */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      {idea.category && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: 'rgba(232,97,26,.1)', color: '#E8611A', whiteSpace: 'nowrap' }}>{idea.category}</span>}
-                      <ArrowRight size={14} color="#ccc" />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ══ TALENTOS — lista compacta ══ */}
-      {talents.length > 0 && (
-        <div style={{ padding: 'clamp(40px,8vw,72px) clamp(20px,6vw,32px)', borderTop: '1px solid #e8e8e8' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto' }}>
-
-            {/* header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Users size={16} color="#666" />
-                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-.3px' }}>Talentos disponibles</span>
-                <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: '#f0f0f0', color: '#666' }}>{talents.length}</span>
-              </div>
-              <button onClick={() => navigate('/explorar')}
-                style={{ fontSize: 13, fontWeight: 600, color: '#E8611A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter,sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}>
-                Ver todos <ArrowRight size={13} />
-              </button>
-            </div>
-
-            {/* filas */}
-            <div style={{ border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
-              {talents.map((tp, i) => {
-                const u = tp.users
-                const skills = (u?.user_skills || []).map(us => us.skills?.name).filter(Boolean)
-                const initials = u?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
-                const rc = ROLE_COLORS[tp.main_role] || { bg: '#f0f0f0', color: '#555' }
-                return (
-                  <div key={u?.id || i} onClick={() => navigate(`/talento/${u?.id}`)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderBottom: i < talents.length - 1 ? '1px solid #f0f0f0' : 'none', cursor: 'pointer', transition: 'background .15s', minWidth: 0 }}
-                    onMouseEnter={e => e.currentTarget.style.background='#fafafa'}
-                    onMouseLeave={e => e.currentTarget.style.background='transparent'}>
-
-                    {/* avatar */}
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: rc.bg, color: rc.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 12, flexShrink: 0, border: `1px solid ${rc.color}22` }}>{initials}</div>
-
-                    {/* nombre + rol */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u?.name}</div>
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tp.main_role}</div>
-                    </div>
-
-                    {/* skills + disponible */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                      {skills.slice(0, 1).map(s => (
-                        <span key={s} style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4, background: '#f5f5f5', color: '#666', whiteSpace: 'nowrap' }}>{s}</span>
-                      ))}
-                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', flexShrink: 0 }} />
-                      <ArrowRight size={14} color="#ccc" />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-          </div>
-        </div>
-      )}
 
       {/* ══ CTA FINAL ══ dark */}
       <div style={{ padding: 'clamp(72px,14vw,120px) clamp(20px,6vw,32px)', textAlign: 'center', background: '#0c0c0c', borderTop: '1px solid rgba(255,255,255,.06)', position: 'relative', overflow: 'hidden' }}>
