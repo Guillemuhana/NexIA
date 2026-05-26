@@ -164,6 +164,7 @@ export default function AssistantWidget() {
         ideas: ideasData || [],
         credits: profile?.credits ?? 0,
         profilePct: computeProfilePct(profile),
+        cvData: profile?.cv_data || null,
         memory,
       })
 
