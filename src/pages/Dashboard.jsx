@@ -412,8 +412,7 @@ export default function Dashboard() {
     </div>
   )
 
-  if (!user) return null
-  if (!profile?.type) { navigate('/onboarding', { replace: true }); return null }
+  if (!user || !profile?.type) return null
 
   const s = { padding: '100px 24px 60px', maxWidth: 1000, margin: '0 auto' }
   const lbl = { fontSize: 11, fontWeight: 700, color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 14, display: 'block' }
