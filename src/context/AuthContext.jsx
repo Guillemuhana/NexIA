@@ -132,6 +132,7 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
+        setProfileFetched(false) // resetear para que Dashboard muestre spinner mientras carga el perfil
         await fetchProfile(session.user.id)
 
         // Aplicar rol y código de referido pendientes (Google OAuth o email signup)
