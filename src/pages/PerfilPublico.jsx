@@ -13,12 +13,18 @@ export default function PerfilPublico() {
   const [msgText, setMsgText] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [following, setFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
+  const [followerCount, setFollowerCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: u }, { data: tp }] = await Promise.all([
+      const [{ data: u }, { data: tp }, { count: followers }, { count: followings }] = await Promise.all([
         supabase.from('users').select('id, name, bio, location, avatar_url, portfolio_url, user_skills(skills(name))').eq('id', id).single(),
         supabase.from('talent_profiles').select('main_role, available, match_score_avg, projects_count, experience_years').eq('user_id', id).single(),
+        supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', id),
+        supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', id),
       ])
       if (u) {
         setPerson({
@@ -28,10 +34,33 @@ export default function PerfilPublico() {
           initials: u.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?',
         })
       }
+      setFollowerCount(followers || 0)
+      setFollowingCount(followings || 0)
       setLoading(false)
     }
     load()
   }, [id])
+
+  useEffect(() => {
+    if (!user || !id || user.id === id) return
+    supabase.from('follows').select('id').eq('follower_id', user.id).eq('following_id', id).maybeSingle()
+      .then(({ data }) => setFollowing(!!data))
+  }, [user, id])
+
+  const toggleFollow = async () => {
+    if (!user || followLoading) return
+    setFollowLoading(true)
+    if (following) {
+      await supabase.from('follows').delete().eq('follower_id', user.id).eq('following_id', id)
+      setFollowing(false)
+      setFollowerCount(c => Math.max(0, c - 1))
+    } else {
+      await supabase.from('follows').insert({ follower_id: user.id, following_id: id })
+      setFollowing(true)
+      setFollowerCount(c => c + 1)
+    }
+    setFollowLoading(false)
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -99,6 +128,13 @@ export default function PerfilPublico() {
                 </button>
               )}
               <button
+                onClick={toggleFollow}
+                disabled={followLoading}
+                style={{ padding: '10px 18px', fontSize: 13, fontWeight: 700, borderRadius: 9, border: following ? '1px solid #E8611A' : '1px solid #d0d0d0', background: following ? 'rgba(232,97,26,.08)' : '#fff', color: following ? '#E8611A' : '#444', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}
+              >
+                {followLoading ? '...' : following ? '✓ Siguiendo' : '+ Seguir'}
+              </button>
+              <button
                 onClick={() => { setMsgOpen(true); setSent(false) }}
                 style={{ padding: '10px 18px', fontSize: 13, fontWeight: 600, borderRadius: 9, border: '1px solid #d0d0d0', background: '#fff', color: '#444', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all .15s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#111' }}
@@ -111,14 +147,16 @@ export default function PerfilPublico() {
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 20 }}>
           {[
             ['Match %', score > 0 ? score : '—'],
             ['Proyectos', person.projects_count || 0],
-            ['Experiencia', person.experience_years ? `${person.experience_years} años` : '—'],
+            ['Experiencia', person.experience_years ? `${person.experience_years}a` : '—'],
+            ['Seguidores', followerCount],
+            ['Siguiendo', followingCount],
           ].map(([k, v]) => (
-            <div key={k} style={{ padding: '18px 12px', background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, textAlign: 'center' }}>
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#E8611A', letterSpacing: -1 }}>{v}</div>
+            <div key={k} style={{ padding: '18px 8px', background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#E8611A', letterSpacing: -1 }}>{v}</div>
               <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 }}>{k}</div>
             </div>
           ))}
