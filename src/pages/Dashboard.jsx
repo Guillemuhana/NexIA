@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import ProjectCard from '../components/ProjectCard'
 import PaywallModal from '../components/PaywallModal'
+import DashboardChat from '../components/DashboardChat'
 import { getLevel, CREDIT_LEVELS, CREDIT_ACTIONS } from '../lib/constants'
 
 // ── CreditBlock ───────────────────────────────────────────────────────────────
@@ -435,6 +436,7 @@ export default function Dashboard() {
           </button>
         </div>
 
+        <DashboardChat hasIdea={hasIdea} />
         <DirectInbox userId={user.id} />
         <CreditBlock profile={profile} hasIdea={hasIdea} />
         <ReferralBlock profile={profile} />
@@ -615,6 +617,7 @@ export default function Dashboard() {
           <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Talento'} ⚡</h1>
           <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tus invitaciones a proyectos y el espacio privado de tu equipo.</p>
 
+          <DashboardChat hasIdea={data.some(m => m.status === 'accepted')} />
           <DirectInbox userId={user.id} />
           <CreditBlock profile={profile} hasIdea={data.some(m => m.status === 'accepted')} />
           <ReferralBlock profile={profile} />
@@ -727,6 +730,7 @@ export default function Dashboard() {
         <h1 style={{ fontSize: 'clamp(28px,5vw,40px)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 6 }}>Hola, {profile?.name?.split(' ')[0] || 'Inversor'} 💼</h1>
         <p style={{ color: '#666', fontSize: 15, marginBottom: 28 }}>Tu pipeline de proyectos e inversiones.</p>
 
+        <DashboardChat hasIdea={hasIdea} />
         <DirectInbox userId={user.id} />
         <CreditBlock profile={profile} hasIdea={hasIdea} />
         <ReferralBlock profile={profile} />
