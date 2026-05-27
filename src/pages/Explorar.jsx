@@ -130,10 +130,11 @@ export default function Explorar() {
       const usersById = {}
       ;(usersData || []).forEach(u => { usersById[u.id] = u })
 
-      // Query 3: skills separately
+      // Query 3: skills separately (filtrado por los usuarios que tenemos)
       const { data: skillRows } = await supabase
         .from('user_skills')
         .select('user_id, skills(name)')
+        .in('user_id', userIds)
 
       const skillsByUser = {}
       ;(skillRows || []).forEach(row => {

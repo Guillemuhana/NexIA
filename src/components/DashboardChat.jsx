@@ -379,10 +379,10 @@ export default function DashboardChat({ hasIdea = false }) {
         {!collapsed && (
           <>
             {/* Messages area */}
-            <div style={{ height: messages.length <= 1 ? 180 : 320, overflowY: 'auto', padding: '16px 18px', background: '#fafafa', display: 'flex', flexDirection: 'column', transition: 'height .3s ease' }}>
+            <div style={{ height: 280, overflowY: 'auto', padding: '16px 18px', background: '#fafafa', display: 'flex', flexDirection: 'column' }}>
               {!contextLoaded ? (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 10, color: '#bbb' }}>
-                  <div style={{ width: 20, height: 20, border: '2px solid #eee', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'assist-spin 1s linear infinite' }} />
+                  <div style={{ width: 20, height: 20, border: '2px solid #eee', borderTop: '2px solid #E8611A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
                   <span style={{ fontSize: 13 }}>Cargando tu contexto...</span>
                 </div>
               ) : (

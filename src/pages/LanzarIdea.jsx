@@ -279,7 +279,7 @@ export default function LanzarIdea() {
         description: answers.description,
         category: answers.category || null,
         stage: answers.stage || 'Idea (solo concepto)',
-        status: 'active',
+        status: 'open',
         ai_analysis: aiData || null,
         is_public: isPublic,
       }).select().single()

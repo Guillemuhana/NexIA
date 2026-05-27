@@ -102,7 +102,7 @@ export default function Navbar() {
               onMouseEnter={e => { if (!isActive(l.path)) e.currentTarget.style.color = '#333' }}
               onMouseLeave={e => { if (!isActive(l.path)) e.currentTarget.style.color = '#888' }}
             >
-              <Icon name={PATH_ICON[l.path] || 'arrow'} size={14} />
+              <Icon name={l.path.startsWith('/panel/') ? 'zap' : PATH_ICON[l.path] || 'arrow'} size={14} />
               {l.label}
             </button>
           ))}
@@ -182,7 +182,7 @@ export default function Navbar() {
               marginBottom: 2, textAlign: 'left', transition: 'all .15s',
             }}>
               <span style={{ width: 32, height: 32, borderRadius: 8, background: isActive(l.path) ? 'rgba(232,97,26,.08)' : '#f5f5f5', border: `1px solid ${isActive(l.path) ? 'rgba(232,97,26,.2)' : '#e8e8e8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
-                <Icon name={PATH_ICON[l.path] || 'arrow'} size={15} stroke={isActive(l.path) ? '#E8611A' : '#888'} />
+                <Icon name={l.path.startsWith('/panel/') ? 'zap' : PATH_ICON[l.path] || 'arrow'} size={15} stroke={isActive(l.path) ? '#E8611A' : '#888'} />
               </span>
               {l.label}
               {isActive(l.path) && <Icon name="arrow" size={14} stroke="#ccc" style={{ marginLeft: 'auto' }} />}

@@ -257,8 +257,8 @@ export default function Registro() {
 
           <p style={{ textAlign: 'center', fontSize: 11, color: '#444', lineHeight: 1.6 }}>
             Al registrarte aceptás nuestros{' '}
-            <span style={{ color: '#E8611A', cursor: 'pointer' }}>términos</span>{' '}y{' '}
-            <span style={{ color: '#E8611A', cursor: 'pointer' }}>privacidad</span>.
+            <span style={{ color: '#E8611A', cursor: 'pointer' }} onClick={() => navigate('/faq')}>términos</span>{' '}y{' '}
+            <span style={{ color: '#E8611A', cursor: 'pointer' }} onClick={() => navigate('/faq')}>privacidad</span>.
           </p>
         </div>
 
