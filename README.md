@@ -1,32 +1,59 @@
-# nexIA
+# Equia — Matching de equipos para startups con IA
 
-**Plataforma de conexión de talento e ideas impulsada por Inteligencia Artificial.**
-
-NexIA revoluciona la formación de equipos de trabajo. Al estilo de LinkedIn, pero eliminando la fricción de la búsqueda manual y las entrevistas interminables: nuestra IA analiza tu proyecto y selecciona automáticamente al equipo perfecto para ejecutarlo.
-
----
-
-## 👤 Desarrollado por
-**Guillermo Muhana**  
-**Nicolas Hercun**
-*Desarrollador Full Stack & Visionario de Producto*
-
+> **Plataforma SaaS** que conecta founders con talento usando Inteligencia Artificial.  
+> Estado: **Beta cerrada** · Stack: React + Supabase + Claude API + Gemini
 
 ---
 
-## 🚀 Tecnologías (Stack)
-- **Frontend:** [React.js](https://reactjs.org/) + [Vite](https://vitejs.dev/)
-- **Base de Datos & Auth:** [Supabase](https://supabase.com/) (PostgreSQL)
-- **Cerebro de IA:** [Claude API](https://www.anthropic.com/api) (Anthropic)
-- **Despliegue:** [Vercel](https://vercel.com/)
+## ¿Qué es?
+
+Equia elimina la fricción de armar el primer equipo de una startup. Un founder describe su idea en un chat conversacional, la IA analiza los perfiles disponibles y sugiere el equipo ideal en minutos. Sin entrevistas, sin procesos largos.
+
+**Tres tipos de usuario:**
+- **Visionario** — tiene una idea, la IA le arma el equipo
+- **Talento** — profesional que recibe invitaciones a proyectos y puede ganar equity
+- **Inversor** — explora proyectos con equipos ya formados
 
 ---
 
-## 🛠️ Instalación y Configuración
+## Stack
 
-Sigue estos pasos para correr el proyecto localmente:
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | React 18 + Vite |
+| Base de datos & Auth | Supabase (PostgreSQL + Google OAuth) |
+| IA principal | Claude API (Anthropic) |
+| IA secundaria | Gemini API (Google) |
+| Deploy | Vercel |
 
-1. **Requisitos previos:** Instalar [Node.js](https://nodejs.org/) (versión LTS recomendada).
-2. **Clonar el repositorio e instalar dependencias:**
-   ```bash
-   npm install
+---
+
+## Documentación
+
+| Documento | Descripción |
+|-----------|-------------|
+| [MANUAL_USUARIO.md](./MANUAL_USUARIO.md) | Guía completa para usuarios: los 3 roles, flujos paso a paso, sistema de créditos, FAQ |
+| [DOCUMENTACION_TECNICA.md](./DOCUMENTACION_TECNICA.md) | Stack, arquitectura, schema de DB, algoritmo de matching, Edge Functions, variables de entorno, deploy |
+
+---
+
+## Correr localmente
+
+```bash
+git clone https://github.com/Guillemuhana/NexIA.git
+cd NexIA
+npm install
+# Crear .env.local con VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY
+npm run dev
+```
+
+---
+
+## Equipo
+
+- **Idea y producto:** Nicolás Hercun
+- **Diseño y desarrollo:** Guillermo Muhana
+
+---
+
+*© 2026 Equia · Beta · Latam & EE.UU.*
