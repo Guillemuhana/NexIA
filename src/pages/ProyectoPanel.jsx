@@ -52,23 +52,35 @@ const IMPACT_COLOR = { alto: ['rgba(232,97,26,.15)', '#E8611A'], medio: ['rgba(2
 const PROB_COLOR   = { alta: ['rgba(239,68,68,.12)', '#ef4444'], media: ['rgba(234,179,8,.12)', '#eab308'], baja: ['rgba(74,222,128,.1)', '#4ade80'] }
 
 // ── Chat bubble ────────────────────────────────────────────────────────────
-function ChatBubble({ msg }) {
+function ChatBubble({ msg, senderName, senderAvatar }) {
   const isUser = msg.role === 'user'
+  const initials = senderName ? senderName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
   return (
-    <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 16 }}>
+    <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 16, gap: 8, alignItems: 'flex-end' }}>
       {!isUser && (
-        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(232,97,26,.15)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: 10, marginTop: 2 }}>
-          <Icon name="bot" size={14} color="#E8611A" />
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#E8611A,#f97316)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon name="bot" size={13} color="#fff" />
         </div>
       )}
-      <div style={{
-        maxWidth: '75%', padding: '12px 16px', borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-        background: isUser ? '#E8611A' : '#f0f0f0', border: isUser ? 'none' : '1px solid #e8e8e8',
-        fontSize: 14, color: isUser ? '#fff' : '#333', lineHeight: 1.65, whiteSpace: 'pre-wrap',
-      }}>
-        {msg.text}
-        {msg._isDemo && <div style={{ marginTop: 8, fontSize: 11, color: isUser ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.4)', fontStyle: 'italic' }}>Modo demo</div>}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', maxWidth: '76%' }}>
+        {isUser && senderName && (
+          <div style={{ fontSize: 11, color: '#aaa', marginBottom: 4, paddingRight: 4 }}>{senderName}</div>
+        )}
+        <div style={{
+          padding: '12px 16px', borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+          background: isUser ? 'linear-gradient(135deg,#E8611A,#f97316)' : '#fff',
+          border: isUser ? 'none' : '1px solid #e8e8e8',
+          fontSize: 14, color: isUser ? '#fff' : '#333', lineHeight: 1.65, whiteSpace: 'pre-wrap',
+          boxShadow: '0 1px 4px rgba(0,0,0,.06)',
+        }}>
+          {msg.text}
+        </div>
       </div>
+      {isUser && (
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', fontSize: 11, fontWeight: 800, color: '#E8611A' }}>
+          {senderAvatar ? <img src={senderAvatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : initials}
+        </div>
+      )}
     </div>
   )
 }
@@ -119,12 +131,42 @@ const LOG_TYPES = [
   { id: 'team',      label: 'Equipo',      icon: '👥', color: '#a855f7', bg: 'rgba(168,85,247,.1)'  },
 ]
 
-const SUGGESTED = [
-  '¿Cuál debería ser nuestra primera prioridad esta semana?',
-  '¿Cómo validamos el mercado antes de gastar en desarrollo?',
-  '¿Qué estrategia de pricing nos recomendás?',
-  '¿Cuáles son los 3 errores más comunes en startups como la nuestra?',
-]
+function getSuggested(idea, stage) {
+  const base = [
+    '¿Cuál debería ser nuestra primera prioridad esta semana?',
+    '¿Cómo validamos el mercado antes de gastar en desarrollo?',
+    '¿Qué estrategia de pricing nos recomendás?',
+    '¿Cuáles son los 3 errores más comunes en startups como la nuestra?',
+  ]
+  if (!idea) return base
+  const byStage = {
+    'Idea (solo concepto)': [
+      `¿Cuál es el riesgo más grande de ${idea.title} en esta etapa?`,
+      '¿Cómo validamos la idea sin escribir código?',
+      '¿Qué hipótesis tenemos que probar primero?',
+      '¿Cuántos clientes necesitamos para validar el modelo?',
+    ],
+    'MVP en desarrollo': [
+      '¿Qué funcionalidades del MVP podemos cortar para lanzar más rápido?',
+      '¿Cómo conseguimos los primeros 50 beta testers?',
+      '¿Cuál es la métrica más importante de este MVP?',
+      '¿Cómo estructuramos el feedback de los primeros usuarios?',
+    ],
+    'Con primeros usuarios': [
+      '¿Cómo mejoramos la retención de usuarios actuales?',
+      '¿Qué señales de product-market fit estamos viendo?',
+      '¿Cuándo es el momento correcto para escalar?',
+      '¿Qué canal de adquisición priorizar ahora?',
+    ],
+    'Buscando inversión': [
+      '¿Qué métricas debo tener para levantar capital?',
+      '¿Cómo preparamos el pitch deck?',
+      '¿Qué tipos de inversores son los más adecuados para nosotros?',
+      '¿Cómo valorizamos la empresa en etapa temprana?',
+    ],
+  }
+  return byStage[stage] || base
+}
 
 export default function ProyectoPanel() {
   const { id } = useParams()
@@ -631,64 +673,118 @@ export default function ProyectoPanel() {
           )}
 
           {/* ── CHAT ──────────────────────────────────────────────── */}
-          {activeSection === 'chat' && (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
-              {/* Chat header */}
-              <div className="panel-chat-header" style={{ padding: '24px 32px 20px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(232,97,26,.15)', border: '1px solid rgba(232,97,26,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon name="bot" size={16} color="#E8611A" />
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#0a0a0a' }}>Consultor IA del equipo</div>
-                  <div style={{ fontSize: 12, color: '#666' }}>Preguntale cualquier cosa sobre "{idea?.title}"</div>
-                </div>
-              </div>
+          {activeSection === 'chat' && (() => {
+            const suggested = getSuggested(idea, idea?.stage)
+            const myMember = team.find(m => m.id === user?.id)
+            const showQuickChips = chatHistory.length > 0 && !chatLoading && !chatInput.trim()
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
 
-              {/* Messages */}
-              <div className="panel-chat-main" style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#f8f9fa' }}>
-                {chatHistory.length === 0 && (
-                  <div style={{ textAlign: 'center', paddingTop: 32 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(232,97,26,.1)', border: '1px solid rgba(232,97,26,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                      <Icon name="sparkle" size={22} color="#E8611A" />
+                {/* Chat header */}
+                <div className="panel-chat-header" style={{ padding: '18px 32px', borderBottom: '1px solid #e8e8e8', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#E8611A,#f97316)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Icon name="sparkle" size={16} color="#fff" />
                     </div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 6 }}>Tu asesor de startup privado</div>
-                    <div style={{ fontSize: 13, color: '#777', marginBottom: 28, lineHeight: 1.6 }}>Preguntá sobre estrategia, producto, equipo o cualquier duda del proyecto.</div>
-                    <div className="suggest-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxWidth: 520, margin: '0 auto' }}>
-                      {SUGGESTED.map(q => (
-                        <button key={q} className="suggest-btn" onClick={() => sendChat(q)}>{q}</button>
-                      ))}
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-.3px' }}>Consultor IA — {idea?.title}</div>
+                      <div style={{ fontSize: 11, color: '#888', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 5px rgba(34,197,94,.6)' }} />
+                        {idea?.category && <span>{idea.category}</span>}
+                        {idea?.stage && <><span style={{ color: '#ccc' }}>·</span><span>{idea.stage}</span></>}
+                        {team.length > 0 && <><span style={{ color: '#ccc' }}>·</span><span>{team.length} miembros</span></>}
+                      </div>
                     </div>
                   </div>
-                )}
-                {chatHistory.map((msg, i) => <ChatBubble key={i} msg={msg} />)}
-                {chatLoading && <TypingDots />}
-                <div ref={chatEndRef} />
-              </div>
-
-              {/* Input */}
-              <div className="panel-chat-input" style={{ padding: '16px 32px 24px', borderTop: '1px solid #e8e8e8', background: '#ffffff' }}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-                  <textarea
-                    className="chat-input"
-                    value={chatInput}
-                    onChange={e => setChatInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat() } }}
-                    placeholder="Escribí tu pregunta... (Enter para enviar, Shift+Enter para nueva línea)"
-                    rows={2}
-                    style={{ flex: 1, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 10, color: '#0a0a0a', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color .15s' }}
-                  />
-                  <button
-                    onClick={() => sendChat()}
-                    disabled={!chatInput.trim() || chatLoading}
-                    style={{ width: 44, height: 44, borderRadius: 10, background: chatInput.trim() && !chatLoading ? '#E8611A' : '#f0f0f0', border: '1px solid #e8e8e8', cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}
-                  >
-                    <Icon name="send" size={16} color={chatInput.trim() && !chatLoading ? '#fff' : '#bbb'} />
-                  </button>
+                  {chatHistory.length > 0 && (
+                    <button
+                      onClick={() => { setChatHistory([]); setChatGreeted(false) }}
+                      style={{ fontSize: 12, color: '#888', background: 'none', border: '1px solid #e8e8e8', borderRadius: 7, padding: '5px 12px', cursor: 'pointer', fontFamily: 'Inter,sans-serif', transition: 'all .15s' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#555' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e8e8'; e.currentTarget.style.color = '#888' }}
+                    >
+                      Nueva conversación
+                    </button>
+                  )}
                 </div>
-                <div style={{ marginTop: 8, fontSize: 11, color: '#888', textAlign: 'center' }}>Powered by Gemini 2.0 Flash · Memoria del proyecto incluida</div>
+
+                {/* Messages */}
+                <div className="panel-chat-main" style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#fafafa' }}>
+                  {chatHistory.length === 0 && (
+                    <div style={{ textAlign: 'center', paddingTop: 24 }}>
+                      <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,rgba(232,97,26,.12),rgba(249,115,22,.08))', border: '1px solid rgba(232,97,26,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                        <Icon name="sparkle" size={24} color="#E8611A" />
+                      </div>
+                      <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 6, letterSpacing: '-.3px' }}>Tu consultor estratégico privado</div>
+                      <div style={{ fontSize: 13, color: '#777', marginBottom: 8, lineHeight: 1.65, maxWidth: 380, margin: '0 auto 24px' }}>
+                        Conoce tu proyecto, tu equipo y el Build Log. Preguntale sobre estrategia, producto, decisiones difíciles o cualquier duda.
+                      </div>
+                      {idea?.stage && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', background: 'rgba(232,97,26,.07)', border: '1px solid rgba(232,97,26,.15)', borderRadius: 99, fontSize: 12, color: '#E8611A', fontWeight: 600, marginBottom: 24 }}>
+                          <Icon name="zap" size={11} color="#E8611A" /> Contexto cargado: {idea.stage}
+                        </div>
+                      )}
+                      <div className="suggest-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxWidth: 540, margin: '0 auto' }}>
+                        {suggested.map(q => (
+                          <button key={q} className="suggest-btn" onClick={() => { showGreeting(); setTimeout(() => sendChat(q), 80) }} style={{ textAlign: 'left', lineHeight: 1.4 }}>{q}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {chatHistory.map((msg, i) => (
+                    <ChatBubble
+                      key={i}
+                      msg={msg}
+                      senderName={msg.role === 'user' ? (profile?.name || 'Vos') : null}
+                      senderAvatar={msg.role === 'user' ? profile?.avatar_url : null}
+                    />
+                  ))}
+                  {chatLoading && <TypingDots />}
+                  <div ref={chatEndRef} />
+                </div>
+
+                {/* Quick chips mid-conversation */}
+                {showQuickChips && (
+                  <div style={{ padding: '8px 32px 0', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {suggested.slice(0, 3).map(q => (
+                      <button key={q} className="suggest-btn" onClick={() => sendChat(q)} style={{ fontSize: 11.5, padding: '5px 10px' }}>{q}</button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Input */}
+                <div className="panel-chat-input" style={{ padding: '12px 32px 20px', borderTop: showQuickChips ? 'none' : '1px solid #e8e8e8', background: '#fff' }}>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+                    {myMember && (
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 800, color: '#E8611A', overflow: 'hidden', marginBottom: 1 }}>
+                        {profile?.avatar_url ? <img src={profile.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : (profile?.name?.[0]?.toUpperCase() || '?')}
+                      </div>
+                    )}
+                    <textarea
+                      className="chat-input"
+                      value={chatInput}
+                      onChange={e => setChatInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!chatGreeted) showGreeting(); sendChat() } }}
+                      placeholder="Preguntá sobre estrategia, producto, equipo... (Enter para enviar)"
+                      rows={2}
+                      style={{ flex: 1, background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 12, color: '#0a0a0a', fontSize: 14, fontFamily: 'Inter,sans-serif', padding: '12px 14px', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color .15s' }}
+                    />
+                    <button
+                      onClick={() => { if (!chatGreeted) showGreeting(); sendChat() }}
+                      disabled={!chatInput.trim() || chatLoading}
+                      style={{ width: 44, height: 44, borderRadius: 12, background: chatInput.trim() && !chatLoading ? '#E8611A' : '#f0f0f0', border: 'none', cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}
+                    >
+                      <Icon name="send" size={16} color={chatInput.trim() && !chatLoading ? '#fff' : '#bbb'} />
+                    </button>
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 11, color: '#aaa', textAlign: 'center' }}>
+                    Contexto del proyecto incluido · IA con memoria del equipo
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })()}
 
           {/* ── BUILD LOG ─────────────────────────────────────────── */}
           {activeSection === 'buildlog' && (

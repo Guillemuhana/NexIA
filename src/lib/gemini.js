@@ -55,18 +55,44 @@ export async function analyzeProject({ projectTitle, projectDescription, project
 }
 
 export async function chatWithProject({ projectTitle, projectDescription, projectCategory, projectStage, question, history = [], team = [], buildLogs = [], aiSummary = '', userInfo = null }) {
+  // Intento 1: gemini-proxy
   try {
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 22000))
     const invokePromise = supabase.functions.invoke('gemini-proxy', {
       body: { mode: 'chat', projectTitle, projectDescription, projectCategory, projectStage, question, history, team, buildLogs, aiSummary, userInfo },
     })
     const { data, error } = await Promise.race([invokePromise, timeout])
-    if (error || !data || data.error) throw new Error('API error')
+    if (error || !data || data.error) throw new Error('gemini error')
     return { answer: data.answer, _isDemo: false }
+  } catch { /* fallback a claude */ }
+
+  // Intento 2: claude-proxy (siempre disponible)
+  try {
+    const teamStr = team.map(m => `${m.name} (${m.role})`).join(', ')
+    const logsStr = buildLogs.slice(0, 8).map(l => `[${l.type}] ${l.content}`).join('\n')
+    const { data } = await supabase.functions.invoke('claude-proxy', {
+      body: {
+        action: 'assistantChat',
+        message: question,
+        history: history.slice(-12),
+        userContext: {
+          type: 'panel_consultor',
+          name: userInfo?.name || 'Miembro',
+          role: userInfo?.role || 'Miembro del equipo',
+          projectTitle,
+          projectDescription: (projectDescription || '').slice(0, 400),
+          projectCategory,
+          projectStage,
+          teamMembers: teamStr,
+          buildLogsRecent: logsStr,
+          aiSummary: (aiSummary || '').slice(0, 300),
+        },
+      },
+    })
+    const answer = data?.content?.[0]?.text
+    if (!answer) throw new Error('no answer')
+    return { answer, _isDemo: false }
   } catch {
-    return {
-      answer: `Buena pregunta sobre "${question}". En modo demo no podemos conectarnos con la IA. Configurá tu GEMINI_API_KEY en Supabase para obtener respuestas personalizadas sobre tu proyecto.`,
-      _isDemo: true,
-    }
+    return { answer: 'No pude procesar tu pregunta en este momento. Intentá de nuevo en unos segundos.', _isDemo: false }
   }
 }
