@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getLevel } from '../lib/constants'
+import { redirectToCheckout } from '../lib/stripe'
 
 const PLANS_MONTHLY = [
   {
@@ -90,6 +91,21 @@ export default function Precios() {
 
   const userLevel = profile ? getLevel(profile.credits ?? 0) : null
   const userDiscount = userLevel ? CREDIT_DISCOUNTS.find(d => d.level === userLevel.name) : null
+  const [checkoutLoading, setCheckoutLoading] = useState(null)
+  const [checkoutError, setCheckoutError] = useState('')
+
+  const handlePlanCTA = async (plan) => {
+    if (plan.id === 'gratis') { navigate(plan.path); return }
+    if (!user) { navigate(`/registro?plan=${plan.id}`); return }
+    setCheckoutLoading(plan.id)
+    setCheckoutError('')
+    try {
+      await redirectToCheckout(plan.id, user.id, profile?.email || user.email)
+    } catch (err) {
+      setCheckoutError(err.message || 'Error al iniciar el pago.')
+      setCheckoutLoading(null)
+    }
+  }
 
   return (
     <div className="page-wrap">
@@ -182,22 +198,31 @@ export default function Precios() {
                 </div>
 
                 <button
-                  onClick={() => navigate(plan.path)}
+                  onClick={() => handlePlanCTA(plan)}
+                  disabled={checkoutLoading === plan.id}
                   style={{
                     padding: '13px 20px', fontSize: 14, fontWeight: 700,
-                    borderRadius: 8, cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+                    borderRadius: 8, cursor: checkoutLoading === plan.id ? 'not-allowed' : 'pointer',
+                    fontFamily: 'Inter, sans-serif',
                     background: plan.accent ? '#E8611A' : 'transparent',
                     color: plan.accent ? '#fff' : '#666',
                     border: plan.accent ? 'none' : '1px solid #d0d0d0',
                     transition: 'all .15s',
+                    opacity: checkoutLoading === plan.id ? 0.7 : 1,
                   }}
                 >
-                  {plan.cta} →
+                  {checkoutLoading === plan.id ? 'Redirigiendo...' : `${plan.cta} →`}
                 </button>
               </div>
             )
           })}
         </div>
+
+        {checkoutError && (
+          <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)', borderRadius: 10, color: '#ef4444', fontSize: 13, textAlign: 'center' }}>
+            {checkoutError}
+          </div>
+        )}
 
         {/* Credits discount section */}
         <div style={{ marginTop: 56 }}>

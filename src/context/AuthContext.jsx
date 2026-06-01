@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       // Query 1: base user record (no nested joins)
       let { data: userData, error: userErr } = await supabase
         .from('users')
-        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count')
+        .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count, plan, stripe_customer_id')
         .eq('id', userId)
         .maybeSingle()
 
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
         await new Promise(r => setTimeout(r, 800))
         const retry = await supabase
           .from('users')
-          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count')
+          .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count, plan, stripe_customer_id')
           .eq('id', userId)
           .maybeSingle()
         userData = retry.data
@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
           if (!insertErr) {
             const refetch = await supabase
               .from('users')
-              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count')
+              .select('id, name, email, avatar_url, location, bio, portfolio_url, linkedin_url, cv_data, credits, referral_code, referral_count, plan, stripe_customer_id')
               .eq('id', userId)
               .maybeSingle()
             userData = refetch.data
@@ -109,6 +109,8 @@ export function AuthProvider({ children }) {
           credits: userData.credits ?? 50,
           referral_code: userData.referral_code || null,
           referral_count: userData.referral_count ?? 0,
+          plan: userData.plan || 'gratis',
+          stripe_customer_id: userData.stripe_customer_id || null,
           type: primaryRole,
           role: tp?.main_role || '',
           available: tp?.available ?? true,
